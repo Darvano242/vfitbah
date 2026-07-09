@@ -910,3 +910,17 @@ create policy "packageAuditLog_staff_all" on public.packageAuditLog for all
   using (public.is_staff()) with check (public.is_staff());
 
 -- End of schema. Run link_profiles() after Supabase Auth import: select public.link_profiles();
+
+-- ---------- RLS: profiles (applied in production migration 1) ----------
+alter table public.profiles enable row level security;
+create policy "profiles_select" on public.profiles for select
+  using (id = auth.uid() or role = 'trainer' or public.is_staff());
+create policy "profiles_self_insert" on public.profiles for insert
+  with check (id = auth.uid());
+create policy "profiles_self_update" on public.profiles for update
+  using (id = auth.uid() or public.is_staff());
+create trigger profiles_touch before update on public.profiles
+  for each row execute function public.touch_updated_at();
+
+-- Staging is service-role only: RLS on, no policies.
+alter table public.profiles_staging enable row level security;

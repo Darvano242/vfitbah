@@ -37,8 +37,10 @@ Vercel only after you have clicked through login, packages, and PayPal on the
 
 ## 3. Supabase
 
-**a. Schema** — Supabase dashboard → SQL Editor → paste `supabase/schema.sql`
-→ Run. (Or via the Supabase MCP connector in Claude.)
+**a. Schema** — DONE (2026-07-09): applied live to Supabase project
+`hxpsbhhkemccmmrukhji` (name: vfitness, us-east-1, $0/month) as three
+migrations. Verified: 39 tables, 130 RLS policies, 0 tables without RLS.
+Project URL and publishable key are in `supabase/.env.example`.
 
 **b. Auth users** — Firebase password hashes (scrypt) can be imported so
 nobody has to reset a password. Follow the official guide:
@@ -50,7 +52,7 @@ Users → three-dot menu → Password hash parameters.
 ```bash
 npm i firebase-admin @supabase/supabase-js
 export GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
-export SUPABASE_URL=https://<project-ref>.supabase.co
+export SUPABASE_URL=https://hxpsbhhkemccmmrukhji.supabase.co
 export SUPABASE_SERVICE_ROLE_KEY=<service role key>
 node supabase/migrate-firestore.mjs
 ```
