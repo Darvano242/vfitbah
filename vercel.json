@@ -1,6 +1,11 @@
 {
-  "outputDirectory": "site",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "https://vfitnessba242.netlify.app/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
