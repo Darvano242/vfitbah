@@ -2,9 +2,10 @@ name: Apply VFitness Scale Upgrade
 
 on:
   workflow_dispatch:
-  push:
+  pull_request_target:
+    types: [opened]
     paths:
-      - '.github/workflows/apply-vfitness-scale-upgrade.yml'
+      - '.github/vfitness-upgrade-trigger.txt'
 
 permissions:
   contents: write
@@ -14,9 +15,10 @@ jobs:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout production branch
         uses: actions/checkout@v4
         with:
+          ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download tested upgrade assets
@@ -39,27 +41,23 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
 
           index_path = Path('site/index.html')
           html = index_path.read_text(encoding='utf-8')
-
           css_tag = '    <link rel="stylesheet" href="/vfit_scale_upgrade.css?v=20260716b">\n'
           js_tag = '    <script src="/vfit_scale_upgrade.js?v=20260716b"></script>\n'
 
           if '/vfit_scale_upgrade.css' not in html:
               html = html.replace('</head>', css_tag + '</head>', 1)
-
           if '/vfit_scale_upgrade.js' not in html:
               html = html.replace('</body>', js_tag + '</body>', 1)
-
           index_path.write_text(html, encoding='utf-8')
 
           sw_path = Path('site/sw.js')
-          if sw_path.exists():
-              sw = sw_path.read_text(encoding='utf-8')
-              import re
-              sw = re.sub(r"const CACHE_NAME='[^']+';", "const CACHE_NAME='vfitness-shell-v20260716b';", sw, count=1)
-              sw_path.write_text(sw, encoding='utf-8')
+          sw = sw_path.read_text(encoding='utf-8')
+          sw = re.sub(r"const CACHE_NAME='[^']+';", "const CACHE_NAME='vfitness-shell-v20260716b';", sw, count=1)
+          sw_path.write_text(sw, encoding='utf-8')
           PY
 
       - name: Validate production files
