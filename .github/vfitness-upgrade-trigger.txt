@@ -1,0 +1,1 @@
+Apply the validated VFitness scale funnel and corrected pricing to the production GitHub/Vercel app.
