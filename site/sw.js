@@ -1,5 +1,25 @@
-const CACHE_NAME='vfitness-shell-v20260709f';
-const APP_SHELL=['/','/index.html','/offline.html','/manifest.json','/icon-192.png','/icon-512.png','/hero-bg.jpg','/hero-2026.jpg','/program-home30.jpg','/program-flex.jpg','/program-hourglass.jpg','/program-booty.jpg','/program-ironbeast.jpg','/program-shred.jpg','/program-foundation.jpg','/program-strong40.jpg','/program-upperbody.jpg','/program-sixpack.jpg','/program-mass.jpg','/program-athlete.jpg'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(cache=>cache.addAll(APP_SHELL)).then(()=>self.skipWaiting()));});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
-self.addEventListener('fetch',event=>{if(event.request.method!=='GET')return;event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();if(response.ok&&new URL(event.request.url).origin===location.origin){caches.open(CACHE_NAME).then(cache=>cache.put(event.request,copy));}return response;}).catch(()=>caches.match(event.request).then(cached=>cached||caches.match('/offline.html'))));});
+const CACHE_NAME='vfitness-shell-v20260720-recovery-v1';
+
+self.addEventListener('install',event=>{
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(keys.map(key=>caches.delete(key))))
+      .then(()=>self.clients.claim())
+      .then(()=>self.clients.matchAll({type:'window'}))
+      .then(clients=>clients.forEach(client=>client.postMessage({type:'VFITNESS_CACHE_RESET'})))
+  );
+});
+
+self.addEventListener('fetch',event=>{
+  if(event.request.method!=='GET')return;
+  event.respondWith(
+    fetch(event.request,{cache:'no-store'}).catch(()=>{
+      if(event.request.mode==='navigate')return caches.match('/offline.html');
+      return Response.error();
+    })
+  );
+});
