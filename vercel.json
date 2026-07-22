@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/apply-vfp-programs.js",
+  "buildCommand": "node scripts/apply-vfp-programs.js && node scripts/apply-package-policy.js",
   "outputDirectory": "site",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
