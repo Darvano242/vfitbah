@@ -17,29 +17,25 @@ if(section.includes(activeQuery))section=section.replace(activeQuery,migratedQue
 
 const adjustMarker='const adjustSessions=async(packageId,adjustment,packageData)=>';
 const pauseLogic=`const togglePackagePause=async pkg=>{try{if(pkg.status==='paused'){const pausedAt=pkg.pauseStartedAt?.toDate?.()||pkg.pausedAt?.toDate?.()||new Date();const pausedMs=Math.max(0,Date.now()-pausedAt.getTime());const currentExpiry=pkg.expiryDate?.toDate?.()||new Date(Date.now()+45*86400000);const extendedExpiry=new Date(currentExpiry.getTime()+pausedMs);await db.collection('packages').doc(pkg.id).set({status:'active',resumedAt:firebase.firestore.FieldValue.serverTimestamp(),expiryDays:45,expiryDate:firebase.firestore.Timestamp.fromDate(extendedExpiry),pauseStartedAt:firebase.firestore.FieldValue.delete(),pausedAt:firebase.firestore.FieldValue.delete(),pauseReason:firebase.firestore.FieldValue.delete(),lastUpdated:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});try{await db.collection('packageAuditLog').add({packageId:pkg.id,clientId:pkg.clientId||'',clientName:pkg.clientName||'',action:'package_resumed',note:'Package resumed. Expiry extended by '+Math.ceil(pausedMs/86400000)+' paused day(s).',createdAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){}alert('✅ Package resumed for '+(pkg.clientName||'client')+'.\\nThe expiry date was extended for the paused time.');}else{const reason=prompt('Why is this package being paused?\\n\\nExamples: travel, illness, family emergency, work schedule.','Travel / emergency');if(reason===null)return;await db.collection('packages').doc(pkg.id).set({status:'paused',pauseReason:(reason||'Temporary pause').trim(),pauseStartedAt:firebase.firestore.FieldValue.serverTimestamp(),pausedAt:firebase.firestore.FieldValue.serverTimestamp(),lastUpdated:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});try{await db.collection('packageAuditLog').add({packageId:pkg.id,clientId:pkg.clientId||'',clientName:pkg.clientName||'',action:'package_paused',note:(reason||'Temporary pause').trim(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});}catch(e){}alert('⏸️ Package paused for '+(pkg.clientName||'client')+'.\\nSessions cannot be logged until it is resumed.');}loadPackages();if(loadAdminData)loadAdminData();}catch(err){alert('Could not update package pause: '+err.message);}};`;
-if(section.includes(adjustMarker)&&!section.includes('const togglePackagePause=async pkg=>')){
-  section=section.replace(adjustMarker,pauseLogic+adjustMarker);
-}
+if(section.includes(adjustMarker)&&!section.includes('const togglePackagePause=async pkg=>'))section=section.replace(adjustMarker,pauseLogic+adjustMarker);
 
 const sessionStart="const adjustSessions=async(packageId,adjustment,packageData)=>{const currentRemaining=packageData.sessionsRemaining||0;";
-if(section.includes(sessionStart)){
-  section=section.replace(sessionStart,"const adjustSessions=async(packageId,adjustment,packageData)=>{if(packageData.status==='paused'){alert('This package is paused. Resume it before logging or adding sessions.');return;}const currentRemaining=packageData.sessionsRemaining||0;");
-}
+if(section.includes(sessionStart))section=section.replace(sessionStart,"const adjustSessions=async(packageId,adjustment,packageData)=>{if(packageData.status==='paused'){alert('This package is paused. Resume it before logging or adding sessions.');return;}const currentRemaining=packageData.sessionsRemaining||0;");
 
-const renewalButtonMarker='React.createElement("button",{onClick:()=>toggleAutoRenewal(pkg)';
-const pauseButton=`React.createElement("button",{onClick:()=>togglePackagePause(pkg),className:"px-3 py-2 rounded-lg text-xs font-bold",style:pkg.status==='paused'?{background:'rgba(34,197,94,.16)',color:'#86efac',border:'1px solid rgba(34,197,94,.32)'}:{background:'rgba(245,158,11,.16)',color:'#fcd34d',border:'1px solid rgba(245,158,11,.32)'}},pkg.status==='paused'?'Resume Package':'Pause Package'),`;
-if(section.includes(renewalButtonMarker)&&!section.includes("'Resume Package':'Pause Package'")){
-  section=section.replace(renewalButtonMarker,pauseButton+renewalButtonMarker);
+const pauseButton=`React.createElement("button",{onClick:()=>togglePackagePause(pkg),className:"w-full py-3 rounded-xl font-bold",style:pkg.status==='paused'?{background:'rgba(34,197,94,.18)',color:'#86efac',border:'1px solid rgba(34,197,94,.38)'}:{background:'rgba(245,158,11,.16)',color:'#fcd34d',border:'1px solid rgba(245,158,11,.38)'}},React.createElement(Ico,{name:pkg.status==='paused'?'play':'pause',size:18,style:{display:'inline-flex',verticalAlign:'-3px',margin:'0 6px 0 0'}}),pkg.status==='paused'?'Resume Package':'Pause Package'),`;
+if(!section.includes("pkg.status==='paused'?'Resume Package':'Pause Package'")){
+  const renewalRegex=/React\.createElement\("button",\{onClick:\(\)=>toggleAutoRenewal\(pkg\)/;
+  const downloadRegex=/React\.createElement\("button",\{onClick:\(\)=>downloadPackageInvoice\(pkg/;
+  if(renewalRegex.test(section))section=section.replace(renewalRegex,pauseButton+'React.createElement("button",{onClick:()=>toggleAutoRenewal(pkg)');
+  else if(downloadRegex.test(section))section=section.replace(downloadRegex,pauseButton+'React.createElement("button",{onClick:()=>downloadPackageInvoice(pkg');
+  else console.warn('Could not locate package action buttons for pause control');
 }
 
 html=html.slice(0,packageStart)+section+html.slice(packageEnd);
 
 const expiryMarker='expiryDate:null});';
-if(html.includes(expiryMarker)){
-  html=html.replace(expiryMarker,"expiryDays:45,expiryDate:firebase.firestore.Timestamp.fromDate(new Date(Date.now()+45*86400000))});");
-}
-
+if(html.includes(expiryMarker))html=html.replace(expiryMarker,"expiryDays:45,expiryDate:firebase.firestore.Timestamp.fromDate(new Date(Date.now()+45*86400000))});");
 html=html.replaceAll('30-day','45-day').replaceAll('30 days','45 days').replaceAll('30*DAY','45*DAY');
 
 fs.writeFileSync(file,html);
-console.log('Applied 45-day package expiry and pause/resume controls');
+console.log('Applied 45-day package expiry and visible pause/resume controls');
