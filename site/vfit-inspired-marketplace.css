@@ -1,18 +1,65 @@
-/* Safe, CSS-only VFITNESS program marketplace upgrade. No DOM mutation or app logic. */
-.vfp-shell{--vfp-card-radius:24px}
-.vfp-library{gap:18px!important}
-.vfp-compact{position:relative;overflow:hidden;border-radius:var(--vfp-card-radius)!important;border:1px solid rgba(255,255,255,.11)!important;background:linear-gradient(145deg,#111318,#08090c)!important;box-shadow:0 20px 48px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.06);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;padding:16px!important}
-.vfp-compact:hover{transform:translateY(-3px);border-color:rgba(96,139,255,.36)!important;box-shadow:0 28px 62px rgba(0,0,0,.42),0 0 0 1px rgba(61,125,255,.12)}
-.vfp-thumb{border-radius:18px!important;box-shadow:0 12px 30px rgba(0,0,0,.34);filter:saturate(.92) contrast(1.05);transition:transform .3s ease}
-.vfp-compact:hover .vfp-thumb{transform:scale(1.025)}
-.vfp-compact:before{content:"VFITNESS METHOD";position:absolute;top:10px;right:12px;z-index:2;padding:5px 8px;border-radius:999px;background:rgba(9,11,16,.72);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(10px);color:#cfe0ff;font-size:9px;font-weight:900;letter-spacing:.11em;pointer-events:none}
-.vfp-compact .vfp-status{background:rgba(61,125,255,.14)!important;color:#a8c6ff!important;border:1px solid rgba(61,125,255,.22)}
-.vfp-btn{box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 10px 24px rgba(0,0,0,.22);transition:transform .16s ease,box-shadow .16s ease}
-.vfp-btn:active{transform:translateY(1px) scale(.995)}
-.vfp-primary{background:linear-gradient(135deg,#3d7dff,#6f5bff)!important;color:#fff!important}
-.vfp-secondary{background:linear-gradient(180deg,#1b1e24,#121419)!important}
-.vfp-active{border-radius:28px!important;background:linear-gradient(145deg,#111622,#080a0f)!important;box-shadow:0 34px 86px -42px rgba(61,125,255,.9)!important}
-.vfp-week-card{border-radius:22px!important;background:linear-gradient(145deg,#121419,#0b0c10)!important;box-shadow:0 16px 36px rgba(0,0,0,.24)}
-@media(min-width:761px){.vfp-library{grid-template-columns:repeat(2,minmax(0,1fr))}.vfp-compact{grid-template-columns:100px 1fr auto}.vfp-thumb{width:100px!important;height:126px!important;object-fit:cover!important}}
-@media(max-width:760px){.vfp-library{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory;padding:2px 2px 12px;gap:14px!important}.vfp-compact{min-width:84vw;scroll-snap-align:start;grid-template-columns:82px 1fr!important}.vfp-compact>.vfp-compact-action{grid-column:1/-1}.vfp-thumb{width:82px!important;height:108px!important;object-fit:cover!important}.vfp-compact:before{font-size:8px}}
-@media(prefers-reduced-motion:reduce){.vfp-compact,.vfp-thumb,.vfp-btn{transition:none!important}}
+/* VFITNESS program marketplace — image-first, science-led, CSS-only. No app logic touched. */
+:root{--vfmk-bg:#d2d2d0;--vfmk-ink:#090909;--vfmk-blue:#3d7dff;--vfmk-violet:#6f5bff;--vfmk-teal:#20c7d9;--vfmk-line:rgba(0,0,0,.12)}
+
+/* Marketplace shell */
+.vfp-shell{background:
+ linear-gradient(rgba(0,0,0,.035) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px),
+ var(--vfmk-bg)!important;background-size:18px 18px!important;color:var(--vfmk-ink)!important;padding:24px 18px 80px!important}
+.vfp-shell h1,.vfp-shell h2,.vfp-shell h3,.vfp-shell h4,.vfp-shell strong{color:var(--vfmk-ink)!important;letter-spacing:-.045em!important}
+.vfp-shell p,.vfp-shell span{letter-spacing:-.015em}
+
+/* Hero / active program */
+.vfp-active{min-height:420px!important;border-radius:22px!important;border:1px solid rgba(0,0,0,.15)!important;background:#0c0c0d!important;box-shadow:0 18px 40px rgba(0,0,0,.20)!important;overflow:hidden!important;isolation:isolate!important}
+.vfp-active:before{content:"VFITNESS PROGRAM";position:absolute;top:18px;left:18px;z-index:5;padding:7px 10px;border-radius:6px;background:#fff;color:#111;font-size:10px;font-weight:950;letter-spacing:.09em;text-transform:uppercase;box-shadow:0 6px 18px rgba(0,0,0,.20)}
+.vfp-active:after{content:""!important;position:absolute!important;inset:0!important;z-index:2!important;background:linear-gradient(180deg,transparent 18%,rgba(0,0,0,.22) 50%,rgba(0,0,0,.90) 100%)!important;opacity:1!important;transform:none!important;animation:none!important}
+.vfp-active>*{position:relative;z-index:3}
+.vfp-active h1,.vfp-active h2,.vfp-active h3,.vfp-active strong{color:#fff!important;line-height:.98!important;font-weight:950!important;text-wrap:balance}
+.vfp-active p,.vfp-active span{color:rgba(255,255,255,.76)!important}
+
+/* Program cards */
+.vfp-library{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:16px!important;align-items:start!important}
+.vfp-compact{display:block!important;padding:0!important;background:transparent!important;border:none!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important;position:relative!important;min-width:0!important}
+.vfp-compact .vfp-thumb{width:100%!important;height:auto!important;aspect-ratio:4/5!important;border-radius:18px!important;object-fit:cover!important;display:block!important;background:#111!important;box-shadow:0 12px 26px rgba(0,0,0,.18)!important;transition:transform .28s ease,box-shadow .28s ease,filter .28s ease!important;filter:saturate(.92) contrast(1.05)!important}
+.vfp-compact:hover .vfp-thumb{transform:translateY(-5px)!important;box-shadow:0 22px 46px rgba(0,0,0,.28)!important;filter:saturate(1) contrast(1.08)!important}
+.vfp-compact:before{content:"VFITNESS";position:absolute;z-index:4;left:12px;top:12px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,.92);color:#111;font-size:9px;font-weight:950;letter-spacing:.10em;text-transform:uppercase;box-shadow:0 6px 16px rgba(0,0,0,.18)}
+.vfp-compact:after{content:"";position:absolute;z-index:2;pointer-events:none;left:0;right:0;top:0;aspect-ratio:4/5;border-radius:18px;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.18) 62%,rgba(0,0,0,.82) 100%)}
+.vfp-compact>div:not(.vfp-thumb),.vfp-compact>.vfp-compact-action{position:relative;z-index:5}
+.vfp-compact h3,.vfp-compact h4,.vfp-compact strong{font-size:18px!important;line-height:1.05!important;margin:12px 0 5px!important;font-weight:950!important;color:#0b0b0b!important}
+.vfp-compact p,.vfp-compact span{color:#474747!important;font-size:12px!important}
+.vfp-compact .vfp-compact-action{margin-top:10px!important}
+
+/* Buttons and metadata */
+.vfp-btn{min-height:46px!important;border-radius:12px!important;font-weight:900!important;letter-spacing:-.02em!important;transition:transform .18s ease,box-shadow .18s ease!important}
+.vfp-btn:hover{transform:translateY(-2px)}
+.vfp-primary{background:#111!important;color:#fff!important;border:1px solid #111!important;box-shadow:0 10px 24px rgba(0,0,0,.18)!important}
+.vfp-secondary{background:rgba(255,255,255,.60)!important;color:#111!important;border:1px solid rgba(0,0,0,.16)!important;backdrop-filter:blur(10px)!important}
+.vfp-status{border-radius:5px!important;background:#e7e7e5!important;color:#111!important;border:1px solid rgba(0,0,0,.12)!important;font-size:10px!important;letter-spacing:.08em!important}
+.vfp-status.current{background:#233b74!important;color:#fff!important;border-color:#233b74!important}
+.vfp-status.done{background:#174d31!important;color:#fff!important;border-color:#174d31!important}
+.vfp-progress{height:7px!important;background:#b5b5b2!important;border:1px solid rgba(0,0,0,.08)!important}
+.vfp-progress>span{background:linear-gradient(90deg,var(--vfmk-blue),var(--vfmk-teal))!important}
+
+/* Week cards and filters */
+.vfp-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+.vfp-week-card{background:rgba(255,255,255,.48)!important;border:1px solid rgba(0,0,0,.13)!important;border-radius:14px!important;box-shadow:none!important;backdrop-filter:blur(8px)!important}
+.vfp-week-card:hover{background:rgba(255,255,255,.68)!important}
+.vfp-quick{gap:8px!important}
+.vfp-quick .vfp-btn{background:#6f6f6d!important;color:#fff!important;border:none!important}
+
+/* Keep workout player dark and unaffected */
+.vfp-workout-overlay,.vfp-modal{color:#fff!important}
+.vfp-workout-overlay h1,.vfp-workout-overlay h2,.vfp-workout-overlay h3,.vfp-workout-overlay h4,.vfp-workout-overlay strong,.vfp-modal h1,.vfp-modal h2,.vfp-modal h3,.vfp-modal h4,.vfp-modal strong{color:#fff!important}
+.vfp-workout-overlay p,.vfp-workout-overlay span,.vfp-modal p,.vfp-modal span{color:inherit!important}
+
+@media(max-width:1100px){.vfp-library{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:760px){
+ .vfp-shell{padding:18px 14px 70px!important}
+ .vfp-library{display:flex!important;overflow-x:auto!important;gap:14px!important;scroll-snap-type:x mandatory!important;padding:0 2px 12px!important;scrollbar-width:none!important}
+ .vfp-library::-webkit-scrollbar{display:none!important}
+ .vfp-compact{min-width:78vw!important;scroll-snap-align:start!important}
+ .vfp-active{min-height:360px!important}
+ .vfp-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .vfp-quick{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(prefers-reduced-motion:reduce){.vfp-compact .vfp-thumb,.vfp-btn{transition:none!important}}
