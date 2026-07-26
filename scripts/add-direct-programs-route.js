@@ -4,30 +4,20 @@ const path=require('path');
 const file=path.join(process.cwd(),'site','index.html');
 let html=fs.readFileSync(file,'utf8');
 
-// Change only the initial page state so /programs opens the existing public program marketplace.
-// No program data, purchases, Firebase, authentication, pricing, or component markup is replaced.
-const statePattern=/const\s*\[\s*currentPage\s*,\s*setCurrentPage\s*\]\s*=\s*useState\(\s*(['"])home\1\s*\)/;
-const match=html.match(statePattern);
-
-if(!match){
-  // Keep builds idempotent when this transformer has already been applied.
-  if(html.includes("window.location.pathname.replace(/\\/+$/,'')")&&html.includes("'workoutprograms'")){
-    console.log('Direct /programs route already present');
-    process.exit(0);
-  }
-  throw new Error('Could not find the currentPage home-state declaration. No files were changed.');
+// Safe direct-route bridge. It does not replace React components or business logic.
+const marker='data-vfitness-direct-programs-route';
+if(html.includes(marker)){
+  console.log('Direct programs route already present');
+  process.exit(0);
 }
 
-const routedState="const[currentPage,setCurrentPage]=useState(()=>{const directPath=window.location.pathname.replace(/\\/+$/,'')||'/';return directPath==='/programs'||directPath==='/training-programs'||directPath==='/online-programs'?'workoutprograms':'home';})";
-html=html.replace(statePattern,routedState);
+const script=`<script ${marker}="true">\n(function(){\n  var p=(window.location.pathname||'/').replace(/\\/+$/,'')||'/';\n  var isPrograms=p==='/programs'||p==='/training-programs'||p==='/online-programs';\n  if(!isPrograms)return;\n  document.title='VFITNESS Training Programs | Bahamas';\n  function openPrograms(){\n    var items=[].slice.call(document.querySelectorAll('button,a'));\n    var target=items.find(function(el){\n      var t=String(el.textContent||'').trim().toLowerCase();\n      return t==='programs'||t==='online programs'||t==='training programs'||t==='view programs';\n    });\n    if(target){target.click();window.scrollTo(0,0);return true;}\n    return false;\n  }\n  var tries=0;\n  function attempt(){\n    tries+=1;\n    if(openPrograms()||tries>=30)return;\n    setTimeout(attempt,200);\n  }\n  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attempt,{once:true});\n  else attempt();\n})();\n</script>\n`;
 
-// Add route-aware title/description without altering the React interface.
-const headMarker='</head>';
-const routeMeta=`<script>\n(function(){\n  var p=window.location.pathname.replace(/\\/+$/,'')||'/';\n  if(p==='/programs'||p==='/training-programs'||p==='/online-programs'){\n    document.title='VFITNESS Training Programs | Bahamas';\n    var d=document.querySelector('meta[name="description"]');\n    if(d)d.setAttribute('content','Browse VFITNESS workout programs for fat loss, muscle gain, glute development, strength and athletic performance.');\n  }\n})();\n</script>\n`;
-if(!html.includes("VFITNESS Training Programs | Bahamas")){
-  if(!html.includes(headMarker))throw new Error('Missing closing head marker. No files were changed.');
-  html=html.replace(headMarker,routeMeta+headMarker);
+if(!html.includes('</body>')){
+  console.warn('No closing body marker found; direct programs route skipped safely');
+  process.exit(0);
 }
 
+html=html.replace('</body>',script+'</body>');
 fs.writeFileSync(file,html);
-console.log('Added direct public routes: /programs, /training-programs and /online-programs');
+console.log('Added safe direct public programs routes');
