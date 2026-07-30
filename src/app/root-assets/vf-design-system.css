@@ -1,0 +1,44 @@
+/* VFITNESS authoritative design tokens and interaction rules. */
+:root{
+  --vf-bg:#05070b;
+  --vf-surface:#101318;
+  --vf-surface-2:#151922;
+  --vf-border:rgba(255,255,255,.10);
+  --vf-border-strong:rgba(255,255,255,.16);
+  --vf-text:#f7f8fa;
+  --vf-muted:#9299a6;
+  --vf-blue:#3d7dff;
+  --vf-violet:#6f5bff;
+  --vf-green:#22c55e;
+  --vf-warning:#f59e0b;
+  --vf-danger:#ef4444;
+  --vf-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --vf-body:'Instrument Sans',system-ui,sans-serif;
+  --mu-bg:var(--vf-bg);
+  --mu-surface:rgba(16,19,24,.88);
+  --mu-border:var(--vf-border);
+  --mu-border-hi:var(--vf-border-strong);
+  --mu-text:var(--vf-text);
+  --mu-text-dim:var(--vf-muted);
+  --mu-primary:var(--vf-blue);
+  --mu-primary-2:var(--vf-violet);
+}
+html,body{font-family:var(--vf-body)!important;background:var(--vf-bg);color:var(--vf-text)}
+h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{font-family:var(--vf-display)!important;letter-spacing:-.028em}
+button,a,input,select,textarea{font-family:var(--vf-body)!important}
+button,.vfp-btn{transition:transform 120ms ease-out,opacity 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}
+button:active,.vfp-btn:active{transform:translateY(1px) scale(.995)}
+@media (hover:hover) and (pointer:fine){.vfp-card[data-interactive="true"]:hover{transform:translateY(-2px)}}
+@media (hover:none),(pointer:coarse){button:hover,.vfp-btn:hover,.mu-program-card:hover{transform:none!important}}
+.vfp-card{border-radius:18px!important}
+.vfp-status{font-size:12px!important;line-height:1!important;padding:6px 10px!important;letter-spacing:.04em;text-transform:uppercase}
+.vfp-progress-summary{display:grid;gap:5px;padding:16px 0;border-top:1px solid var(--vf-border);border-bottom:1px solid var(--vf-border)}
+.vfp-progress-summary strong{font-family:var(--vf-display);font-size:clamp(1.7rem,6vw,2.4rem);line-height:1}
+.vfp-progress-summary span{font-size:13px;color:var(--vf-muted)}
+.vfp-completion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.vfp-completion-actions .vfp-btn:first-child:last-child{grid-column:1/-1}
+.vfp-saving{opacity:.65;pointer-events:none}
+@media(max-width:640px){.vfp-completion-actions{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}

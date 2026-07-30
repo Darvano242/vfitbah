@@ -11,6 +11,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 concurrency:
   group: vfitness-qa-${{ github.ref }}
   cancel-in-progress: true
@@ -29,7 +32,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Build and run static release gates
+      - name: Build modular production and run release gates
         run: node scripts/build-production.js
 
       - name: Run browser and route smoke tests
