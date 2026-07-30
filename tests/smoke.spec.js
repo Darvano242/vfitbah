@@ -24,19 +24,23 @@ async function waitForApp(page){
   },null,{timeout:20000});
 }
 
+const primaryStart=page=>page.getByRole('button',{name:'Start Your Transformation',exact:true}).first();
+const primaryLogin=page=>page.getByRole('button',{name:'Client Login',exact:true}).first();
+const primaryPrograms=page=>page.getByRole('button',{name:'Online Programs',exact:true}).first();
+
 test('homepage mounts and primary actions render',async({page})=>{
   const errors=collectSeriousErrors(page);
   await waitForApp(page);
-  await expect(page.getByRole('button',{name:/Start Your Transformation/i})).toBeVisible();
-  await expect(page.getByRole('button',{name:/Client Login/i})).toBeVisible();
-  await expect(page.getByRole('button',{name:/Online Programs/i})).toBeVisible();
+  await expect(primaryStart(page)).toBeVisible();
+  await expect(primaryLogin(page)).toBeVisible();
+  await expect(primaryPrograms(page)).toBeVisible();
   expect(errors).toEqual([]);
 });
 
 test('Start Here guided intake opens and advances',async({page})=>{
   const errors=collectSeriousErrors(page);
   await waitForApp(page);
-  await page.getByRole('button',{name:/Start Your Transformation/i}).click();
+  await primaryStart(page).click();
   await expect(page.getByRole('heading',{name:'What is your main goal?'})).toBeVisible();
   await page.getByRole('button',{name:'Weight loss',exact:true}).click();
   await expect(page.getByRole('heading',{name:'How do you want to train?'})).toBeVisible();
@@ -46,7 +50,7 @@ test('Start Here guided intake opens and advances',async({page})=>{
 test('Client Login opens a usable authentication form',async({page})=>{
   const errors=collectSeriousErrors(page);
   await waitForApp(page);
-  await page.getByRole('button',{name:/Client Login/i}).click();
+  await primaryLogin(page).click();
   await expect(page.locator('input[type="email"]')).toBeVisible({timeout:10000});
   await expect(page.locator('input[type="password"]')).toBeVisible();
   expect(errors).toEqual([]);
@@ -55,7 +59,7 @@ test('Client Login opens a usable authentication form',async({page})=>{
 test('Online Programs button reaches the public program section',async({page})=>{
   const errors=collectSeriousErrors(page);
   await waitForApp(page);
-  await page.getByRole('button',{name:/Online Programs/i}).click();
+  await primaryPrograms(page).click();
   const section=page.locator('#vf-online-programs');
   await expect(section).toBeVisible({timeout:10000});
   await expect(section).toContainText(/program/i);
