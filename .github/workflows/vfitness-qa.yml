@@ -31,13 +31,6 @@ jobs:
       - name: Build and run static release gates
         run: node scripts/build-production.js
 
-      - name: Print generated exception context
-        run: |
-          echo '--- generated index around line 3834 ---'
-          nl -ba site/index.html | sed -n '3828,3842p'
-          echo '--- generated index around line 3995 ---'
-          nl -ba site/index.html | sed -n '3989,4003p'
-
       - name: Run browser smoke tests
         env:
           CI: 'true'
