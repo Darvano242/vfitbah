@@ -6,6 +6,7 @@ on:
       - main
       - 'qa/**'
       - 'feature/**'
+      - 'refactor/**'
   pull_request:
     branches:
       - main
@@ -26,12 +27,12 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Build and run static release gates
         run: node scripts/build-production.js
 
-      - name: Run browser smoke tests
+      - name: Run browser and route smoke tests
         env:
           CI: 'true'
           VF_BASE_URL: http://127.0.0.1:4173
@@ -39,10 +40,10 @@ jobs:
           mkdir -p /tmp/vfitness-playwright
           cd /tmp/vfitness-playwright
           npm init -y >/dev/null 2>&1
-          npm install --no-save @playwright/test@1.55.0 http-server@14.1.1
+          npm install --no-save @playwright/test@1.55.0
           npx playwright install --with-deps chromium
 
-          npx http-server "$GITHUB_WORKSPACE/site" -p 4173 -c-1 >/tmp/vfitness-http.log 2>&1 &
+          PORT=4173 node "$GITHUB_WORKSPACE/tests/static-server.js" "$GITHUB_WORKSPACE/site" >/tmp/vfitness-http.log 2>&1 &
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
 
