@@ -1,0 +1,77 @@
+/* Captured from the verified VFitness production shell. */
+:root{
+  --vf-ink:#05070B; --vf-electric:#3d7dff; --vf-violet:#6f5bff; --vf-teal:#2dd4bf;
+  --vf-bone:#EEF1F6; --vf-dim:#93A0B4;
+  --vf-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --vf-body:'Instrument Sans',system-ui,sans-serif;
+}
+/* ---------- Typography system ---------- */
+html,body{font-family:var(--vf-body) !important}
+body{background:var(--vf-ink)}
+h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{
+  font-family:var(--vf-display) !important;
+  letter-spacing:-0.028em;
+  font-optical-sizing:auto;
+}
+h1,.text-5xl,.text-6xl,.text-7xl{letter-spacing:-0.035em;line-height:1.04}
+.text-2xl{letter-spacing:-0.018em}
+p,li,input,textarea,button,select{font-family:var(--vf-body)}
+b,strong,.font-black,.font-bold{font-variation-settings:normal}
+body{text-rendering:optimizeLegibility;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(61,125,255,.35);color:#fff}
+
+/* ---------- Let the depth field breathe through page blacks ---------- */
+#vf-depthfield{position:fixed;inset:0;z-index:-1;display:block;width:100%;height:100%}
+.bg-black{background-color:rgba(5,7,11,.72) !important}
+.bg-gray-900{background-color:rgba(13,17,23,.82) !important}
+
+/* ---------- Surface refinement ---------- */
+.mu-program-card{
+  transform-style:preserve-3d;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease;
+  will-change:transform;
+  position:relative;
+}
+.mu-program-card:hover{box-shadow:0 30px 60px -24px rgba(61,125,255,.35),0 0 0 1px rgba(120,160,255,.18) inset}
+.vf-glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;
+  background:radial-gradient(420px circle at var(--gx,50%) var(--gy,50%),rgba(160,200,255,.14),transparent 65%);
+  transition:opacity .25s ease;z-index:3}
+.mu-program-card:hover .vf-glare{opacity:1}
+
+/* buttons: quiet, physical */
+button{transition:transform .15s ease,box-shadow .2s ease,filter .2s ease}
+button:active{transform:translateY(1px) scale(.995)}
+
+/* scrollbar */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:#070a0f}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#22304a,#1a2233);border-radius:8px;border:2px solid #070a0f}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#31456b,#22304a)}
+
+/* focus */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid var(--vf-electric);outline-offset:2px;border-radius:6px}
+
+/* ---------- Scroll reveal ---------- */
+.vf-reveal{opacity:0;transform:translateY(18px) scale(.995);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.vf-in{opacity:1;transform:none}
+
+
+/* ---------- Modal scroll fix: tall modals reachable from the very top ---------- */
+.vf-modal-scroll>*{margin-top:auto;margin-bottom:auto;min-height:0}
+.vf-modal-scroll{-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+
+/* ---------- Cinematic hero (FTMO / Awwwards standard) ---------- */
+.mu-hero .mu-card3d,.mu-hero .mu-orbit-ring,.mu-3d-stage-mobile{display:none !important}
+.mu-hero{background-attachment:fixed}
+@media (max-width:1024px){.mu-hero{background-attachment:scroll}}
+.mu-hero p:not(.vf-hero-display){font-size:clamp(1.02rem,1.4vw,1.25rem) !important;line-height:1.75}
+.mu-hero .rounded-full{letter-spacing:.14em;text-transform:uppercase;font-size:11px !important;font-weight:700}
+.mu-hero .vf-hero-display{text-wrap:balance}
+/* editorial section headings */
+section h2{font-size:clamp(2rem,4.2vw,3.4rem) !important;letter-spacing:-0.03em}
+@media (prefers-reduced-motion:reduce){
+  .vf-reveal{opacity:1 !important;transform:none !important;transition:none !important}
+  .mu-program-card{transition:none}
+  *{scroll-behavior:auto !important}
+}

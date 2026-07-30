@@ -1,0 +1,22 @@
+{
+  "generatedAt": "2026-07-30T20:14:50.469Z",
+  "styleFiles": 11,
+  "scriptFiles": 14,
+  "executableInlineScriptsExternalized": 14,
+  "rootAssets": [
+    "vfp-programs.js",
+    "vfp-programs.css",
+    "vfp-progress-runtime.js",
+    "vfp-progress-design.css",
+    "vf-runtime-guard.js",
+    "vf-router.js",
+    "vf-program-state.js",
+    "vf-program-error-boundary.js",
+    "vf-program-ui.js",
+    "vf-pwa-update.js",
+    "vf-design-system.css"
+  ],
+  "shellBytes": 14162,
+  "originalArchitecture": "single generated HTML document",
+  "productionArchitecture": "source-controlled modular HTML shell with external JavaScript and CSS"
+}

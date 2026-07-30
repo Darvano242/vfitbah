@@ -1,0 +1,29 @@
+/* Captured from the verified VFitness production shell. */
+#socialButtons a:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        #socialButtons:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            #socialButtons {
+                bottom: 75px;
+                right: 10px;
+            }
+        }
+    
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+            outline: 3px solid #22d3ee;
+            outline-offset: 3px;
+        }
