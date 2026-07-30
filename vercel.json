@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/apply-package-policy.js && node scripts/fix-application-submit-only.js && node scripts/apply-stability-runtime.js",
+  "buildCommand": "node scripts/verify-stability.js && node scripts/apply-package-policy.js && node scripts/fix-application-submit-only.js && node scripts/apply-stability-runtime.js && node scripts/verify-stability.js",
   "outputDirectory": "site",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
