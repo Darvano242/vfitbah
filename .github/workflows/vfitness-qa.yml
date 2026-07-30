@@ -12,7 +12,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: vfitness-qa-${{ github.ref }}
@@ -26,23 +26,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Build and run static release gates
+      - name: Build modular production and run release gates
         run: node scripts/build-production.js
-
-      - name: Capture modular source architecture
-        if: ${{ github.ref == 'refs/heads/refactor/source-architecture-20260730' || github.head_ref == 'refactor/source-architecture-20260730' }}
-        run: |
-          node scripts/capture-modular-source.js
-          node scripts/normalize-captured-source.js
-          node scripts/verify-captured-source.js
 
       - name: Run browser and route smoke tests
         env:
@@ -68,16 +59,3 @@ jobs:
 
           cp "$GITHUB_WORKSPACE/tests/smoke.spec.js" ./smoke.spec.js
           npx playwright test smoke.spec.js --reporter=line --workers=1
-
-      - name: Commit verified modular source
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/refactor/source-architecture-20260730' && !contains(github.event.head_commit.message, '[capture-complete]') }}
-        run: |
-          git config user.name "vfitness-release-bot"
-          git config user.email "vfitness-release-bot@users.noreply.github.com"
-          git add src/app
-          if git diff --cached --quiet; then
-            echo "No source capture changes"
-            exit 0
-          fi
-          git commit -m "Capture verified modular app source [capture-complete]"
-          git push origin HEAD:refactor/source-architecture-20260730
