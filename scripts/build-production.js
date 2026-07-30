@@ -8,6 +8,7 @@ const steps=[
   'scripts/fix-application-submit-only.js',
   'scripts/harden-dom-copy-observers.js',
   'scripts/apply-runtime-guard.js',
+  'scripts/version-release.js',
   'scripts/apply-core-refactor.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js',
