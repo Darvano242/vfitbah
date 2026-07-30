@@ -4,12 +4,13 @@ const baseURL=process.env.VF_BASE_URL||'http://127.0.0.1:4173';
 
 function collectSeriousErrors(page){
   const errors=[];
-  page.on('pageerror',error=>errors.push(String(error&&error.message||error)));
+  page.on('pageerror',error=>errors.push(String(error&&error.stack||error&&error.message||error)));
   page.on('console',message=>{
     if(message.type()!=='error')return;
     const text=message.text();
     if(/favicon|net::ERR_|Failed to load resource|third.?party|firebase.*network/i.test(text))return;
-    errors.push(text);
+    const location=message.location();
+    errors.push(text+(location&&location.url?' @ '+location.url+':'+(location.lineNumber||0):''));
   });
   return errors;
 }
@@ -51,8 +52,8 @@ test('Client Login opens a usable authentication form',async({page})=>{
   const errors=collectSeriousErrors(page);
   await waitForApp(page);
   await primaryLogin(page).click();
-  await expect(page.locator('input[type="email"]')).toBeVisible({timeout:10000});
-  await expect(page.locator('input[type="password"]')).toBeVisible();
+  await expect(page.locator('#root input[type="email"]')).toBeVisible({timeout:10000});
+  await expect(page.locator('#root input[type="password"]')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
