@@ -1,0 +1,8 @@
+{
+  "version": "2026.07.30-stability-1",
+  "programsSource": "site/vfp-programs.js",
+  "programBuildRewriterEnabled": false,
+  "serviceWorkerStrategy": "network-first-navigation",
+  "runtimeErrorReporting": true,
+  "unsafeDirectProgramsHelperEnabled": false
+}

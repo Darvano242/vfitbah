@@ -1,12 +1,24 @@
 {
-  "buildCommand": "node scripts/apply-vfp-programs.js && node scripts/apply-package-policy.js && node scripts/fix-application-submit-only.js",
+  "buildCommand": "node scripts/verify-stability.js && node scripts/apply-package-policy.js && node scripts/fix-application-submit-only.js && node scripts/apply-stability-runtime.js && node scripts/verify-stability.js",
   "outputDirectory": "site",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
     {
+      "source": "/index.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, max-age=0" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
