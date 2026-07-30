@@ -50,11 +50,19 @@ const titleEnd="document.title=vfT[currentPage]||vfT.home;},[currentPage]);const
 const titleEndReplacement="document.title=vfT[currentPage]||vfT.home;},[currentPage]);useEffect(()=>{if(window.VFitnessRouter)window.VFitnessRouter.syncPage(currentPage);setTimeout(()=>window.dispatchEvent(new CustomEvent('vf:ui-rendered',{detail:{page:currentPage}})),0);},[currentPage]);useEffect(()=>{const onRoute=e=>{const page=e&&e.detail&&e.detail.page;if(page&&page!==currentPage)setCurrentPage(page);};window.addEventListener('vf:routechange',onRoute);return()=>window.removeEventListener('vf:routechange',onRoute);},[currentPage]);const[user,setUser]=useState(null);";
 html=once(html,titleEnd,titleEndReplacement,'route synchronization');
 
+const loadingDeclaration='const[loading,setLoading]=useState(true);';
+const protectedGuard="const[loading,setLoading]=useState(true);useEffect(()=>{if(loading||!window.VFitnessRouter)return;const route=window.VFitnessRouter.current();if(route.protected&&!user){try{sessionStorage.setItem('vfit_return_path',route.path);}catch(e){}setCurrentPage('login');window.VFitnessRouter.navigate('/login',{replace:true});}},[loading,user]);";
+html=once(html,loadingDeclaration,protectedGuard,'protected route guard');
+
 html=html.replace("const[activeTab,setActiveTab]=useState('all');","const[activeTab,setActiveTab]=useState(()=>window.VFitnessRouter?window.VFitnessRouter.tabFromLocation():'all');");
 html=html.replace("setEnrolledPrograms(programs);","setEnrolledPrograms(programs);const vfRouteEnrollment=window.VFitnessRouter&&window.VFitnessRouter.enrollmentFromLocation();if(vfRouteEnrollment){const vfTarget=programs.find(p=>p.id===vfRouteEnrollment);if(vfTarget){setSelectedEnrollment(vfTarget);setShowWorkoutView(true);setActiveTab('purchased');}}",1);
 html=html.replace(/onClick:\(\)=>setActiveTab\('all'\)/g,"onClick:()=>{setActiveTab('all');window.VFitnessRouter&&window.VFitnessRouter.openStore();}");
 html=html.replace(/onClick:\(\)=>setActiveTab\('purchased'\)/g,"onClick:()=>{setActiveTab('purchased');window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();}");
 html=html.replace("setActiveTab('purchased');// Switch to purchased tab","setActiveTab('purchased');window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();// Switch to purchased tab");
+html=html.replace(
+  "onOpen:(enrollment)=>{setSelectedEnrollment(enrollment);setShowWorkoutView(true);}",
+  "onOpen:(enrollment)=>{setSelectedEnrollment(enrollment);setShowWorkoutView(true);window.VFitnessRouter&&window.VFitnessRouter.openProgram(enrollment.id);}"
+);
 
 const activeViewStart='if(showWorkoutView&&selectedEnrollment){return';
 const activeViewEnd=';}// Show Programs browsing page';
