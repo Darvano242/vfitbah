@@ -1,0 +1,50 @@
+name: Capture VFitness Modular Source
+
+on:
+  push:
+    branches:
+      - refactor/source-architecture-20260730
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vfitness-source-capture
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    if: ${{ !contains(github.event.head_commit.message, '[capture-complete]') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build verified legacy release
+        run: node scripts/build-production.js
+
+      - name: Capture modular source shell
+        run: |
+          node scripts/capture-modular-source.js
+          node scripts/verify-captured-source.js
+
+      - name: Commit captured source modules
+        run: |
+          git config user.name "vfitness-release-bot"
+          git config user.email "vfitness-release-bot@users.noreply.github.com"
+          git add src/app
+          if git diff --cached --quiet; then
+            echo "No source capture changes"
+            exit 0
+          fi
+          git commit -m "Capture verified modular app source [capture-complete]"
+          git push origin HEAD:refactor/source-architecture-20260730
