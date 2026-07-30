@@ -10,6 +10,7 @@ const count=(text,needle)=>(text.match(new RegExp(needle.replace(/[.*+?^${}()|[\
 const required=[
   'vercel.json',
   'scripts/build-production.js',
+  'scripts/harden-dom-copy-observers.js',
   'site/index.html',
   'site/sw.js',
   'site/offline.html',
@@ -41,6 +42,7 @@ for(const step of [
   'apply-vfp-progress-design.js',
   'apply-package-policy.js',
   'fix-application-submit-only.js',
+  'harden-dom-copy-observers.js',
   'apply-runtime-guard.js',
   'verify-vfp-progress-design.js',
   'verify-production-qa.js'
@@ -53,6 +55,11 @@ assert(count(html,'data-vf-runtime-guard="1"')===1,'Runtime diagnostics were inj
 assert(count(html,'data-vfp-progress-design="1"')===1,'Programs design was injected more than once');
 assert(count(html,'data-vfp-progress-runtime="1"')===1,'Programs progress runtime was injected more than once');
 assert(html.trim().endsWith('</html>'),'Built index.html has content after the closing HTML tag');
+
+// Text polishers are allowed to update visible UI copy only. They must never rewrite scripts or styles.
+assert(!html.includes('while(walker.nextNode()) nodes.push(walker.currentNode);'),'Unsafe unfiltered text walker remains');
+assert(!html.includes('const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);'),'Unsafe program text walker remains');
+assert(html.includes("parent.closest('script,style,noscript,template')"),'Executable-node copy protection is missing');
 
 const startHereStart=html.indexOf('function StartHereFlow(');
 const startHereEnd=html.indexOf('// ============================================\n// RESULTS / LOCATIONS / CONTACT PAGES',startHereStart);
@@ -91,7 +98,7 @@ for(const marker of ['clientErrors','app_not_mounted','VFitnessDiagnostics','unh
   assert(runtimeGuard.includes(marker),'Runtime diagnostics are missing: '+marker);
 }
 
-for(const rel of ['scripts/build-production.js','site/vfp-programs.js','site/vfp-progress-runtime.js','site/vf-runtime-guard.js','site/sw.js','api/application.js']){
+for(const rel of ['scripts/build-production.js','scripts/harden-dom-copy-observers.js','site/vfp-programs.js','site/vfp-progress-runtime.js','site/vf-runtime-guard.js','site/sw.js','api/application.js']){
   try{new Function(read(rel));}
   catch(error){throw new Error(rel+' syntax error: '+error.message);}
 }
@@ -118,6 +125,7 @@ console.log(JSON.stringify({
     revenue:true,
     serviceWorker:true,
     diagnostics:true,
+    copyObservers:true,
     inlineScriptsParsed:parsedInline
   }
 },null,2));
