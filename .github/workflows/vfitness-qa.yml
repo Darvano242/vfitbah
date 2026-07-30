@@ -41,6 +41,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/refactor/source-architecture-20260730' || github.head_ref == 'refactor/source-architecture-20260730' }}
         run: |
           node scripts/capture-modular-source.js
+          node scripts/normalize-captured-source.js
           node scripts/verify-captured-source.js
 
       - name: Run browser and route smoke tests
