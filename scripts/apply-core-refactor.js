@@ -10,10 +10,6 @@ function once(text,from,to,label){
   assert(text.includes(from),'Missing '+label+' marker');
   return text.replace(from,to);
 }
-function removeBlockById(text,tag,id){
-  const re=new RegExp('<'+tag+'\\b[^>]*id=["\\']'+id+'["\\'][^>]*>[\\s\\S]*?<\\/'+tag+'>','i');
-  return text.replace(re,'');
-}
 function replaceArrowFunction(text,marker,replacement){
   const start=text.indexOf(marker);
   assert(start>=0,'Missing function marker: '+marker);
@@ -31,19 +27,17 @@ function replaceArrowFunction(text,marker,replacement){
     if(ch==='{')depth++;
     if(ch==='}'){
       depth--;
-      if(depth===0){return text.slice(0,start)+replacement+text.slice(i+1);}
+      if(depth===0)return text.slice(0,start)+replacement+text.slice(i+1);
     }
   }
   throw new Error('Unclosed function body: '+marker);
 }
 
-// Load the source modules after the legacy VFP definitions but before the main React app.
 const appMarker='    <script>\nconst{useState,useEffect,useRef}=React;';
 assert(html.includes(appMarker),'Main app marker not found');
 const moduleTags=`    <link rel="stylesheet" href="/vf-design-system.css?v=20260730" data-vf-source-modules="1">\n    <script src="/vf-router.js?v=20260730"></script>\n    <script src="/vf-program-state.js?v=20260730"></script>\n    <script src="/vf-program-error-boundary.js?v=20260730"></script>\n    <script src="/vf-program-ui.js?v=20260730"></script>\n    <script src="/vf-pwa-update.js?v=20260730"></script>\n\n`;
 if(!html.includes('data-vf-source-modules="1"'))html=html.replace(appMarker,moduleTags+appMarker);
 
-// Route state comes from the URL and remains synchronized with browser navigation.
 const appStart='function VFitnessApp(){const[currentPage,setCurrentPage]=useState(';
 const titleStart='useEffect(()=>{const vfT=';
 const appIndex=html.indexOf(appStart);
@@ -56,14 +50,12 @@ const titleEnd="document.title=vfT[currentPage]||vfT.home;},[currentPage]);const
 const titleEndReplacement="document.title=vfT[currentPage]||vfT.home;},[currentPage]);useEffect(()=>{if(window.VFitnessRouter)window.VFitnessRouter.syncPage(currentPage);setTimeout(()=>window.dispatchEvent(new CustomEvent('vf:ui-rendered',{detail:{page:currentPage}})),0);},[currentPage]);useEffect(()=>{const onRoute=e=>{const page=e&&e.detail&&e.detail.page;if(page&&page!==currentPage)setCurrentPage(page);};window.addEventListener('vf:routechange',onRoute);return()=>window.removeEventListener('vf:routechange',onRoute);},[currentPage]);const[user,setUser]=useState(null);";
 html=once(html,titleEnd,titleEndReplacement,'route synchronization');
 
-// Programs page opens the correct public/purchased route and deep-linked enrollment.
 html=html.replace("const[activeTab,setActiveTab]=useState('all');","const[activeTab,setActiveTab]=useState(()=>window.VFitnessRouter?window.VFitnessRouter.tabFromLocation():'all');");
 html=html.replace("setEnrolledPrograms(programs);","setEnrolledPrograms(programs);const vfRouteEnrollment=window.VFitnessRouter&&window.VFitnessRouter.enrollmentFromLocation();if(vfRouteEnrollment){const vfTarget=programs.find(p=>p.id===vfRouteEnrollment);if(vfTarget){setSelectedEnrollment(vfTarget);setShowWorkoutView(true);setActiveTab('purchased');}}",1);
 html=html.replace(/onClick:\(\)=>setActiveTab\('all'\)/g,"onClick:()=>{setActiveTab('all');window.VFitnessRouter&&window.VFitnessRouter.openStore();}");
 html=html.replace(/onClick:\(\)=>setActiveTab\('purchased'\)/g,"onClick:()=>{setActiveTab('purchased');window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();}");
 html=html.replace("setActiveTab('purchased');// Switch to purchased tab","setActiveTab('purchased');window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();// Switch to purchased tab");
 
-// Wrap the active program in a dedicated recoverable error boundary.
 const activeViewStart='if(showWorkoutView&&selectedEnrollment){return';
 const activeViewEnd=';}// Show Programs browsing page';
 const avStart=html.indexOf(activeViewStart);
@@ -72,14 +64,12 @@ assert(avStart>=0&&avEnd>avStart,'Active program render block not found');
 const activeView=`if(showWorkoutView&&selectedEnrollment){const closeProgramView=()=>{setShowWorkoutView(false);setSelectedEnrollment(null);setActiveTab('purchased');window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();};return/*#__PURE__*/React.createElement(VFitnessProgramErrorBoundary,{feature:'programs',action:'program_dashboard',programId:selectedEnrollment.programId,enrollmentId:selectedEnrollment.id,onReturn:closeProgramView},/*#__PURE__*/React.createElement(ActiveProgramView,{enrollment:selectedEnrollment,user:user,theme:theme,onComplete:()=>{loadEnrolledPrograms();closeProgramView();},onBack:closeProgramView}));}`;
 html=html.slice(0,avStart)+activeView+html.slice(avEnd+2);
 
-// ActiveProgramView receives internal navigation and uses one Firestore transaction per workout.
 html=html.replace('function ActiveProgramView({enrollment,user,theme,onComplete})','function ActiveProgramView({enrollment,user,theme,onComplete,onBack})');
 const completeReplacement=`const completeWorkout=async payload=>{const workoutIndex=payload&&typeof payload==='object'?Math.max(0,Number(payload.workoutIndex)||0):Math.max(0,(Number(payload)||1)-1);const log=payload&&typeof payload==='object'&&payload.log?payload.log:{};const sessionKey=payload&&typeof payload==='object'&&payload.sessionKey?payload.sessionKey:'vfp-session-'+enrollment.id+'-'+currentWeek+'-'+workoutIndex;if(!window.VFitnessProgramCore)throw new Error('The program save service is unavailable.');const result=await window.VFitnessProgramCore.completeWorkout({db:db,firebase:firebase,enrollment:enrollment,program:CURRENT_PROGRAM,week:currentWeek,workoutIndex:workoutIndex,log:log,sessionKey:sessionKey});setCompletedWorkouts(result.completedWorkouts);setCurrentWeek(result.currentWeek);setSelectedWorkout(null);enrollment.completedWorkouts=result.completedWorkouts;enrollment.completedWorkoutsV2=result.completedWorkouts;enrollment.completionSchema=window.VFitnessProgramCore.schema;enrollment.currentWeek=result.currentWeek;enrollment.status=result.status;if(result.status==='completed'){alert('Program complete. Your progress and workout history have been saved.');if(onComplete)onComplete(result);}return result;}`;
 html=replaceArrowFunction(html,'const completeWorkout=async workoutDay=>',completeReplacement);
 html=html.replace("onBack:()=>{try{window.history.back()}catch(e){}}","onBack:onBack||(()=>{window.VFitnessRouter&&window.VFitnessRouter.openMyPrograms();})");
 html=html.replace('onCompleteWorkout:completeWorkout});','onCompleteWorkout:completeWorkout,onBrowse:()=>{window.VFitnessRouter&&window.VFitnessRouter.openStore();}});');
 
-// Replace global observer loops with bounded UI-render events. No MutationObserver remains.
 const replacements=[
   [/new MutationObserver\(function\(\)\{ clearTimeout\(window\.__vfIphoneFit\); window\.__vfIphoneFit = setTimeout\(fitMobile, 120\); \}\)\.observe\(document\.documentElement,\{childList:true,subtree:true\}\);/g,"window.addEventListener('vf:ui-rendered',()=>setTimeout(fitMobile,120));"],
   [/var mo=new MutationObserver\(function\(\)\{clearTimeout\(window\.__vfTick\); window\.__vfTick=setTimeout\(tick,80\);\}\);\s*document\.addEventListener\('DOMContentLoaded',function\(\)\{tick\(\); mo\.observe\(document\.getElementById\('root'\)\|\|document\.body,\{childList:true,subtree:true\}\);\}\);/g,"document.addEventListener('DOMContentLoaded',tick);window.addEventListener('vf:ui-rendered',()=>setTimeout(tick,80));"],
@@ -93,7 +83,6 @@ const replacements=[
 for(const [pattern,replacement] of replacements)html=html.replace(pattern,replacement);
 assert(!html.includes('MutationObserver'),'Legacy MutationObserver remains in built HTML');
 
-// Use one font system; the authoritative external stylesheet owns tokens and motion.
 html=html.replace(/@import url\('https:\/\/fonts\.googleapis\.com\/css2\?family=Inter[^']+'\);/g,'');
 html=html.replace(/@import url\('https:\/\/fonts\.googleapis\.com\/css2\?family=Geist[^']+'\);/g,'');
 
