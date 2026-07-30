@@ -1,7 +1,7 @@
 (function(){
   'use strict';
 
-  const BUILD='85be586c2f42';
+  const BUILD='058dabebea77';
   const STORAGE_KEY='vfitness:runtime-errors';
   const MAX_ERRORS=25;
   const sent=new Set();
