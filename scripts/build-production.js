@@ -5,6 +5,7 @@ const steps=[
   'scripts/apply-vfp-progress-design.js',
   'scripts/apply-package-policy.js',
   'scripts/fix-application-submit-only.js',
+  'scripts/harden-dom-copy-observers.js',
   'scripts/apply-runtime-guard.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js'
