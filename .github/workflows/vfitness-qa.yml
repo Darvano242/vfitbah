@@ -1,0 +1,64 @@
+name: VFitness Production QA
+
+on:
+  push:
+    branches:
+      - main
+      - 'qa/**'
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: vfitness-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build and run static release gates
+        run: |
+          node scripts/apply-vfp-programs.js
+          node scripts/apply-vfp-progress-design.js
+          node scripts/apply-package-policy.js
+          node scripts/fix-application-submit-only.js
+          node scripts/apply-runtime-guard.js
+          node scripts/verify-vfp-progress-design.js
+          node scripts/verify-production-qa.js
+
+      - name: Run browser smoke tests
+        env:
+          CI: 'true'
+          VF_BASE_URL: http://127.0.0.1:4173
+        run: |
+          mkdir -p /tmp/vfitness-playwright
+          cd /tmp/vfitness-playwright
+          npm init -y >/dev/null 2>&1
+          npm install --no-save @playwright/test@1.55.0 http-server@14.1.1
+          npx playwright install --with-deps chromium
+
+          npx http-server "$GITHUB_WORKSPACE/site" -p 4173 -c-1 >/tmp/vfitness-http.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          cp "$GITHUB_WORKSPACE/tests/smoke.spec.js" ./smoke.spec.js
+          npx playwright test smoke.spec.js --reporter=line --workers=1
