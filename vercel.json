@@ -1,5 +1,5 @@
 {
-  "buildCommand": "node scripts/apply-vfp-programs.js && node scripts/apply-vfp-progress-design.js && node scripts/apply-package-policy.js && node scripts/fix-application-submit-only.js && node scripts/apply-runtime-guard.js && node scripts/verify-vfp-progress-design.js && node scripts/verify-production-qa.js",
+  "buildCommand": "node scripts/build-production.js",
   "outputDirectory": "site",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "headers": [
