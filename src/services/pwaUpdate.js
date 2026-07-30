@@ -3,6 +3,8 @@
   'use strict';
   if(!('serviceWorker' in navigator))return;
   let refreshing=false;
+  let updateRequested=false;
+  const hadController=!!navigator.serviceWorker.controller;
 
   function removePrompt(){const old=document.getElementById('vf-update-ready');if(old)old.remove();}
   function showPrompt(registration){
@@ -15,12 +17,17 @@
     const copy=bar.querySelector('div');Object.assign(copy.style,{display:'grid',gap:'2px'});
     const small=bar.querySelector('span');Object.assign(small.style,{fontSize:'12px',color:'#a8b0bd'});
     const button=bar.querySelector('button');Object.assign(button.style,{border:'0',borderRadius:'12px',padding:'10px 13px',background:'linear-gradient(135deg,#3d7dff,#6f5bff)',color:'#fff',fontWeight:'800',whiteSpace:'nowrap'});
-    button.addEventListener('click',function(){button.disabled=true;button.textContent='Updating…';registration.waiting.postMessage({type:'SKIP_WAITING'});});
+    button.addEventListener('click',function(){
+      updateRequested=true;
+      button.disabled=true;
+      button.textContent='Updating…';
+      registration.waiting.postMessage({type:'SKIP_WAITING'});
+    });
     document.body.appendChild(bar);
   }
 
   function watch(registration){
-    if(registration.waiting)showPrompt(registration);
+    if(registration.waiting&&navigator.serviceWorker.controller)showPrompt(registration);
     registration.addEventListener('updatefound',function(){
       const worker=registration.installing;
       if(!worker)return;
@@ -33,6 +40,7 @@
 
   navigator.serviceWorker.addEventListener('controllerchange',function(){
     if(refreshing)return;
+    if(!hadController&&!updateRequested)return;
     refreshing=true;
     removePrompt();
     global.location.reload();
