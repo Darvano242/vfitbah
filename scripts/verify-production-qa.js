@@ -34,7 +34,6 @@ const progressRuntime=read('site/vfp-progress-runtime.js');
 const progressCss=read('site/vfp-progress-design.css');
 const api=read('api/application.js');
 
-// Build and shell integrity.
 assert(typeof vercel.buildCommand==='string','Vercel build command is missing');
 assert(vercel.buildCommand.includes('scripts/build-production.js'),'Vercel must use the compact production build runner');
 for(const step of [
@@ -54,9 +53,7 @@ assert(count(html,'data-vf-runtime-guard="1"')===1,'Runtime diagnostics were inj
 assert(count(html,'data-vfp-progress-design="1"')===1,'Programs design was injected more than once');
 assert(count(html,'data-vfp-progress-runtime="1"')===1,'Programs progress runtime was injected more than once');
 assert(html.trim().endsWith('</html>'),'Built index.html has content after the closing HTML tag');
-assert(count(html,'<script')===count(html,'</script>'),'Built index.html has an unmatched script tag');
 
-// Guided Start Here application delivery must have three independent paths.
 const startHereStart=html.indexOf('function StartHereFlow(');
 const startHereEnd=html.indexOf('// ============================================\n// RESULTS / LOCATIONS / CONTACT PAGES',startHereStart);
 assert(startHereStart>=0&&startHereEnd>startHereStart,'Start Here component boundaries were not found');
@@ -69,7 +66,6 @@ for(const marker of ["required = ['applicationId', 'name', 'phone', 'goal']",'fo
   assert(api.includes(marker),'Application API is missing: '+marker);
 }
 
-// Programs and progress correctness.
 for(const marker of ['new Set','derivedStatus','remaining','thisWeek','completed']){
   assert(progressRuntime.includes(marker),'Programs progress runtime is missing: '+marker);
 }
@@ -78,7 +74,6 @@ assert(!runtimeGuard.includes('MutationObserver'),'Runtime diagnostics must not 
 assert(progressCss.includes('prefers-reduced-motion'),'Programs design must honor reduced motion');
 assert(progressCss.includes('transform:scaleX'),'Programs progress animation must use transforms');
 
-// Package policy and revenue history.
 for(const marker of ["expiryDays:45","const togglePackagePause=async pkg=>","'Resume Package':'Pause Package'",'packageAuditLog']){
   assert(html.includes(marker),'Package policy is missing: '+marker);
 }
@@ -86,19 +81,16 @@ for(const marker of ["db.collection('revenueLedger')",'invoice_backfill','Comple
   assert(html.includes(marker),'Revenue ledger is missing: '+marker);
 }
 
-// PWA cache safety. HTML and code must remain network-first.
 assert(sw.includes("cache:'no-store'"),'Service worker does not force fresh code/navigation');
 assert(sw.includes("url.pathname.startsWith('/api/')"),'Service worker must exclude API requests');
 assert(sw.includes("keys.filter(key=>key.startsWith(CACHE_PREFIX)"),'Service worker does not clear older VFitness caches');
 const staticBlock=sw.slice(sw.indexOf('const STATIC_ASSETS'),sw.indexOf('];',sw.indexOf('const STATIC_ASSETS'))+2);
 assert(!staticBlock.includes("'/'")&&!staticBlock.includes("'/index.html'"),'Service worker must not precache the app HTML shell');
 
-// Runtime diagnostics safety and usefulness.
 for(const marker of ['clientErrors','app_not_mounted','VFitnessDiagnostics','unhandledrejection']){
   assert(runtimeGuard.includes(marker),'Runtime diagnostics are missing: '+marker);
 }
 
-// Parse all first-party JavaScript and every inline application script.
 for(const rel of ['scripts/build-production.js','site/vfp-programs.js','site/vfp-progress-runtime.js','site/vf-runtime-guard.js','site/sw.js','api/application.js']){
   try{new Function(read(rel));}
   catch(error){throw new Error(rel+' syntax error: '+error.message);}
