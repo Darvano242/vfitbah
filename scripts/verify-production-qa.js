@@ -9,6 +9,7 @@ const count=(text,needle)=>(text.match(new RegExp(needle.replace(/[.*+?^${}()|[\
 
 const required=[
   'vercel.json',
+  'scripts/build-production.js',
   'site/index.html',
   'site/sw.js',
   'site/offline.html',
@@ -26,6 +27,7 @@ for(const rel of required){
 
 const html=read('site/index.html');
 const vercel=JSON.parse(read('vercel.json'));
+const buildRunner=read('scripts/build-production.js');
 const sw=read('site/sw.js');
 const runtimeGuard=read('site/vf-runtime-guard.js');
 const progressRuntime=read('site/vfp-progress-runtime.js');
@@ -34,6 +36,7 @@ const api=read('api/application.js');
 
 // Build and shell integrity.
 assert(typeof vercel.buildCommand==='string','Vercel build command is missing');
+assert(vercel.buildCommand.includes('scripts/build-production.js'),'Vercel must use the compact production build runner');
 for(const step of [
   'apply-vfp-programs.js',
   'apply-vfp-progress-design.js',
@@ -42,7 +45,7 @@ for(const step of [
   'apply-runtime-guard.js',
   'verify-vfp-progress-design.js',
   'verify-production-qa.js'
-])assert(vercel.buildCommand.includes(step),'Vercel build is missing required step: '+step);
+])assert(buildRunner.includes(step),'Production build runner is missing required step: '+step);
 
 for(const marker of ['<div id="root">','ReactDOM.render','data-vfp-programs="1"','data-vfp-progress-design="1"','data-vfp-progress-runtime="1"','data-vf-runtime-guard="1"']){
   assert(html.includes(marker),'Built app is missing marker: '+marker);
@@ -96,7 +99,7 @@ for(const marker of ['clientErrors','app_not_mounted','VFitnessDiagnostics','unh
 }
 
 // Parse all first-party JavaScript and every inline application script.
-for(const rel of ['site/vfp-programs.js','site/vfp-progress-runtime.js','site/vf-runtime-guard.js','site/sw.js','api/application.js']){
+for(const rel of ['scripts/build-production.js','site/vfp-programs.js','site/vfp-progress-runtime.js','site/vf-runtime-guard.js','site/sw.js','api/application.js']){
   try{new Function(read(rel));}
   catch(error){throw new Error(rel+' syntax error: '+error.message);}
 }
@@ -115,6 +118,7 @@ assert(parsedInline>0,'No inline application scripts were parsed');
 console.log(JSON.stringify({
   ok:true,
   checks:{
+    buildRunner:true,
     shell:true,
     applications:true,
     programs:true,
