@@ -1,0 +1,1 @@
+Production restored from stable commit 2cd2ec89157cbb096d60f9cde0aad844c3b5923d after the stability refactor prevented the React app from mounting.
