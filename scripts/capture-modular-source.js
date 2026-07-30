@@ -34,7 +34,8 @@ function idFromAttrs(attrs){
   return match?match[2]:'';
 }
 function attrFrom(attrs,name){
-  const match=String(attrs||'').match(new RegExp('\\b'+name+'\\s*=\\s*(["\\'])(.*?)\\1','i'));
+  const pattern=new RegExp(`\\b${name}\\s*=\\s*(["'])(.*?)\\1`,'i');
+  const match=String(attrs||'').match(pattern);
   return match?match[2]:'';
 }
 function writeGenerated(kind,fileName,body){
