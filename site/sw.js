@@ -1,11 +1,12 @@
 const CACHE_PREFIX='vfitness-';
-const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-ui1';
+const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-ui2';
 const STATIC_ASSETS=[
   '/offline.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
-  '/apple-touch-icon.png'
+  '/apple-touch-icon.png',
+  '/vfit-redesign.css'
 ];
 
 self.addEventListener('install',event=>{
@@ -40,11 +41,16 @@ function isCacheableMedia(url){
   return /\.(?:png|jpe?g|webp|gif|svg|ico|woff2?)$/i.test(url.pathname);
 }
 
-function removeAskCoachUI(html){
-  return html
+function upgradeHtml(html){
+  let upgraded=html
     .replace(/if\(!\$\('\.vfit-ai-fab'\)\)\{\s*const b=document\.createElement\('button'\);\s*b\.className='vfit-ai-fab';\s*b\.textContent='Ask Coach';\s*b\.setAttribute\('data-vfit-ai','open'\);\s*document\.body\.appendChild\(b\);\s*\}/g,'')
     .replace(/React\.createElement\(\"a\",\{href:VF_WA_LINK,target:\"_blank\",rel:\"noopener noreferrer\",className:\"flex-1 text-center px-4 py-3 rounded-xl font-bold text-white\",style:\{background:'rgba\(37,211,102,\.14\)',border:'1px solid rgba\(37,211,102,\.4\)',color:'#4ade80'\}\},\"Ask Coach D\"\),?/g,'')
     .replace(/<button[^>]*class=["'][^"']*vfit-ai-fab[^"']*["'][^>]*>[\s\S]*?<\/button>/gi,'');
+
+  if(!upgraded.includes('/vfit-redesign.css')){
+    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vfit-redesign.css?v=20260806-ui2"></head>');
+  }
+  return upgraded;
 }
 
 async function networkHtml(request){
@@ -52,7 +58,7 @@ async function networkHtml(request){
   const contentType=response.headers.get('content-type')||'';
   if(!response.ok||!contentType.includes('text/html'))return response;
 
-  const html=removeAskCoachUI(await response.text());
+  const html=upgradeHtml(await response.text());
   const headers=new Headers(response.headers);
   headers.delete('content-length');
   headers.set('cache-control','no-store, no-cache, must-revalidate');
@@ -68,18 +74,12 @@ self.addEventListener('fetch',event=>{
   if(url.pathname.startsWith('/api/'))return;
 
   if(isNavigation(request)){
-    event.respondWith(
-      networkHtml(request)
-        .catch(()=>caches.match('/offline.html'))
-    );
+    event.respondWith(networkHtml(request).catch(()=>caches.match('/offline.html')));
     return;
   }
 
   if(isFreshCode(url)){
-    event.respondWith(
-      fetch(request,{cache:'no-store'})
-        .catch(()=>caches.match(request))
-    );
+    event.respondWith(fetch(request,{cache:'no-store'}).catch(()=>caches.match(request)));
     return;
   }
 
