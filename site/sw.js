@@ -1,5 +1,5 @@
 const CACHE_PREFIX='vfitness-';
-const CACHE_NAME=CACHE_PREFIX+'shell-v20260730-qa1';
+const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-ui1';
 const STATIC_ASSETS=[
   '/offline.html',
   '/manifest.json',
@@ -40,6 +40,25 @@ function isCacheableMedia(url){
   return /\.(?:png|jpe?g|webp|gif|svg|ico|woff2?)$/i.test(url.pathname);
 }
 
+function removeAskCoachUI(html){
+  return html
+    .replace(/if\(!\$\('\.vfit-ai-fab'\)\)\{\s*const b=document\.createElement\('button'\);\s*b\.className='vfit-ai-fab';\s*b\.textContent='Ask Coach';\s*b\.setAttribute\('data-vfit-ai','open'\);\s*document\.body\.appendChild\(b\);\s*\}/g,'')
+    .replace(/React\.createElement\(\"a\",\{href:VF_WA_LINK,target:\"_blank\",rel:\"noopener noreferrer\",className:\"flex-1 text-center px-4 py-3 rounded-xl font-bold text-white\",style:\{background:'rgba\(37,211,102,\.14\)',border:'1px solid rgba\(37,211,102,\.4\)',color:'#4ade80'\}\},\"Ask Coach D\"\),?/g,'')
+    .replace(/<button[^>]*class=["'][^"']*vfit-ai-fab[^"']*["'][^>]*>[\s\S]*?<\/button>/gi,'');
+}
+
+async function networkHtml(request){
+  const response=await fetch(request,{cache:'no-store'});
+  const contentType=response.headers.get('content-type')||'';
+  if(!response.ok||!contentType.includes('text/html'))return response;
+
+  const html=removeAskCoachUI(await response.text());
+  const headers=new Headers(response.headers);
+  headers.delete('content-length');
+  headers.set('cache-control','no-store, no-cache, must-revalidate');
+  return new Response(html,{status:response.status,statusText:response.statusText,headers});
+}
+
 self.addEventListener('fetch',event=>{
   const request=event.request;
   if(request.method!=='GET')return;
@@ -48,11 +67,18 @@ self.addEventListener('fetch',event=>{
   if(url.origin!==self.location.origin)return;
   if(url.pathname.startsWith('/api/'))return;
 
-  if(isNavigation(request)||isFreshCode(url)){
+  if(isNavigation(request)){
+    event.respondWith(
+      networkHtml(request)
+        .catch(()=>caches.match('/offline.html'))
+    );
+    return;
+  }
+
+  if(isFreshCode(url)){
     event.respondWith(
       fetch(request,{cache:'no-store'})
-        .then(response=>response)
-        .catch(()=>isNavigation(request)?caches.match('/offline.html'):caches.match(request))
+        .catch(()=>caches.match(request))
     );
     return;
   }
