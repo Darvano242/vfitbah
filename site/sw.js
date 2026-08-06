@@ -1,12 +1,14 @@
 const CACHE_PREFIX='vfitness-';
-const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-ui2';
+const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-programs1';
 const STATIC_ASSETS=[
   '/offline.html',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
   '/apple-touch-icon.png',
-  '/vfit-redesign.css'
+  '/vfit-redesign.css',
+  '/vf-online-programs.css',
+  '/vf-online-programs.js'
 ];
 
 self.addEventListener('install',event=>{
@@ -48,7 +50,13 @@ function upgradeHtml(html){
     .replace(/<button[^>]*class=["'][^"']*vfit-ai-fab[^"']*["'][^>]*>[\s\S]*?<\/button>/gi,'');
 
   if(!upgraded.includes('/vfit-redesign.css')){
-    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vfit-redesign.css?v=20260806-ui2"></head>');
+    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vfit-redesign.css?v=20260806-programs1"></head>');
+  }
+  if(!upgraded.includes('/vf-online-programs.css')){
+    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vf-online-programs.css?v=20260806-programs1"></head>');
+  }
+  if(!upgraded.includes('/vf-online-programs.js')){
+    upgraded=upgraded.replace('</body>','<script defer src="/vf-online-programs.js?v=20260806-programs1"></script></body>');
   }
   return upgraded;
 }
