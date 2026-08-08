@@ -1,5 +1,5 @@
 const CACHE_PREFIX='vfitness-';
-const CACHE_NAME=CACHE_PREFIX+'shell-v20260806-emergency2';
+const CACHE_NAME=CACHE_PREFIX+'shell-v20260808-kevin-admin1';
 const STATIC_ASSETS=[
   '/offline.html',
   '/manifest.json',
@@ -45,10 +45,13 @@ function upgradeHtml(html){
   let upgraded=html
     .replace(/if\(!\$\('\.vfit-ai-fab'\)\)\{\s*const b=document\.createElement\('button'\);\s*b\.className='vfit-ai-fab';\s*b\.textContent='Ask Coach';\s*b\.setAttribute\('data-vfit-ai','open'\);\s*document\.body\.appendChild\(b\);\s*\}/g,'')
     .replace(/React\.createElement\(\"a\",\{href:VF_WA_LINK,target:\"_blank\",rel:\"noopener noreferrer\",className:\"flex-1 text-center px-4 py-3 rounded-xl font-bold text-white\",style:\{background:'rgba\(37,211,102,\.14\)',border:'1px solid rgba\(37,211,102,\.4\)',color:'#4ade80'\}\},\"Ask Coach D\"\),?/g,'')
-    .replace(/<button[^>]*class=["'][^"']*vfit-ai-fab[^"']*["'][^>]*>[\s\S]*?<\/button>/gi,'');
+    .replace(/<button[^>]*class=["'][^"']*vfit-ai-fab[^"']*["'][^>]*>[\s\S]*?<\/button>/gi,'')
+    .replace("const PACKAGE_ASSIGN_TRAINERS=[{id:'darvano',name:'DARVANO'},{id:'chavese_moss',name:'Chavese Moss'},{id:'lanardo_mackey',name:'Lanardo Mackey'}];","const PACKAGE_ASSIGN_TRAINERS=[{id:'darvano',name:'DARVANO'},{id:'chavese_moss',name:'Chavese Moss'},{id:'lanardo_mackey',name:'Lanardo Mackey'},{id:'kevin_mackey',name:'Kevin Mackey'}];")
+    .replace("const isLanardo=user?.role==='trainer'&&(user?.email?.toLowerCase().includes('lanardo')||user?.name?.toLowerCase().includes('lanardo'));const isChavese=user?.role==='trainer'&&(user?.email?.toLowerCase().includes('chavese')||user?.name?.toLowerCase().includes('chavese'));// Get trainer identifier for filtering (ONLY for trainers, NOT admins)","const isLanardo=user?.role==='trainer'&&(user?.email?.toLowerCase().includes('lanardo')||user?.name?.toLowerCase().includes('lanardo'));const isChavese=user?.role==='trainer'&&(user?.email?.toLowerCase().includes('chavese')||user?.name?.toLowerCase().includes('chavese'));const isKevin=user?.role==='trainer'&&(user?.email?.toLowerCase().includes('kevin')||user?.name?.toLowerCase().includes('kevin'));// Get trainer identifier for filtering (ONLY for trainers, NOT admins)")
+    .replace("if(isLanardo){trainerFilter='Lanardo Mackey';}else if(isChavese){trainerFilter='Chavese Moss';}","if(isLanardo){trainerFilter='Lanardo Mackey';}else if(isChavese){trainerFilter='Chavese Moss';}else if(isKevin){trainerFilter='Kevin Mackey';}");
 
   if(!upgraded.includes('/vfit-redesign.css')){
-    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vfit-redesign.css?v=20260806-emergency2"></head>');
+    upgraded=upgraded.replace('</head>','<link rel="stylesheet" href="/vfit-redesign.css?v=20260808-kevin-admin1"></head>');
   }
   return upgraded;
 }
