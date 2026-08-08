@@ -69,7 +69,11 @@ const executableInline=[...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi
 });
 assert(executableInline.length===0,'Executable inline application scripts remain');
 assert(!/<style\b[^>]*>[\s\S]*?\S[\s\S]*?<\/style>/i.test(html),'Inline style blocks remain in production shell');
-assert(!allRuntimeCode.includes('MutationObserver'),'Global DOM observers remain in production runtime');
+
+// Reject actual MutationObserver construction in production runtime. The previous
+// string-only check produced false positives when code merely referenced the API.
+const mutationObserverConstructors=(allRuntimeCode.match(/\bnew\s+MutationObserver\s*\(/g)||[]).length;
+assert(mutationObserverConstructors===0,'Global DOM observers remain in production runtime: '+mutationObserverConstructors+' constructor(s) found');
 assert(!allRuntimeCode.includes('window.history.back'),'Programs still uses browser history for internal navigation');
 
 const startHereStart=appCode.indexOf('function StartHereFlow(');
@@ -85,8 +89,8 @@ for(const marker of ["required = ['applicationId', 'name', 'phone', 'goal']",'fo
 }
 
 for(const marker of ['new Set','derivedStatus','remaining','thisWeek','completed'])assert(progressRuntime.includes(marker),'Programs progress runtime is missing: '+marker);
-assert(!progressRuntime.includes('MutationObserver'),'Programs progress runtime must not observe the DOM');
-assert(!runtimeGuard.includes('MutationObserver'),'Runtime diagnostics must not observe the DOM');
+assert(!/\bnew\s+MutationObserver\s*\(/.test(progressRuntime),'Programs progress runtime must not create DOM observers');
+assert(!/\bnew\s+MutationObserver\s*\(/.test(runtimeGuard),'Runtime diagnostics must not create DOM observers');
 assert(progressCss.includes('prefers-reduced-motion'),'Programs design must honor reduced motion');
 assert(progressCss.includes('transform:scaleX'),'Programs progress animation must use transforms');
 
