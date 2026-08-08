@@ -72,12 +72,16 @@
       fixHomeStartCta();
     }
   }
+  function scheduleRun(delay){setTimeout(run,delay||0);}
 
-  document.addEventListener('DOMContentLoaded',run);
-  window.addEventListener('popstate',function(){setTimeout(run,30);});
-  window.addEventListener('hashchange',function(){setTimeout(run,30);});
-  window.addEventListener('vf:ui-rendered',function(){setTimeout(run,30);});
-  var observer=new MutationObserver(function(){clearTimeout(observer._t);observer._t=setTimeout(run,80);});
-  document.addEventListener('DOMContentLoaded',function(){observer.observe(document.body,{childList:true,subtree:true});});
+  document.addEventListener('DOMContentLoaded',function(){
+    run();
+    scheduleRun(120);
+    scheduleRun(500);
+  });
+  window.addEventListener('popstate',function(){scheduleRun(30);});
+  window.addEventListener('hashchange',function(){scheduleRun(30);});
+  window.addEventListener('vf:ui-rendered',function(){scheduleRun(30);});
+  window.addEventListener('pageshow',function(){scheduleRun(30);});
   setTimeout(run,250);
 })();
