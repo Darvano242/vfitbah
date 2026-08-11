@@ -1,21 +1,26 @@
-/* VFITNESS authoritative design tokens and interaction rules. */
+/* VFITNESS authoritative design system · direct-response redesign branch */
 :root{
-  --vf-bg:#05070b;
-  --vf-surface:#101318;
-  --vf-surface-2:#151922;
+  --vf-bg:#020307;
+  --vf-bg-2:#050812;
+  --vf-surface:#0b0e16;
+  --vf-surface-2:#101522;
+  --vf-surface-glass:rgba(10,14,24,.76);
   --vf-border:rgba(255,255,255,.10);
-  --vf-border-strong:rgba(255,255,255,.16);
-  --vf-text:#f7f8fa;
-  --vf-muted:#9299a6;
-  --vf-blue:#3d7dff;
-  --vf-violet:#6f5bff;
-  --vf-green:#22c55e;
+  --vf-border-strong:rgba(112,151,255,.28);
+  --vf-text:#f8fafc;
+  --vf-muted:#9aa3b4;
+  --vf-blue:#3478ff;
+  --vf-blue-hot:#5a8dff;
+  --vf-violet:#6d5cff;
+  --vf-green:#34d399;
   --vf-warning:#f59e0b;
   --vf-danger:#ef4444;
   --vf-display:'Bricolage Grotesque',system-ui,sans-serif;
   --vf-body:'Instrument Sans',system-ui,sans-serif;
+  --vf-radius:24px;
+  --vf-shadow:0 28px 90px rgba(0,0,0,.52);
   --mu-bg:var(--vf-bg);
-  --mu-surface:rgba(16,19,24,.88);
+  --mu-surface:var(--vf-surface-glass);
   --mu-border:var(--vf-border);
   --mu-border-hi:var(--vf-border-strong);
   --mu-text:var(--vf-text);
@@ -23,14 +28,59 @@
   --mu-primary:var(--vf-blue);
   --mu-primary-2:var(--vf-violet);
 }
+
+*{box-sizing:border-box}
+html{background:var(--vf-bg);overflow-x:hidden}
 html,body{font-family:var(--vf-body)!important;background:var(--vf-bg);color:var(--vf-text)}
-h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{font-family:var(--vf-display)!important;letter-spacing:-.028em}
+body{min-height:100vh;overflow-x:hidden;background:
+  radial-gradient(900px 520px at 92% 8%,rgba(52,120,255,.15),transparent 60%),
+  radial-gradient(720px 480px at -10% 52%,rgba(109,92,255,.10),transparent 62%),
+  linear-gradient(180deg,#020307 0%,#040711 54%,#020307 100%)!important}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.55;background:
+  linear-gradient(145deg,transparent 0 38%,rgba(52,120,255,.045) 39% 42%,transparent 43% 100%),
+  linear-gradient(24deg,transparent 0 64%,rgba(109,92,255,.035) 65% 68%,transparent 69% 100%)}
+
+h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{font-family:var(--vf-display)!important;letter-spacing:-.045em;text-wrap:balance}
+h1{font-weight:800!important;line-height:.94!important}
+h2,h3{font-weight:750!important}
+p{line-height:1.55}
 button,a,input,select,textarea{font-family:var(--vf-body)!important}
-button,.vfp-btn{transition:transform 120ms ease-out,opacity 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}
+button,a{touch-action:manipulation}
+
+/* premium direct-response surfaces */
+.rounded-3xl,.rounded-2xl,.rounded-xl,.vfp-card,.mu-card,.mu-program-card{border-color:var(--vf-border)!important}
+.vfp-card,.mu-card,.mu-program-card{border-radius:var(--vf-radius)!important;background:linear-gradient(145deg,rgba(16,21,34,.94),rgba(5,8,15,.88))!important;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+
+/* strong CTA language without changing business logic */
+button,.vfp-btn{transition:transform 120ms ease-out,opacity 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out,box-shadow 160ms ease-out}
 button:active,.vfp-btn:active{transform:translateY(1px) scale(.995)}
-@media (hover:hover) and (pointer:fine){.vfp-card[data-interactive="true"]:hover{transform:translateY(-2px)}}
+button[style*="linear-gradient"],a[style*="linear-gradient"]{box-shadow:0 14px 38px rgba(52,120,255,.18)}
+@media (hover:hover) and (pointer:fine){
+  .vfp-card[data-interactive="true"]:hover,.mu-program-card:hover{transform:translateY(-2px);border-color:rgba(90,141,255,.30)!important}
+}
 @media (hover:none),(pointer:coarse){button:hover,.vfp-btn:hover,.mu-program-card:hover{transform:none!important}}
-.vfp-card{border-radius:18px!important}
+
+/* Marketing home direction. The home controller only adds this class on the public home route. */
+body.vf-marketing-home #root{isolation:isolate}
+body.vf-marketing-home main{position:relative}
+body.vf-marketing-home h1{font-size:clamp(3.25rem,12vw,7.2rem)!important;max-width:980px;margin-left:auto;margin-right:auto}
+body.vf-marketing-home .vf-blue-word{color:var(--vf-blue-hot);text-shadow:0 0 40px rgba(52,120,255,.16)}
+body.vf-marketing-home .vf-kicker{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;border:1px solid rgba(90,141,255,.28);background:rgba(52,120,255,.07);font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#c9d8ff}
+body.vf-marketing-home .vf-kicker:before{content:"";width:7px;height:7px;border-radius:999px;background:var(--vf-blue);box-shadow:0 0 16px rgba(52,120,255,.8)}
+body.vf-marketing-home .vf-system-card{border:1px solid rgba(90,141,255,.20)!important;background:linear-gradient(145deg,rgba(13,18,31,.86),rgba(5,7,12,.82))!important;box-shadow:var(--vf-shadow);backdrop-filter:blur(18px)}
+body.vf-marketing-home .mu-sticky-cta{background:rgba(3,5,10,.90)!important;border-color:rgba(255,255,255,.10)!important;backdrop-filter:blur(22px)!important}
+body.vf-marketing-home .mu-sticky-cta button{min-height:54px!important;border-radius:16px!important;font-weight:800!important;letter-spacing:-.015em}
+
+/* Application / sign-up flow: one decision at a time, Typeform-like on mobile. */
+body.vf-application-flow{background:#020307!important}
+body.vf-application-flow #root{max-width:100vw;overflow-x:hidden}
+body.vf-application-flow input,body.vf-application-flow select,body.vf-application-flow textarea{min-height:54px;border-radius:14px!important;background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;font-size:16px!important}
+body.vf-application-flow textarea{min-height:112px}
+body.vf-application-flow button{min-height:52px;border-radius:14px!important}
+body.vf-application-flow .max-w-lg{max-width:640px!important}
+body.vf-application-flow .max-w-lg>div[style*="background"]{background:linear-gradient(145deg,rgba(14,18,29,.94),rgba(6,8,14,.94))!important;border-color:rgba(90,141,255,.20)!important;box-shadow:0 24px 80px rgba(0,0,0,.38)}
+
+/* progress / workout safety remains intact */
 .vfp-status{font-size:12px!important;line-height:1!important;padding:6px 10px!important;letter-spacing:.04em;text-transform:uppercase}
 .vfp-progress-summary{display:grid;gap:5px;padding:16px 0;border-top:1px solid var(--vf-border);border-bottom:1px solid var(--vf-border)}
 .vfp-progress-summary strong{font-family:var(--vf-display);font-size:clamp(1.7rem,6vw,2.4rem);line-height:1}
@@ -38,7 +88,15 @@ button:active,.vfp-btn:active{transform:translateY(1px) scale(.995)}
 .vfp-completion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
 .vfp-completion-actions .vfp-btn:first-child:last-child{grid-column:1/-1}
 .vfp-saving{opacity:.65;pointer-events:none}
-@media(max-width:640px){.vfp-completion-actions{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+
+@media(max-width:640px){
+  body{background:radial-gradient(520px 360px at 105% 7%,rgba(52,120,255,.15),transparent 60%),linear-gradient(180deg,#020307,#050814 56%,#020307)!important}
+  body.vf-marketing-home h1{font-size:clamp(3.05rem,15vw,5.1rem)!important;line-height:.9!important;letter-spacing:-.055em!important}
+  body.vf-marketing-home p{font-size:clamp(1rem,4.2vw,1.16rem)}
+  body.vf-marketing-home .mu-sticky-cta{left:12px!important;right:12px!important;bottom:max(10px,env(safe-area-inset-bottom))!important;border-radius:22px!important;padding:10px!important}
+  body.vf-application-flow .pt-24{padding-top:5.5rem!important}
+  body.vf-application-flow .px-4{padding-left:18px!important;padding-right:18px!important}
+  .vfp-completion-actions{grid-template-columns:1fr}
 }
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
