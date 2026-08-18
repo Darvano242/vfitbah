@@ -1,21 +1,28 @@
-/* VFITNESS authoritative design tokens and interaction rules. */
+/* VFITNESS authoritative design system · premium conversion upgrade */
 :root{
-  --vf-bg:#05070b;
-  --vf-surface:#101318;
-  --vf-surface-2:#151922;
+  --vf-bg:#020307;
+  --vf-bg-2:#050812;
+  --vf-surface:#0b0f17;
+  --vf-surface-2:#111722;
+  --vf-surface-glass:rgba(9,13,22,.82);
   --vf-border:rgba(255,255,255,.10);
-  --vf-border-strong:rgba(255,255,255,.16);
-  --vf-text:#f7f8fa;
-  --vf-muted:#9299a6;
-  --vf-blue:#3d7dff;
-  --vf-violet:#6f5bff;
-  --vf-green:#22c55e;
+  --vf-border-strong:rgba(95,140,255,.30);
+  --vf-text:#f8fafc;
+  --vf-muted:#9aa3b4;
+  --vf-blue:#397cff;
+  --vf-blue-hot:#6c96ff;
+  --vf-violet:#6d5cff;
+  --vf-green:#34d399;
   --vf-warning:#f59e0b;
   --vf-danger:#ef4444;
   --vf-display:'Bricolage Grotesque',system-ui,sans-serif;
   --vf-body:'Instrument Sans',system-ui,sans-serif;
+  --vf-radius-sm:14px;
+  --vf-radius:22px;
+  --vf-radius-lg:30px;
+  --vf-shadow:0 28px 90px rgba(0,0,0,.46);
   --mu-bg:var(--vf-bg);
-  --mu-surface:rgba(16,19,24,.88);
+  --mu-surface:var(--vf-surface-glass);
   --mu-border:var(--vf-border);
   --mu-border-hi:var(--vf-border-strong);
   --mu-text:var(--vf-text);
@@ -23,22 +30,104 @@
   --mu-primary:var(--vf-blue);
   --mu-primary-2:var(--vf-violet);
 }
-html,body{font-family:var(--vf-body)!important;background:var(--vf-bg);color:var(--vf-text)}
-h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{font-family:var(--vf-display)!important;letter-spacing:-.028em}
+*{box-sizing:border-box}
+html{background:var(--vf-bg);overflow-x:hidden;scroll-behavior:smooth}
+html,body{font-family:var(--vf-body)!important;color:var(--vf-text)}
+body{min-height:100vh;overflow-x:hidden;background:radial-gradient(900px 520px at 92% 5%,rgba(57,124,255,.14),transparent 60%),radial-gradient(720px 480px at -8% 52%,rgba(109,92,255,.09),transparent 62%),linear-gradient(180deg,#020307 0%,#050812 52%,#020307 100%)!important}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.48;background:linear-gradient(145deg,transparent 0 38%,rgba(57,124,255,.035) 39% 42%,transparent 43% 100%),linear-gradient(24deg,transparent 0 64%,rgba(109,92,255,.03) 65% 68%,transparent 69% 100%)}
+img,video,iframe,canvas{max-width:100%}
+h1,h2,h3,.text-3xl,.text-4xl,.text-5xl,.text-6xl,.text-7xl{font-family:var(--vf-display)!important;letter-spacing:-.044em;text-wrap:balance}
+h1{font-weight:800!important;line-height:.94!important}
+h2,h3{font-weight:750!important}
+p{line-height:1.58}
 button,a,input,select,textarea{font-family:var(--vf-body)!important}
-button,.vfp-btn{transition:transform 120ms ease-out,opacity 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out}
+button,a{touch-action:manipulation}
+button,.vfp-btn{transition:transform 120ms ease-out,opacity 160ms ease-out,background-color 160ms ease-out,border-color 160ms ease-out,box-shadow 160ms ease-out}
 button:active,.vfp-btn:active{transform:translateY(1px) scale(.995)}
-@media (hover:hover) and (pointer:fine){.vfp-card[data-interactive="true"]:hover{transform:translateY(-2px)}}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--vf-blue-hot)!important;outline-offset:3px!important}
+.rounded-3xl,.rounded-2xl,.rounded-xl,.vfp-card,.mu-card,.mu-program-card{border-color:var(--vf-border)!important}
+.vfp-card,.mu-card,.mu-program-card{border-radius:var(--vf-radius)!important;background:linear-gradient(145deg,rgba(16,22,35,.94),rgba(5,8,15,.90))!important;box-shadow:0 18px 60px rgba(0,0,0,.26)}
+@media (hover:hover) and (pointer:fine){.vfp-card[data-interactive="true"]:hover,.mu-program-card:hover{transform:translateY(-2px);border-color:rgba(108,150,255,.32)!important}}
 @media (hover:none),(pointer:coarse){button:hover,.vfp-btn:hover,.mu-program-card:hover{transform:none!important}}
-.vfp-card{border-radius:18px!important}
+
+/* Public marketing home */
+body.vf-marketing-home #root{isolation:isolate}
+body.vf-marketing-home main{position:relative;overflow:clip}
+body.vf-marketing-home h1{font-size:clamp(3.5rem,10vw,7.4rem)!important;max-width:1040px;margin-left:auto;margin-right:auto}
+body.vf-marketing-home .vf-blue-word{color:var(--vf-blue-hot);text-shadow:0 0 42px rgba(57,124,255,.18)}
+body.vf-marketing-home .vf-kicker{display:inline-flex;align-items:center;gap:9px;padding:9px 14px;border-radius:999px;border:1px solid rgba(108,150,255,.30);background:rgba(57,124,255,.075);font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#cbd9ff}
+body.vf-marketing-home .vf-kicker:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--vf-blue);box-shadow:0 0 16px rgba(57,124,255,.85)}
+body.vf-marketing-home .vf-system-card{border:1px solid rgba(108,150,255,.20)!important;background:linear-gradient(145deg,rgba(14,19,32,.90),rgba(5,7,13,.86))!important;box-shadow:var(--vf-shadow);backdrop-filter:blur(18px)}
+body.vf-marketing-home .mu-sticky-cta{background:rgba(3,5,10,.92)!important;border-color:rgba(255,255,255,.10)!important;backdrop-filter:blur(22px)!important;-webkit-backdrop-filter:blur(22px)!important}
+body.vf-marketing-home .mu-sticky-cta button{min-height:54px!important;border-radius:16px!important;font-weight:800!important;letter-spacing:-.015em}
+
+/* Real client transformation showcase generated from existing site imagery */
+#vf-proof-showcase{width:min(1180px,calc(100% - 32px));margin:48px auto 72px;padding:28px;border:1px solid rgba(108,150,255,.22);border-radius:var(--vf-radius-lg);background:linear-gradient(145deg,rgba(14,19,31,.95),rgba(5,8,14,.94));box-shadow:var(--vf-shadow);overflow:hidden}
+.vf-proof-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:22px}
+.vf-proof-head h2{font-size:clamp(2rem,5vw,4.3rem)!important;line-height:.95!important;margin:5px 0 0}
+.vf-proof-head p{max-width:470px;color:var(--vf-muted);margin:0}
+.vf-proof-kicker{color:#bcd0ff;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}
+.vf-proof-viewport{position:relative;overflow:hidden;border-radius:20px;background:#05070b}
+.vf-proof-track{display:flex;transition:transform .48s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.vf-proof-slide{flex:0 0 100%;position:relative;min-height:480px;background:#080b12;display:grid;place-items:center;overflow:hidden}
+.vf-proof-slide img{width:100%;height:100%;min-height:480px;max-height:680px;object-fit:contain;background:#05070b;display:block}
+.vf-proof-slide:after{content:"Real VFitness client";position:absolute;left:16px;bottom:16px;padding:8px 11px;border-radius:999px;background:rgba(0,0,0,.68);border:1px solid rgba(255,255,255,.14);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;backdrop-filter:blur(10px)}
+.vf-proof-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(2,4,8,.74);color:#fff;font-size:22px;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(12px)}
+.vf-proof-prev{left:14px}.vf-proof-next{right:14px}
+.vf-proof-dots{display:flex;justify-content:center;gap:7px;margin-top:17px}.vf-proof-dot{width:7px;height:7px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.25)}.vf-proof-dot.is-active{width:25px;border-radius:999px;background:var(--vf-blue-hot)}
+.vf-proof-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px}.vf-proof-actions a,.vf-proof-actions button{min-height:50px;padding:0 20px;border-radius:14px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.vf-proof-primary{border:0;background:linear-gradient(120deg,var(--vf-blue),var(--vf-violet));color:#fff}.vf-proof-secondary{border:1px solid rgba(255,255,255,.14);background:#0b0f17;color:#fff}
+
+/* Pricing and package presentation — values and package logic stay untouched */
+body.vf-pricing-page [class*="pricing"],body.vf-pricing-page [class*="package"]{min-width:0;max-width:100%}
+body.vf-pricing-page [class*="package-card"],body.vf-pricing-page [class*="pricing-card"]{border-radius:22px!important;border-color:var(--vf-border)!important;background:linear-gradient(145deg,rgba(16,22,35,.96),rgba(5,8,14,.94))!important;box-shadow:0 18px 60px rgba(0,0,0,.26)}
+body.vf-pricing-page button{min-height:50px;border-radius:14px!important;font-weight:800!important}
+
+/* Results / gallery */
+body.vf-results-page [data-vf-results-section]{border-radius:24px;overflow:hidden}
+body.vf-results-page img{border-radius:16px}
+
+/* Programs */
+body.vf-programs-page .mu-program-card,body.vf-programs-page .vfp-card{min-width:0;max-width:100%;overflow:hidden;border-radius:22px!important}
+body.vf-programs-page .mu-program-card img,body.vf-programs-page .vfp-card img{display:block;width:100%;object-fit:cover}
+body.vf-programs-page button,body.vf-programs-page a{white-space:normal}
+
+/* Application / signup */
+body.vf-application-flow #root{max-width:100vw;overflow-x:hidden}
+body.vf-application-flow input,body.vf-application-flow select,body.vf-application-flow textarea{width:100%;min-width:0;min-height:54px;border-radius:14px!important;background:rgba(255,255,255,.035)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;font-size:16px!important}
+body.vf-application-flow textarea{min-height:112px}
+body.vf-application-flow button{min-height:52px;border-radius:14px!important}
+body.vf-application-flow .max-w-lg{max-width:640px!important}
+
+/* Login / client entry */
+body.vf-login-page main,body.vf-login-page #root{min-height:100vh}
+body.vf-login-page input{min-height:52px;border-radius:14px!important;background:rgba(255,255,255,.04)!important;border:1px solid rgba(255,255,255,.12)!important;color:#fff!important;font-size:16px!important}
+body.vf-login-page button{min-height:52px;border-radius:14px!important;font-weight:800!important}
+
+/* Client dashboard and workout safety */
+body.vf-dashboard-page [class*="grid"],body.vf-workout-page [class*="grid"]{min-width:0}
+body.vf-workout-page,body.vf-workout-page #root,body.vf-workout-page main{width:100%;max-width:100%;overflow-x:hidden!important}
+body.vf-workout-page *{min-width:0;box-sizing:border-box}
+body.vf-workout-page h1,body.vf-workout-page h2,body.vf-workout-page h3,body.vf-workout-page p,body.vf-workout-page span,body.vf-workout-page div,body.vf-workout-page button{writing-mode:horizontal-tb!important;text-orientation:mixed!important;word-break:normal!important;overflow-wrap:break-word!important}
+body.vf-workout-page iframe,body.vf-workout-page video,body.vf-workout-page img{display:block;width:100%;max-width:100%;height:auto;border-radius:18px}
+body.vf-workout-page iframe{aspect-ratio:16/9;height:auto!important;min-height:0!important}
 .vfp-status{font-size:12px!important;line-height:1!important;padding:6px 10px!important;letter-spacing:.04em;text-transform:uppercase}
 .vfp-progress-summary{display:grid;gap:5px;padding:16px 0;border-top:1px solid var(--vf-border);border-bottom:1px solid var(--vf-border)}
 .vfp-progress-summary strong{font-family:var(--vf-display);font-size:clamp(1.7rem,6vw,2.4rem);line-height:1}
 .vfp-progress-summary span{font-size:13px;color:var(--vf-muted)}
-.vfp-completion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
-.vfp-completion-actions .vfp-btn:first-child:last-child{grid-column:1/-1}
-.vfp-saving{opacity:.65;pointer-events:none}
-@media(max-width:640px){.vfp-completion-actions{grid-template-columns:1fr}}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+.vfp-completion-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}.vfp-completion-actions .vfp-btn:first-child:last-child{grid-column:1/-1}.vfp-saving{opacity:.65;pointer-events:none}
+
+@media(max-width:760px){
+  body{background:radial-gradient(520px 360px at 105% 7%,rgba(57,124,255,.15),transparent 60%),linear-gradient(180deg,#020307,#050814 56%,#020307)!important}
+  body.vf-marketing-home h1{font-size:clamp(2.9rem,14vw,5rem)!important;line-height:.91!important;letter-spacing:-.052em!important}
+  body.vf-marketing-home p{font-size:clamp(1rem,4.2vw,1.15rem)}
+  body.vf-marketing-home .mu-sticky-cta{left:12px!important;right:12px!important;bottom:max(10px,env(safe-area-inset-bottom))!important;border-radius:22px!important;padding:10px!important}
+  #vf-proof-showcase{width:calc(100% - 24px);margin:34px auto 54px;padding:16px;border-radius:22px}
+  .vf-proof-head{display:block;margin-bottom:16px}.vf-proof-head p{margin-top:12px;font-size:14px}.vf-proof-slide,.vf-proof-slide img{min-height:390px;max-height:520px}.vf-proof-arrow{width:40px;height:40px}.vf-proof-prev{left:8px}.vf-proof-next{right:8px}.vf-proof-actions{display:grid;grid-template-columns:1fr}.vf-proof-actions a,.vf-proof-actions button{width:100%}
+  body.vf-application-flow .px-4{padding-left:18px!important;padding-right:18px!important}
+  body.vf-pricing-page [class*="grid"],body.vf-programs-page [class*="grid"],body.vf-dashboard-page [class*="grid"]{grid-template-columns:minmax(0,1fr)!important}
+  body.vf-workout-page{padding-bottom:max(130px,calc(110px + env(safe-area-inset-bottom)))}
+  body.vf-workout-page [class*="exercise"],body.vf-workout-page [class*="workout"]{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;transform:none!important}
+  .vfp-completion-actions{grid-template-columns:1fr}
 }
+@media(max-width:390px){.vf-proof-slide,.vf-proof-slide img{min-height:340px}.vf-proof-head h2{font-size:2.1rem!important}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.vf-proof-track{transition:none!important}}
