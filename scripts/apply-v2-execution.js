@@ -12,6 +12,7 @@ const appRuntime=fs.readFileSync(path.join(root,'src','services','v2AppExecution
 const v2css=fs.readFileSync(path.join(root,'src','styles','v2-execution.css'),'utf8');
 const MARK='VF_V2_EXECUTION_20260819';
 const APP_MARK='VF_V2_APP_EXECUTION_20260819';
+const RESULT_MARK='VF_V2_RESULTS_GUARD_20260819';
 
 // Trainer accounts do not receive the commercial Packages tab. Numbers is already admin-only.
 html=html.replace(
@@ -19,9 +20,16 @@ html=html.replace(
   "isAdmin||!['siteDesign','applications','packages','testimonials','gallery','analytics','auditTrail','buttonqa'].includes(tab.id)"
 );
 
+// Load Geist as a real stylesheet link; the sans fallback chain still works if the font request fails.
+if(!html.includes('data-vf-geist-v2')){
+  html=html.replace('</head>','<link data-vf-geist-v2="1" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap">\n</head>');
+}
+
 if(!css.includes(MARK))css+='\n'+v2css+'\n';
+if(!css.includes(RESULT_MARK))css+='\n/* '+RESULT_MARK+' */\n.vf-proof-slide img,.vf-proof-image-shell img{width:100%!important;aspect-ratio:4/5!important;max-height:58vh!important;object-fit:cover!important}\n@media(max-width:767px){.vf-proof-prev,.vf-proof-next,.vf-proof-arrow{display:none!important}}\n';
 if(!pwa.includes(MARK))pwa+='\n'+publicRuntime+'\n';
 if(!pwa.includes(APP_MARK))pwa+='\n'+appRuntime+'\n';
+if(!pwa.includes(RESULT_MARK))pwa+='\n/* '+RESULT_MARK+' */\n(function(){function clean(){if(location.pathname.indexOf(\'/results\')!==0)return;document.querySelectorAll(\'body *\').forEach(function(el){if(el.children.length>3)return;var tx=((el.textContent||\'\').replace(/\\s+/g,\' \').trim()).toUpperCase();if(tx===\'REAL VFITNESS CLIENT\'){var card=el.closest(\'.vf-proof-slide,article,section,div\');if(card&&!card.querySelector(\'img[src]\'))card.remove();}});}window.addEventListener(\'vf:ui-rendered\',function(){setTimeout(clean,100)});window.addEventListener(\'pageshow\',function(){setTimeout(clean,100)});})();\n';
 
 fs.writeFileSync(htmlPath,html);
 fs.writeFileSync(pwaPath,pwa);
