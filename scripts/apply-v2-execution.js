@@ -14,12 +14,26 @@ const MARK='VF_V2_EXECUTION_20260819';
 const APP_MARK='VF_V2_APP_EXECUTION_20260819';
 const RESULT_MARK='VF_V2_RESULTS_GUARD_20260819';
 const GATE_FIX_MARK='VF_V2_GATE_FIX_20260819';
+const PROGRAM_COPY_MARK='VF_V2_PROGRAM_COPY_20260819';
 
 // Trainer accounts do not receive the commercial Packages tab. Numbers is already admin-only.
 html=html.replace(
   "isAdmin||!['siteDesign','applications','testimonials','gallery','analytics','auditTrail','buttonqa'].includes(tab.id)",
   "isAdmin||!['siteDesign','applications','packages','testimonials','gallery','analytics','auditTrail','buttonqa'].includes(tab.id)"
 );
+
+// Resolve the legacy duration precedence bug. Existing strings such as "4 weeks" or "45 days"
+// are already complete labels and must never have another " weeks" appended.
+const legacyDuration="program.duration||program.weeks?`${program.weeks||program.duration} weeks`:'8 weeks'";
+const fixedDuration="program.duration||(program.weeks?`${program.weeks} weeks`:'8 weeks')";
+if(html.includes(legacyDuration))html=html.replaceAll(legacyDuration,fixedDuration);
+
+// Keep the stable internal program ID so existing purchases/enrollments continue resolving,
+// but apply the approved HOME 45 customer-facing copy.
+const oldHomePrefix="const HOME_30DAY_PROGRAM={id:'home-30day',title:'HOME 30: 30 Day Get In Shape Plan',price:25.00,duration:'30 days',description:'Transform at home in just 30 days! No gym needed. Get in shape with bodyweight exercises and minimal equipment. Perfect for busy people!',features:['5 workouts per week (30 days total)'";
+const newHomePrefix="const HOME_30DAY_PROGRAM={id:'home-30day',title:'HOME 45: 45 Day Get In Shape Plan',price:25.00,duration:'45 days',description:'Transform at home with a structured 45-day training track. No gym needed. Get in shape with bodyweight exercises and minimal equipment. Perfect for busy people!',features:['5 workouts per week'";
+if(html.includes(oldHomePrefix))html=html.replace(oldHomePrefix,newHomePrefix);
+html=html.replace("'30-day meal plan included'","'Meal plan included'");
 
 // The public avatar is the signed-out login entry point. Authenticated clients reach the dashboard after auth.
 publicRuntime=publicRuntime
@@ -37,6 +51,10 @@ if(!css.includes(RESULT_MARK))css+='\n/* '+RESULT_MARK+' */\n.vf-proof-slide img
 if(!pwa.includes(MARK))pwa+='\n'+publicRuntime+'\n';
 if(!pwa.includes(APP_MARK))pwa+='\n'+appRuntime+'\n';
 if(!pwa.includes(RESULT_MARK))pwa+='\n/* '+RESULT_MARK+' */\n(function(){function clean(){if(location.pathname.indexOf(\'/results\')!==0)return;document.querySelectorAll(\'body *\').forEach(function(el){if(el.children.length>3)return;var tx=((el.textContent||\'\').replace(/\\s+/g,\' \').trim()).toUpperCase();if(tx===\'REAL VFITNESS CLIENT\'){var card=el.closest(\'.vf-proof-slide,article,section,div\');if(card&&!card.querySelector(\'img[src]\'))card.remove();}});}window.addEventListener(\'vf:ui-rendered\',function(){setTimeout(clean,100)});window.addEventListener(\'pageshow\',function(){setTimeout(clean,100)});})();\n';
+if(!pwa.includes(PROGRAM_COPY_MARK))pwa+='\n/* '+PROGRAM_COPY_MARK+' · app programme copy is patched in the built shell while home-30day remains the stable data ID. */\n';
+
+if(html.includes(legacyDuration))throw new Error('V2 duration fix did not remove the duplicated-unit renderer');
+if(!html.includes("id:'home-30day',title:'HOME 45: 45 Day Get In Shape Plan'"))throw new Error('V2 HOME 45 customer-facing copy was not applied');
 
 fs.writeFileSync(htmlPath,html);
 fs.writeFileSync(pwaPath,pwa);
