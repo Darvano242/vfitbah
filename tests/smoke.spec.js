@@ -43,15 +43,16 @@ async function collectSeriousErrors(page){
 
 async function waitForApp(page,path='/'){
   await page.goto(baseURL+path,{waitUntil:'domcontentloaded'});
+  if(path==='/'||path==='/home'){
+    await page.waitForSelector('#vf-v2-public-shell',{state:'visible',timeout:10000});
+    return;
+  }
   await page.waitForFunction(()=>{
     const root=document.getElementById('root');
     if(!root)return false;
     const text=root.textContent||'';
     return !text.includes('VFITNESS Coaching Built From Real Client Work')&&text.length>120;
   },null,{timeout:20000});
-  if(path==='/'||path==='/home'){
-    await page.waitForSelector('#vf-v2-public-shell',{state:'visible',timeout:10000});
-  }
 }
 
 async function expectNoErrors(page,capture){
@@ -169,7 +170,7 @@ test('protected My Programs route sends signed-out visitors to login',async({pag
 
 test('program completion service commits status and logs atomically',async({page})=>{
   const capture=await collectSeriousErrors(page);
-  await waitForApp(page);
+  await waitForApp(page,'/programs');
   const result=await page.evaluate(async()=>{
     const state={id:'enrollment-1',status:'active',currentWeek:1,completedWorkouts:[],setLogs:{}};
     const captured={update:null};
