@@ -44,7 +44,7 @@ jobs:
           node scripts/normalize-captured-source.js
           node scripts/verify-captured-source.js
 
-      - name: Run browser and route smoke tests
+      - name: Run browser, mobile, WebKit, and Lighthouse gates
         env:
           CI: 'true'
           VF_BASE_URL: http://127.0.0.1:4173
@@ -52,8 +52,8 @@ jobs:
           mkdir -p /tmp/vfitness-playwright
           cd /tmp/vfitness-playwright
           npm init -y >/dev/null 2>&1
-          npm install --no-save @playwright/test@1.55.0
-          npx playwright install --with-deps chromium
+          npm install --no-save @playwright/test@1.55.0 lighthouse@12.8.2
+          npx playwright install --with-deps chromium webkit
 
           PORT=4173 node "$GITHUB_WORKSPACE/tests/static-server.js" "$GITHUB_WORKSPACE/site" >/tmp/vfitness-http.log 2>&1 &
           SERVER_PID=$!
@@ -67,7 +67,33 @@ jobs:
           done
 
           cp "$GITHUB_WORKSPACE/tests/smoke.spec.js" ./smoke.spec.js
-          npx playwright test smoke.spec.js --reporter=line --workers=1
+          cp "$GITHUB_WORKSPACE/tests/v2-mobile-gate.spec.js" ./v2-mobile-gate.spec.js
+
+          npx playwright test smoke.spec.js v2-mobile-gate.spec.js --reporter=line --workers=1
+          npx playwright test v2-mobile-gate.spec.js --browser=webkit --reporter=line --workers=1
+
+          CHROME_PATH=$(find "$HOME/.cache/ms-playwright" -type f -path '*/chrome-linux*/chrome' | head -n 1)
+          if [ -z "$CHROME_PATH" ]; then
+            echo "Could not locate Playwright Chromium for Lighthouse"
+            exit 1
+          fi
+          CHROME_PATH="$CHROME_PATH" npx lighthouse http://127.0.0.1:4173/ \
+            --only-categories=performance \
+            --form-factor=mobile \
+            --throttling-method=simulate \
+            --quiet \
+            --chrome-flags="--headless --no-sandbox" \
+            --output=json \
+            --output-path=/tmp/vfitness-lighthouse.json
+          node - <<'NODE'
+          const report=require('/tmp/vfitness-lighthouse.json');
+          const score=Math.round((report.categories.performance.score||0)*100);
+          console.log('VFitness Lighthouse mobile performance:',score);
+          if(score<85){
+            console.error('Lighthouse mobile performance must be >= 85.');
+            process.exit(1);
+          }
+          NODE
 
       - name: Commit verified modular source
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/refactor/source-architecture-20260730' && !contains(github.event.head_commit.message, '[capture-complete]') }}
