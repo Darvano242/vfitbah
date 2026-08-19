@@ -137,23 +137,26 @@ test('Browse Programs opens the public catalogue',async({page})=>{
   await expectNoErrors(page,capture);
 });
 
-test('direct Programs route survives a full refresh',async({page})=>{
+test('direct Programs route survives refresh and renders HOME 45 with clean duration units',async({page})=>{
   const capture=await collectSeriousErrors(page);
   await waitForApp(page,'/programs');
   await expect(page).toHaveURL(/\/programs$/);
   await expect(page.getByRole('heading',{name:/WORKOUT PROGRAMS/i})).toBeVisible({timeout:10000});
-  await expect(page.getByText(/HOME 30/i).first()).toBeVisible();
+  await expect(page.getByText(/HOME 45/i).first()).toBeVisible();
+  await expect(page.getByText('45 days',{exact:true}).first()).toBeVisible();
+  await expect(page.getByText(/(?:days|weeks) weeks/i)).toHaveCount(0);
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>document.getElementById('root')&&(document.getElementById('root').textContent||'').includes('WORKOUT PROGRAMS'));
   await expect(page).toHaveURL(/\/programs$/);
+  await expect(page.getByText(/HOME 45/i).first()).toBeVisible();
   await expectNoErrors(page,capture);
 });
 
-test('specific public program URL opens the requested program flow',async({page})=>{
+test('specific public program URL opens the requested HOME 45 program flow',async({page})=>{
   const capture=await collectSeriousErrors(page);
   await waitForApp(page,'/programs/home-30day');
   await expect(page).toHaveURL(/\/programs\/home-30day$/);
-  await expect(page.getByText(/HOME 30/i).first()).toBeVisible({timeout:10000});
+  await expect(page.getByText(/HOME 45/i).first()).toBeVisible({timeout:10000});
   await expect(page.getByText(/Login Required|Continue to PayPal|You are about to start/i).first()).toBeVisible({timeout:10000});
   await expectNoErrors(page,capture);
 });
