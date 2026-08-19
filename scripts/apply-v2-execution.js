@@ -26,14 +26,22 @@ html=html.replace(
 // are already complete labels and must never have another " weeks" appended.
 const legacyDuration="program.duration||program.weeks?`${program.weeks||program.duration} weeks`:'8 weeks'";
 const fixedDuration="program.duration||(program.weeks?`${program.weeks} weeks`:'8 weeks')";
-if(html.includes(legacyDuration))html=html.replaceAll(legacyDuration,fixedDuration);
+html=html.replaceAll(legacyDuration,fixedDuration);
 
-// Keep the stable internal program ID so existing purchases/enrollments continue resolving,
-// but apply the approved HOME 45 customer-facing copy.
-const oldHomePrefix="const HOME_30DAY_PROGRAM={id:'home-30day',title:'HOME 30: 30 Day Get In Shape Plan',price:25.00,duration:'30 days',description:'Transform at home in just 30 days! No gym needed. Get in shape with bodyweight exercises and minimal equipment. Perfect for busy people!',features:['5 workouts per week (30 days total)'";
-const newHomePrefix="const HOME_30DAY_PROGRAM={id:'home-30day',title:'HOME 45: 45 Day Get In Shape Plan',price:25.00,duration:'45 days',description:'Transform at home with a structured 45-day training track. No gym needed. Get in shape with bodyweight exercises and minimal equipment. Perfect for busy people!',features:['5 workouts per week'";
-if(html.includes(oldHomePrefix))html=html.replace(oldHomePrefix,newHomePrefix);
-html=html.replace("'30-day meal plan included'","'Meal plan included'");
+// Keep the stable internal program ID so existing purchases/enrollments continue resolving.
+// Patch the HOME object by its boundaries instead of depending on an exact full source string,
+// because earlier production build steps can alter nearby markup/copy.
+const homeStart=html.indexOf("const HOME_30DAY_PROGRAM={id:'home-30day'");
+const homeEnd=homeStart>=0?html.indexOf('};function WorkoutProgramsPage',homeStart):-1;
+if(homeStart<0||homeEnd<0)throw new Error('Could not locate the stable HOME program object');
+let homeProgram=html.slice(homeStart,homeEnd+2);
+homeProgram=homeProgram
+  .replace(/title:'[^']*'/,"title:'HOME 45: 45 Day Get In Shape Plan'")
+  .replace(/duration:'[^']*'/,"duration:'45 days'")
+  .replace(/description:'[^']*'/,"description:'Transform at home with a structured 45-day training track. No gym needed. Get in shape with bodyweight exercises and minimal equipment. Perfect for busy people!'")
+  .replace("'5 workouts per week (30 days total)'","'5 workouts per week'")
+  .replace("'30-day meal plan included'","'Meal plan included'");
+html=html.slice(0,homeStart)+homeProgram+html.slice(homeEnd+2);
 
 // The public avatar is the signed-out login entry point. Authenticated clients reach the dashboard after auth.
 publicRuntime=publicRuntime
