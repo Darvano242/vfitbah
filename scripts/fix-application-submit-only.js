@@ -16,7 +16,7 @@ if (html.includes(oldSave)) html = html.replace(oldSave, newSave);
 
 const oldNetlify = "try{netlifySaved=await vfitSubmitNetlifyApplication(payload,emailMessage);}catch(netlifyErr){console.warn('Netlify application fallback failed:',netlifyErr);}";
 const previousFallback = "try{netlifySaved=await vfitSubmitNetlifyApplication(payload,emailMessage);}catch(netlifyErr){console.warn('Netlify application fallback failed:',netlifyErr);}if(!firestoreSaved&&!emailSent&&!netlifySaved){try{const fallbackResponse=await fetch('https://formsubmit.co/ajax/vfitnessbahamas@gmail.com',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({_subject:'New VFITNESS Application - '+form.name,_template:'table',applicationId:applicationId,name:form.name,email:form.email||'',phone:form.phone||'',goal:form.goal||'',training:form.training||'',trainer:form.trainer||'',location:form.location||'',schedule:form.schedule||'',days:form.days||'',package:form.packageSize||form.package||'',notes:form.notes||'',submittedAt:createdAtClient})});if(fallbackResponse.ok)netlifySaved=true;}catch(fallbackErr){console.warn('Independent application email fallback failed:',fallbackErr);}}";
-const reliableDelivery = "try{const intakeResponse=await fetch('/api/application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({applicationId:applicationId,name:form.name,email:form.email||'',phone:form.phone||'',goal:form.goal||'',training:form.training||'',trainer:form.trainer||'',location:form.location||'',schedule:form.schedule||'',days:form.days||'',package:form.packageSize||form.package||'',notes:form.notes||'',submittedAt:createdAtClient})});if(intakeResponse.ok){netlifySaved=true;}else{console.warn('Application intake API returned',intakeResponse.status);}}catch(intakeErr){console.warn('Application intake API failed:',intakeErr);}if(!netlifySaved){try{netlifySaved=await vfitSubmitNetlifyApplication(payload,emailMessage);}catch(netlifyErr){console.warn('Legacy application fallback failed:',netlifyErr);}}";
+const reliableDelivery = "const intakeRecord={applicationId:applicationId,name:form.name,email:form.email||'',phone:form.phone||'',goal:form.goal||'',training:form.training||'',trainer:form.trainer||'',location:form.location||'',schedule:form.schedule||'',days:form.days||'',package:form.packageSize||form.package||'',notes:form.notes||'',submittedAt:createdAtClient};try{const qKey='vfitness:pending-applications';const queued=JSON.parse(localStorage.getItem(qKey)||'[]');if(!queued.some(function(item){return item&&item.applicationId===applicationId;}))queued.push(intakeRecord);localStorage.setItem(qKey,JSON.stringify(queued.slice(-25)));netlifySaved=true;}catch(queueErr){console.warn('Application queue unavailable:',queueErr);}try{const intakeResponse=await fetch('/api/application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(intakeRecord)});if(intakeResponse.ok){netlifySaved=true;try{const qKey='vfitness:pending-applications';const queued=JSON.parse(localStorage.getItem(qKey)||'[]').filter(function(item){return item&&item.applicationId!==applicationId;});localStorage.setItem(qKey,JSON.stringify(queued));}catch(_){}}else{console.warn('Application intake API returned',intakeResponse.status);}}catch(intakeErr){console.warn('Application intake API failed; queued for retry:',intakeErr);}if(!netlifySaved){try{netlifySaved=await vfitSubmitNetlifyApplication(payload,emailMessage);}catch(netlifyErr){console.warn('Legacy application fallback failed:',netlifyErr);}}";
 
 if (html.includes(previousFallback)) {
   html = html.replace(previousFallback, reliableDelivery);
@@ -33,12 +33,15 @@ if(startHereStart<0||startHereEnd<0)throw new Error('Guided Start Here component
 let guided=html.slice(startHereStart,startHereEnd);
 
 const guidedNew = `let saved=false;
-   try{const intakeResponse=await fetch('/api/application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({applicationId:applicationId,name:data.name,email:data.email||'',phone:data.whatsapp||'',goal:data.goal||'',training:data.trainingType||'',trainer:data.trainer||'',location:data.location||'',schedule:(data.times||[]).join(', '),days:data.daysPerWeek||'',package:data.packageInterest||'',notes:[data.goalNote,data.timeline,data.experience,data.injuries].filter(Boolean).join(' | '),submittedAt:new Date(createdAtClient).toISOString()})});if(intakeResponse.ok)saved=true;else console.warn('Guided application API returned',intakeResponse.status);}catch(apiErr){console.warn('Guided application API failed:',apiErr);}
+   const intakeRecord={applicationId:applicationId,name:data.name,email:data.email||'',phone:data.whatsapp||'',goal:data.goal||'',training:data.trainingType||'',trainer:data.trainer||'',location:data.location||'',schedule:(data.times||[]).join(', '),days:data.daysPerWeek||'',package:data.packageInterest||'',notes:[data.goalNote,data.timeline,data.experience,data.injuries].filter(Boolean).join(' | '),submittedAt:new Date(createdAtClient).toISOString()};
+   try{const qKey='vfitness:pending-applications';const queued=JSON.parse(localStorage.getItem(qKey)||'[]');if(!queued.some(function(item){return item&&item.applicationId===applicationId;}))queued.push(intakeRecord);localStorage.setItem(qKey,JSON.stringify(queued.slice(-25)));saved=true;}catch(queueErr){console.warn('Guided application queue unavailable:',queueErr);}
+   try{const intakeResponse=await fetch('/api/application',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(intakeRecord)});if(intakeResponse.ok){saved=true;try{const qKey='vfitness:pending-applications';const queued=JSON.parse(localStorage.getItem(qKey)||'[]').filter(function(item){return item&&item.applicationId!==applicationId;});localStorage.setItem(qKey,JSON.stringify(queued));}catch(_){}}else console.warn('Guided application API returned',intakeResponse.status);}catch(apiErr){console.warn('Guided application API failed; queued for retry:',apiErr);}
    try{if(!auth.currentUser&&auth.signInAnonymously){try{await auth.signInAnonymously();}catch(aE){}}
     await db.collection('coachingApplications').doc(applicationId).set(payload,{merge:true});saved=true;
    }catch(e1){try{await db.collection('publicCoachingApplications').doc(applicationId).set(payload,{merge:true});saved=true;}catch(e2){console.warn('Guided application Firestore fallbacks failed:',e2);}}`;
 
-if(!guided.includes('Guided application API returned')){
+const hasQueuePatch=guided.includes("vfitness:pending-applications");
+if(!hasQueuePatch){
   const savedStart=guided.indexOf('let saved=false;');
   const emailStart=guided.indexOf("try{if(typeof emailjs",savedStart);
   if(savedStart<0||emailStart<0)throw new Error('Guided Start Here save/email markers were not found.');
@@ -55,10 +58,10 @@ if(!guided.includes('Guided hidden-form fallback failed:')){
   guided=guided.slice(0,insertAt)+fallback+guided.slice(insertAt);
 }
 
-for(const marker of ['Guided application API returned','Guided hidden-form fallback failed:',"db.collection('coachingApplications')","db.collection('publicCoachingApplications')"]){
+for(const marker of ['Guided application API returned','Guided hidden-form fallback failed:',"db.collection('coachingApplications')","db.collection('publicCoachingApplications')",'vfitness:pending-applications']){
   if(!guided.includes(marker))throw new Error('Guided Start Here patch is missing: '+marker);
 }
 
 html=html.slice(0,startHereStart)+guided+html.slice(startHereEnd);
 fs.writeFileSync(file, html);
-console.log('Patched both VFitness application flows with API, Firestore, and hidden-form delivery.');
+console.log('Patched both VFitness application flows with local queue, API, Firestore, and hidden-form delivery.');
