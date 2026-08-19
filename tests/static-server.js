@@ -12,6 +12,7 @@ const types={
 
 function safeFile(urlPath){
   const clean=decodeURIComponent((urlPath||'/').split('?')[0]).replace(/\\/g,'/');
+  if(clean==='/'||clean==='/home')return path.join(root,'home.html');
   const relative=clean.replace(/^\/+/, '');
   const resolved=path.resolve(root,relative);
   return resolved.startsWith(root)?resolved:null;
