@@ -56,10 +56,10 @@ assert(count(html,'data-vfp-progress-design="1"')===1,'Programs design was injec
 assert(count(html,'data-vfp-progress-runtime="1"')===1,'Programs progress runtime was injected more than once');
 assert(html.trim().endsWith('</html>'),'Built index.html has content after the closing HTML tag');
 
-// Text polishers are allowed to update visible UI copy only. They must never rewrite scripts or styles.
+// Text polishers are allowed to update visible legacy UI copy only. They must never rewrite scripts, styles, or the V2 shell.
 assert(!html.includes('while(walker.nextNode()) nodes.push(walker.currentNode);'),'Unsafe unfiltered text walker remains');
 assert(!html.includes('const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);'),'Unsafe program text walker remains');
-assert(html.includes("parent.closest('script,style,noscript,template')"),'Executable-node copy protection is missing');
+assert(html.includes("parent.closest('script,style,noscript,template,#vf-v2-public-shell')"),'Executable/V2 copy protection is missing');
 
 const startHereStart=html.indexOf('function StartHereFlow(');
 const startHereEnd=html.indexOf('// ============================================\n// RESULTS / LOCATIONS / CONTACT PAGES',startHereStart);

@@ -43,6 +43,10 @@ async function collectSeriousErrors(page){
 
 async function waitForApp(page,path='/'){
   await page.goto(baseURL+path,{waitUntil:'domcontentloaded'});
+  if(path==='/'||path==='/home'){
+    await page.waitForSelector('#vf-v2-public-shell',{state:'visible',timeout:10000});
+    return;
+  }
   await page.waitForFunction(()=>{
     const root=document.getElementById('root');
     if(!root)return false;
@@ -62,16 +66,44 @@ async function expectNoErrors(page,capture){
   expect(seriousDiagnostics).toEqual([]);
 }
 
-const primaryStart=page=>page.getByRole('button',{name:'Start Your Transformation',exact:true}).first();
-const primaryLogin=page=>page.getByRole('button',{name:'Client Login',exact:true}).first();
-const primaryPrograms=page=>page.getByRole('button',{name:'Online Programs',exact:true}).first();
+const primaryStart=page=>page.getByRole('link',{name:'Start Your Transformation',exact:true}).first();
+const secondaryPrograms=page=>page.getByRole('link',{name:'Browse Programs',exact:true}).first();
+const accountLink=page=>page.getByRole('link',{name:'Account',exact:true}).first();
 
-test('homepage mounts and primary actions render',async({page})=>{
+test('V2 homepage mounts with the six-element hero and one primary action',async({page})=>{
   const capture=await collectSeriousErrors(page);
   await waitForApp(page);
+  await expect(page.getByText('PERSONAL TRAINER IN NASSAU, BAHAMAS',{exact:true})).toBeVisible();
+  await expect(page.getByText('Built Different.',{exact:true})).toBeVisible();
+  await expect(page.getByText('Trained Different.',{exact:true})).toBeVisible();
+  await expect(page.getByText('Results Tracked.',{exact:true})).toBeVisible();
   await expect(primaryStart(page)).toBeVisible();
-  await expect(primaryLogin(page)).toBeVisible();
-  await expect(primaryPrograms(page)).toBeVisible();
+  await expect(secondaryPrograms(page)).toBeVisible();
+  await expect(page.getByText('500+ TRANSFORMATIONS · 4 COACHES · 3 NASSAU GYMS',{exact:true})).toBeVisible();
+  await expect(page.locator('.vf-v2-hero .vf-v2-primary')).toHaveCount(1);
+  await expectNoErrors(page,capture);
+});
+
+test('V2 hero fits the 390x844 mobile viewport without horizontal overflow',async({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  const capture=await collectSeriousErrors(page);
+  await waitForApp(page);
+  const layout=await page.evaluate(()=>{
+    const hero=document.querySelector('.vf-v2-hero');
+    const rect=hero.getBoundingClientRect();
+    const visibleTargets=[...document.querySelectorAll('#vf-v2-public-shell a,#vf-v2-public-shell button')].filter(el=>{
+      const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+      return cs.display!=='none'&&cs.visibility!=='hidden'&&r.width>0&&r.height>0&&r.top<window.innerHeight;
+    }).map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,label:(el.textContent||el.getAttribute('aria-label')||'').trim()}));
+    return {heroBottom:rect.bottom,viewportH:window.innerHeight,viewportW:window.innerWidth,scrollW:document.documentElement.scrollWidth,targets:visibleTargets};
+  });
+  expect(layout.heroBottom).toBeLessThanOrEqual(layout.viewportH+2);
+  expect(layout.scrollW).toBeLessThanOrEqual(layout.viewportW+2);
+  for(const target of layout.targets){
+    expect(target.h,'tap target '+target.label).toBeGreaterThanOrEqual(44);
+  }
+  await expect(page.locator('.vf-v2-navlinks')).toBeHidden();
+  await expect(page.locator('.vf-v2-menu')).toBeVisible();
   await expectNoErrors(page,capture);
 });
 
@@ -86,13 +118,22 @@ test('Start Here guided intake opens and advances',async({page})=>{
   await expectNoErrors(page,capture);
 });
 
-test('Client Login opens a usable authentication form',async({page})=>{
+test('Account entry sends a signed-out visitor to a usable login form',async({page})=>{
   const capture=await collectSeriousErrors(page);
   await waitForApp(page);
-  await primaryLogin(page).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await accountLink(page).click();
+  await expect(page).toHaveURL(/\/login$/,{timeout:15000});
   await expect(page.locator('#root input[type="email"]')).toBeVisible({timeout:10000});
   await expect(page.locator('#root input[type="password"]')).toBeVisible();
+  await expectNoErrors(page,capture);
+});
+
+test('Browse Programs opens the public catalogue',async({page})=>{
+  const capture=await collectSeriousErrors(page);
+  await waitForApp(page);
+  await secondaryPrograms(page).click();
+  await expect(page).toHaveURL(/\/programs$/);
+  await expect(page.getByRole('heading',{name:/WORKOUT PROGRAMS/i})).toBeVisible({timeout:10000});
   await expectNoErrors(page,capture);
 });
 
@@ -129,25 +170,16 @@ test('protected My Programs route sends signed-out visitors to login',async({pag
 
 test('program completion service commits status and logs atomically',async({page})=>{
   const capture=await collectSeriousErrors(page);
-  await waitForApp(page);
+  await waitForApp(page,'/programs');
   const result=await page.evaluate(async()=>{
     const state={id:'enrollment-1',status:'active',currentWeek:1,completedWorkouts:[],setLogs:{}};
     const captured={update:null};
     const ref={id:'enrollment-1'};
-    const transaction={
-      get:async()=>({exists:true,id:'enrollment-1',data:()=>state}),
-      update:(_ref,update)=>{captured.update=update;}
-    };
-    const db={
-      collection:()=>({doc:()=>ref}),
-      runTransaction:async callback=>callback(transaction)
-    };
+    const transaction={get:async()=>({exists:true,id:'enrollment-1',data:()=>state}),update:(_ref,update)=>{captured.update=update;}};
+    const db={collection:()=>({doc:()=>ref}),runTransaction:async callback=>callback(transaction)};
     const firebase={firestore:{FieldValue:{serverTimestamp:()=>('__SERVER_TIMESTAMP__')}}};
     const program={id:'test-program',weeklyPlans:[{week:1,workouts:[{name:'Test Workout',exercises:[]}]}]};
-    const response=await window.VFitnessProgramCore.completeWorkout({
-      db,firebase,enrollment:state,program,week:1,workoutIndex:0,
-      sessionKey:'test-session',log:{duration:120,sets:{}}
-    });
+    const response=await window.VFitnessProgramCore.completeWorkout({db,firebase,enrollment:state,program,week:1,workoutIndex:0,sessionKey:'test-session',log:{duration:120,sets:{}}});
     return {response,update:captured.update};
   });
   expect(result.response.status).toBe('completed');

@@ -33,6 +33,8 @@
     if(match)return {path:path,page:'workoutprograms',tab:'all',programSlug:decodeURIComponent(match[1])};
     match=path.match(/^\/program\/([^/]+)$/i);
     if(match)return {path:path,page:'workoutprograms',tab:'purchased',enrollmentId:decodeURIComponent(match[1]),protected:true};
+    match=path.match(/^\/trainers\/([^/]+)$/i);
+    if(match)return {path:path,page:'trainers',trainerSlug:decodeURIComponent(match[1])};
     if(path==='/my-programs')return {path:path,page:'workoutprograms',tab:'purchased',protected:true};
     const aliases={
       '/':'home','/home':'home','/start':'starthere','/starthere':'starthere','/register':'starthere','/join':'starthere','/apply':'starthere',
@@ -48,6 +50,7 @@
   function tabFromLocation(){return current().tab||'all';}
   function enrollmentFromLocation(){return current().enrollmentId||null;}
   function programSlugFromLocation(){return current().programSlug||null;}
+  function trainerSlugFromLocation(){return current().trainerSlug||null;}
 
   function emit(route){
     const detail=route||current();
@@ -73,6 +76,7 @@
     options=options||{};
     const route=current();
     if(page==='workoutprograms'&&(/^\/program(?:s)?\//.test(route.path)||route.path==='/programs'||route.path==='/my-programs'))return route;
+    if(page==='trainers'&&/^\/trainers\//.test(route.path))return route;
     const path=pagePaths[page]||'/';
     if(cleanPath(global.location.pathname)===path)return route;
     return navigate(path,{replace:!!options.replace});
@@ -96,6 +100,7 @@
     tabFromLocation:tabFromLocation,
     enrollmentFromLocation:enrollmentFromLocation,
     programSlugFromLocation:programSlugFromLocation,
+    trainerSlugFromLocation:trainerSlugFromLocation,
     navigate:navigate,
     syncPage:syncPage,
     openProgram:openProgram,
