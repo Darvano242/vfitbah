@@ -5,6 +5,8 @@ const html=fs.readFileSync(path.join(root,'site','index.html'),'utf8');
 const home=fs.readFileSync(path.join(root,'site','home.html'),'utf8');
 const pwa=fs.readFileSync(path.join(root,'site','vf-pwa-update.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'site','vf-design-system.css'),'utf8');
+const mobileCss=fs.readFileSync(path.join(root,'site','vf-mobile-home-fix.css'),'utf8');
+const homeGallery=fs.readFileSync(path.join(root,'site','vf-home-gallery.js'),'utf8');
 const router=fs.readFileSync(path.join(root,'site','vf-router.js'),'utf8');
 function ok(v,msg){if(!v)throw new Error('[V2 QA] '+msg);console.log('✓ '+msg)}
 const hero=pwa.slice(pwa.indexOf('function hero()'),pwa.indexOf('function proof()'));
@@ -25,8 +27,17 @@ ok(!html.includes("program.duration||program.weeks?`${program.weeks||program.dur
 ok(html.includes("program.duration||(program.weeks?`${program.weeks} weeks`:'8 weeks')"),'duration labels render complete strings exactly once');
 ok(!/\b(?:days|weeks)\s+weeks\b/i.test(html),'built app contains no duplicated duration unit text');
 ok(pwa.includes("name:'Kevin Mackey'")&&pwa.includes('Four coaches. One system.'),'four public coaches are present');
-ok(pwa.includes('proofMedia()')&&pwa.includes('out.slice(0,3)'),'results are capped to three real image candidates');
-ok(css.includes('aspect-ratio:4/5')&&css.includes('max-height:58vh'),'results aspect ratio and mobile height cap are present');
+ok(pwa.includes('proofMedia()')&&pwa.includes('out.slice(0,3)'),'legacy app results are capped to three real image candidates');
+ok(css.includes('aspect-ratio:4/5')&&css.includes('max-height:58vh'),'legacy results aspect ratio and mobile height cap are present');
+ok(home.includes('VF_V2_HOME_MOBILE_GALLERY_20260819'),'homepage Results placeholder is replaced by the live gallery mount');
+ok(home.includes('href="/vf-mobile-home-fix.css"')&&home.includes('src="/vf-home-gallery.js"'),'homepage loads the mobile fix and gallery runtime');
+ok(home.includes('data-vf-home-gallery')&&home.includes('data-gallery-stage')&&home.includes('data-gallery-thumbs'),'homepage gallery structure is present');
+ok(homeGallery.includes("collection('gallery')"),'homepage gallery reads the exact Firestore gallery collection used by AboutPage');
+ok(homeGallery.includes('5000')&&homeGallery.includes('touchstart')&&homeGallery.includes('touchend'),'homepage gallery keeps 5-second autoplay and touch swipe behavior');
+ok(homeGallery.includes("firebase-firestore-compat.js")&&homeGallery.includes('IntersectionObserver'),'homepage gallery lazy-loads Firestore near the gallery instead of at first paint');
+ok(mobileCss.includes('.vf-v2-h1 span')&&mobileCss.includes('white-space:normal!important'),'mobile hero headline is allowed to wrap');
+ok(mobileCss.includes('.vf-v2-hero{min-height:auto!important')&&mobileCss.includes('overflow-x:clip!important'),'mobile hero no longer forces a full-screen blank area or horizontal clipping');
+ok(mobileCss.includes('aspect-ratio:4/5')&&mobileCss.includes('68svh'),'mobile gallery is viewport-capped');
 ok(pwa.includes("p:19")&&pwa.includes("p:59")&&pwa.includes("p:99")&&pwa.includes('$294')&&pwa.includes('$195'),'membership and in-person pricing hierarchy is present');
 ok(pwa.includes('vf-v2-client-bottomnav')&&pwa.includes("data-a=\"today\"")&&pwa.includes("data-a=\"account\""),'five-tab client navigation is present');
 ok(pwa.includes("clientPrograms")&&pwa.includes('currentPhaseSessionsCompleted'),'client 18-session phase visibility is wired to real data');
@@ -37,4 +48,7 @@ ok(router.includes("match=path.match(/^\\/trainers\\/([^/]+)$/i)"),'trainer slug
 ok(css.includes('env(safe-area-inset-bottom)'),'safe-area bottom inset is respected');
 ok(css.includes('min-height:44px'),'44px tap-target floor is present');
 ok(css.includes('overflow-x:hidden'),'horizontal overflow guard is present');
+for(const [name,source] of [['vf-mobile-home-fix.css',mobileCss],['vf-home-gallery.js',homeGallery]]){
+  if(name.endsWith('.js'))new Function(source);
+}
 console.log('VFITNESS V2 static ship gate passed.');
