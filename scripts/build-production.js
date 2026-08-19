@@ -12,6 +12,8 @@ const steps=[
   'scripts/version-release.js',
   'scripts/apply-core-refactor.js',
   'scripts/fix-protected-route-timing.js',
+  'scripts/apply-v2-execution.js',
+  'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js',
   'scripts/verify-full-refactor.js'
