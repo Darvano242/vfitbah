@@ -36,8 +36,11 @@ ok(homeGallery.includes("collection('gallery')"),'homepage gallery reads the exa
 ok(homeGallery.includes('5000')&&homeGallery.includes('touchstart')&&homeGallery.includes('touchend'),'homepage gallery keeps 5-second autoplay and touch swipe behavior');
 ok(homeGallery.includes("firebase-firestore-compat.js")&&homeGallery.includes('IntersectionObserver'),'homepage gallery lazy-loads Firestore near the gallery instead of at first paint');
 ok(mobileCss.includes('.vf-v2-h1 span')&&mobileCss.includes('white-space:normal!important'),'mobile hero headline is allowed to wrap');
-ok(mobileCss.includes('.vf-v2-hero{min-height:auto!important')&&mobileCss.includes('overflow-x:clip!important'),'mobile hero no longer forces a full-screen blank area or horizontal clipping');
-ok(mobileCss.includes('aspect-ratio:4/5')&&mobileCss.includes('68svh'),'mobile gallery is viewport-capped');
+ok(mobileCss.includes('.vf-v2-heroin>*')&&mobileCss.includes('min-width:0!important'),'hero flex/grid width chain can shrink below content width');
+ok(mobileCss.includes('font-size:clamp(1.875rem,6.5vw,4.5rem)'),'mobile hero uses the overflow-safe type scale');
+ok(mobileCss.includes('padding:40px 0 56px'),'mobile hero removes desktop top-padding dead space');
+ok(mobileCss.includes('.vf-v2-proofbar{display:none!important}'),'duplicate mobile proof block is removed');
+ok(mobileCss.includes('aspect-ratio:4/5')&&mobileCss.includes('58svh'),'mobile gallery is viewport-capped');
 ok(pwa.includes("p:19")&&pwa.includes("p:59")&&pwa.includes("p:99")&&pwa.includes('$294')&&pwa.includes('$195'),'membership and in-person pricing hierarchy is present');
 ok(pwa.includes('vf-v2-client-bottomnav')&&pwa.includes("data-a=\"today\"")&&pwa.includes("data-a=\"account\""),'five-tab client navigation is present');
 ok(pwa.includes("clientPrograms")&&pwa.includes('currentPhaseSessionsCompleted'),'client 18-session phase visibility is wired to real data');

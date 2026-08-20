@@ -8,7 +8,7 @@ async function openHome(page,width,height=844){
   await page.evaluate(()=>document.fonts&&document.fonts.ready);
 }
 
-for(const width of [360,375,390]){
+for(const width of [320,360,375,390,430]){
   test(`V2 homepage ship gate at ${width}px`,async({page})=>{
     await openHome(page,width);
     const result=await page.evaluate(()=>{
@@ -16,6 +16,7 @@ for(const width of [360,375,390]){
       const h1=document.querySelector('.vf-v2-h1');
       const badge=document.querySelector('.vf-v2-herobadge');
       const proof=document.querySelector('.vf-v2-proofstrip');
+      const heroButtons=[...document.querySelectorAll('.vf-v2-heroactions a,.vf-v2-heroactions button')];
       const all=[...document.querySelectorAll('#vf-v2-public-shell *')];
       const serif=all.filter(el=>{
         const f=(getComputedStyle(el).fontFamily||'').toLowerCase();
@@ -27,16 +28,25 @@ for(const width of [360,375,390]){
         return r.height<44||r.width<44;
       }).map(el=>({label:(el.textContent||el.getAttribute('aria-label')||'').trim(),w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height}));
       const images=[...document.images].filter(img=>img.closest('#vf-v2-public-shell')&&img.getBoundingClientRect().width>0).map(img=>({w:img.getBoundingClientRect().width,h:img.getBoundingClientRect().height}));
-      const bounds=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width}};
+      const bounds=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,width:r.width,top:r.top,bottom:r.bottom,height:r.height}};
+      const overflowing=all.filter(el=>{
+        const r=el.getBoundingClientRect(),cs=getComputedStyle(el);
+        if(cs.display==='none'||cs.visibility==='hidden'||r.width===0)return false;
+        return r.left < -1 || r.right > document.documentElement.clientWidth + 1;
+      }).slice(0,10).map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,left:el.getBoundingClientRect().left}));
+      const h1Style=getComputedStyle(h1);
+      const lineHeight=parseFloat(h1Style.lineHeight)||parseFloat(h1Style.fontSize)*1.1;
       return {
         viewportW:innerWidth,viewportH:innerHeight,scrollW:document.documentElement.scrollWidth,
         heroBottom:hero.getBoundingClientRect().bottom,
         primaryCount:document.querySelectorAll('.vf-v2-hero .vf-v2-primary').length,
-        h1:bounds(h1),badge:bounds(badge),proof:bounds(proof),
+        h1:bounds(h1),badge:bounds(badge),proof:bounds(proof),buttons:heroButtons.map(bounds),
+        h1Lines:Math.round(h1.getBoundingClientRect().height/lineHeight),
         h1SpanWhiteSpace:[...h1.querySelectorAll('span')].map(el=>getComputedStyle(el).whiteSpace),
-        serif,tinyTargets,images,
+        serif,tinyTargets,images,overflowing,
         menuVisible:getComputedStyle(document.querySelector('.vf-v2-menu')).display!=='none',
         navHidden:getComputedStyle(document.querySelector('.vf-v2-navlinks')).display==='none',
+        proofBarHidden:getComputedStyle(document.querySelector('.vf-v2-proofbar')).display==='none',
         galleryMount:!!document.querySelector('[data-vf-home-gallery]'),
         galleryScript:!!document.querySelector('script[src="/vf-home-gallery.js"]'),
         mobileFixCss:!!document.querySelector('link[href="/vf-mobile-home-fix.css"]')
@@ -45,16 +55,19 @@ for(const width of [360,375,390]){
     expect(result.scrollW).toBeLessThanOrEqual(result.viewportW+2);
     expect(result.heroBottom).toBeLessThanOrEqual(result.viewportH+2);
     expect(result.primaryCount).toBe(1);
-    for(const box of [result.h1,result.badge,result.proof]){
+    expect(result.overflowing).toEqual([]);
+    for(const box of [result.h1,result.badge,result.proof,...result.buttons]){
       expect(box.left).toBeGreaterThanOrEqual(-1);
       expect(box.right).toBeLessThanOrEqual(result.viewportW+1);
       expect(box.width).toBeLessThanOrEqual(result.viewportW+1);
     }
+    if(width===360)expect(result.h1Lines).toBeLessThanOrEqual(3);
     expect(result.h1SpanWhiteSpace.every(value=>value==='normal')).toBe(true);
     expect(result.serif).toEqual([]);
     expect(result.tinyTargets).toEqual([]);
     expect(result.menuVisible).toBe(true);
     expect(result.navHidden).toBe(true);
+    expect(result.proofBarHidden).toBe(true);
     expect(result.galleryMount).toBe(true);
     expect(result.galleryScript).toBe(true);
     expect(result.mobileFixCss).toBe(true);
