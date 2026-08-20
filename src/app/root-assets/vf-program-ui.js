@@ -393,7 +393,7 @@
 
     const header=h('header',{className:'vfp-workout-top p-4'},
       h('div',{className:'max-w-4xl mx-auto'},
-        h('div',{className:'flex items-center gap-3'},
+        h('div',{className:'flex items-center gap-3 vfp-workout-header-row'},
           h('button',{type:'button',className:'vfp-btn vfp-secondary vfp-save-top',onClick:props.onExit},'Save & Exit'),
           h('div',{className:'min-w-0 flex-1'},
             h('div',{className:'text-xs text-gray-500'},'Exercise '+(index+1)+' of '+exercises.length+' · '+Math.floor(elapsed/60)+':'+String(elapsed%60).padStart(2,'0')),
