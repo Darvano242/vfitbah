@@ -5,7 +5,6 @@ const steps=[
   'scripts/apply-vfp-programs.js',
   'scripts/apply-vfp-progress-design.js',
   'scripts/apply-package-policy.js',
-  'scripts/add-kevin-package-trainer.js',
   'scripts/apply-home-mobile-kevin.js',
   'scripts/fix-application-submit-only.js',
   'scripts/harden-dom-copy-observers.js',
@@ -14,6 +13,8 @@ const steps=[
   'scripts/apply-core-refactor.js',
   'scripts/fix-protected-route-timing.js',
   'scripts/apply-v2-execution.js',
+  // Must run after every transformer that can rewrite site/index.html.
+  'scripts/add-kevin-package-trainer.js',
   'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js',
