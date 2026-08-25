@@ -15,6 +15,7 @@ const steps=[
   'scripts/apply-v2-execution.js',
   // Must run after every transformer that can rewrite site/index.html.
   'scripts/add-kevin-package-trainer.js',
+  'scripts/fix-password-reset.js',
   'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js',
