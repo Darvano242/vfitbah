@@ -16,6 +16,9 @@ const steps=[
   // Must run after every transformer that can rewrite site/index.html.
   'scripts/add-kevin-package-trainer.js',
   'scripts/fix-password-reset.js',
+  // Legacy inline program globals load after the first modular UI; restore the canonical program resolver last.
+  'scripts/fix-hourglass-program.js',
+  'scripts/verify-hourglass-program.js',
   'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
   'scripts/verify-production-qa.js',
