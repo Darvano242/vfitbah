@@ -18,6 +18,8 @@ const steps=[
   'scripts/fix-password-reset.js',
   // Legacy inline program globals load after the first modular UI; restore the canonical program resolver last.
   'scripts/fix-hourglass-program.js',
+  // Client-specific repair for the stale purchased Hourglass enrollment.
+  'scripts/fix-jei-hourglass-enrollment.js',
   'scripts/verify-hourglass-program.js',
   'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
