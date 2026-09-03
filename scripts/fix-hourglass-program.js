@@ -22,8 +22,9 @@ assert(ui.includes('if(Core)return Core.derive(program,enrollment||{});'),'Canon
 const marker='data-vf-program-ui-final="hourglass-inherited-weeks"';
 if(!html.includes(marker)){
   const tag='\n    <script src="/vf-program-ui.js?v=20260903-hourglass" '+marker+'></script>\n';
-  assert(html.includes('</body>'),'Closing body tag not found');
-  html=html.replace('</body>',tag+'</body>');
+  const closingBody=html.lastIndexOf('</body>');
+  assert(closingBody>=0,'Closing body tag not found');
+  html=html.slice(0,closingBody)+tag+html.slice(closingBody);
 }
 
 fs.writeFileSync(htmlFile,html);
