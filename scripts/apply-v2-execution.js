@@ -19,19 +19,15 @@ const GATE_FIX_MARK='VF_V2_GATE_FIX_20260819';
 const PROGRAM_COPY_MARK='VF_V2_PROGRAM_COPY_20260819';
 const HOME_MOBILE_MARK='VF_V2_HOME_MOBILE_GALLERY_20260819';
 
-// Trainer accounts do not receive the commercial Packages tab. Numbers is already admin-only.
 html=html.replace(
   "isAdmin||!['siteDesign','applications','testimonials','gallery','analytics','auditTrail','buttonqa'].includes(tab.id)",
   "isAdmin||!['siteDesign','applications','packages','testimonials','gallery','analytics','auditTrail','buttonqa'].includes(tab.id)"
 );
 
-// Resolve the legacy duration precedence bug. Existing strings such as "4 weeks" or "45 days"
-// are already complete labels and must never have another " weeks" appended.
 const legacyDuration="program.duration||program.weeks?`${program.weeks||program.duration} weeks`:'8 weeks'";
 const fixedDuration="program.duration||(program.weeks?`${program.weeks} weeks`:'8 weeks')";
 html=html.replaceAll(legacyDuration,fixedDuration);
 
-// Keep the stable internal program ID so existing purchases/enrollments continue resolving.
 const homeStart=html.indexOf("const HOME_30DAY_PROGRAM={id:'home-30day'");
 const homeEnd=homeStart>=0?html.indexOf('};function WorkoutProgramsPage',homeStart):-1;
 if(homeStart<0||homeEnd<0)throw new Error('Could not locate the stable HOME program object');
@@ -44,31 +40,31 @@ homeProgram=homeProgram
   .replace("'30-day meal plan included'","'Meal plan included'");
 html=html.slice(0,homeStart)+homeProgram+html.slice(homeEnd+2);
 
-// The public avatar is the signed-out login entry point. Authenticated clients reach the dashboard after auth.
 publicRuntime=publicRuntime
   .replace('<a class="vf-v2-account" href="/dashboard" aria-label="Account">','<a class="vf-v2-account" href="/login" aria-label="Account">')
   .replace('<a href="/dashboard">Account</a>','<a href="/login">Account</a>');
 
-// Load Geist as a real stylesheet link; the sans fallback chain still works if the font request fails.
 if(!html.includes('data-vf-geist-v2')){
   html=html.replace('</head>','<link data-vf-geist-v2="1" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap">\n</head>');
 }
 
-// Mobile homepage: load the hardening layer after the shared design system so the phone rules win.
 if(!home.includes('vf-mobile-home-fix.css')){
   home=home.replace('<link rel="stylesheet" href="/vf-design-system.css">','<link rel="stylesheet" href="/vf-design-system.css">\n  <link rel="stylesheet" href="/vf-mobile-home-fix.css">');
 }
 
-// Reuse the exact Firestore `gallery` collection used by AboutPage instead of a separate Results image picker.
 const oldHomeResults=`    <section class="vf-v2-section"><div class="vf-v2-wrap">
       <div class="vf-v2-head"><span class="vf-v2-eyebrow">RESULTS</span><h2 class="vf-v2-h2">Real clients only.</h2><p class="vf-v2-copy">No stock transformation, no fabricated rating, no placeholder dressed up as proof.</p></div>
       <div class="vf-v2-emptyproof"><div><strong>Client transformations are being curated for this section.</strong><p class="vf-v2-static-note">Only real VFitness client media with recorded consent is published here.</p></div></div>
     </div></section>`;
+const upgradedHomeResults=`    <section class="vf-v2-section"><div class="vf-v2-wrap">
+      <div class="vf-v2-head"><span class="vf-v2-eyebrow">RESULTS</span><h2 class="vf-v2-h2">Real clients only.</h2><p class="vf-v2-copy">Only real VFitness client media belongs here. No stock transformations and no fake proof.</p></div>
+      <div class="vf-v2-emptyproof"><div><strong>Client transformations are being curated for this section.</strong><p class="vf-v2-static-note">Only VFitness client media with recorded consent is published here.</p></div></div>
+    </div></section>`;
 const newHomeResults=`    <!-- ${HOME_MOBILE_MARK} -->
     <section class="vf-v2-section"><div class="vf-v2-wrap">
-      <div class="vf-v2-head"><span class="vf-v2-eyebrow">GALLERY</span><h2 class="vf-v2-h2">Inside VFitness.</h2><p class="vf-v2-copy">The same live slideshow from our About page — training, clients and the VFitness environment.</p></div>
+      <div class="vf-v2-head"><span class="vf-v2-eyebrow">GALLERY</span><h2 class="vf-v2-h2">Inside VFitness.</h2><p class="vf-v2-copy">The same live slideshow from our About page, showing training, clients and the VFitness environment.</p></div>
       <div class="vf-v2-home-gallery" data-vf-home-gallery aria-live="polite">
-        <div class="vf-v2-home-gallery-status" data-gallery-status>Loading the VFitness gallery…</div>
+        <div class="vf-v2-home-gallery-status" data-gallery-status>Loading the VFitness gallery...</div>
         <div class="vf-v2-home-gallery-stage" data-gallery-stage hidden>
           <div class="vf-v2-home-gallery-progress"><span data-gallery-progress></span></div>
           <button class="vf-v2-home-gallery-arrow vf-v2-home-gallery-prev" type="button" data-gallery-prev aria-label="Previous gallery image">←</button>
@@ -82,6 +78,7 @@ const newHomeResults=`    <!-- ${HOME_MOBILE_MARK} -->
       </div>
     </div></section>`;
 if(home.includes(oldHomeResults))home=home.replace(oldHomeResults,newHomeResults);
+else if(home.includes(upgradedHomeResults))home=home.replace(upgradedHomeResults,newHomeResults);
 if(!home.includes(HOME_MOBILE_MARK))throw new Error('Could not replace the static Results placeholder with the About gallery mount');
 if(!home.includes('vf-home-gallery.js'))home=home.replace('</body>','<script defer src="/vf-home-gallery.js"></script>\n</body>');
 
