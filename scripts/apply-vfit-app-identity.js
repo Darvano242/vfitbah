@@ -41,7 +41,8 @@ function insertBeforeLast(html,needle,insertion){
 
 function upgradeAppFallback(html){
   if(html.includes(FALLBACK_MARK))return html;
-  const fallback=`<div id="root" data-vfit-fallback="${FALLBACK_MARK}">
+  const fallback=`<div id="root">
+    <!-- ${FALLBACK_MARK} -->
     <main class="vf-v2-hero" style="min-height:100svh">
       <div class="vf-v2-wrap vf-v2-heroin">
         <div class="vf-v2-hero-copy">
@@ -126,6 +127,6 @@ const builtApp=fs.readFileSync(appPath,'utf8');
 if(!builtHome.includes(fontHref)||!builtApp.includes(fontHref))throw new Error('VFIT font stack not injected');
 if(!builtHome.includes('--vf-reef:#00C2A8')||!builtApp.includes('--vf-reef:#00C2A8'))throw new Error('Inline VFIT identity CSS missing from built HTML');
 if(!builtHome.includes(PUBLIC_MARK)||!builtHome.includes('vf-v2-appstage'))throw new Error('Major VFIT public overhaul missing from built homepage');
-if(!builtApp.includes(PUBLIC_MARK)||!builtApp.includes(FALLBACK_MARK))throw new Error('Major VFIT public overhaul missing from live app shell');
+if(!builtApp.includes(PUBLIC_MARK)||!builtApp.includes(FALLBACK_MARK)||!builtApp.includes('<div id="root">'))throw new Error('Major VFIT public overhaul missing from live app shell');
 
 console.log('Applied VFIT identity and public homepage overhaul to both production entry points.');
