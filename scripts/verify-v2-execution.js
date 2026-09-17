@@ -10,16 +10,17 @@ const homeGallery=fs.readFileSync(path.join(root,'site','vf-home-gallery.js'),'u
 const router=fs.readFileSync(path.join(root,'site','vf-router.js'),'utf8');
 function ok(v,msg){if(!v)throw new Error('[V2 QA] '+msg);console.log('✓ '+msg)}
 const hero=pwa.slice(pwa.indexOf('function hero()'),pwa.indexOf('function proof()'));
-ok(pwa.includes('VF_V2_EXECUTION_20260819'),'public V2 runtime is built');
+ok(pwa.includes('VF_V2_EXECUTION_20260917'),'public V2 runtime is built');
 ok(pwa.includes('VF_V2_APP_EXECUTION_20260819'),'app V2 runtime is built');
 ok(css.includes('VF_V2_EXECUTION_20260819'),'V2 design layer is built');
 ok(css.includes("--vf-font-sans:'Geist',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif"),'Geist has explicit sans fallbacks');
 ok(css.includes('--vf-gutter:20px')&&css.includes('--vf-section-y:56px')&&css.includes('--vf-card-pad:20px'),'mobile spacing scale is present');
 ok(css.includes('--vf-h1:34px')&&css.includes('--vf-h2:26px')&&css.includes('--vf-body-size:16px'),'mobile type scale is present');
-ok(hero.includes('Built Different.')&&hero.includes('Trained Different.')&&hero.includes('Results Tracked.'),'hero has the required three lines');
+ok(hero.includes("RESULTS AREN\\'T")&&hero.includes('RANDOM.')&&hero.includes("THEY\\'RE BUILT."),'hero has the new VFIT three-line headline');
 ok((hero.match(/vf-v2-primary/g)||[]).length===1,'hero has exactly one primary CTA');
-ok(hero.includes('Browse Programs')&&hero.includes('500+ TRANSFORMATIONS · 4 COACHES · 3 NASSAU GYMS'),'hero secondary action and proof strip are present');
-ok(pwa.includes("['01','Assess'")&&pwa.includes("['04','Track'"),'Assess → Program → Train → Track is present');
+ok(hero.includes('Explore programs')&&hero.includes('500+ TRANSFORMATIONS · 4 COACHES · 3 NASSAU GYMS'),'hero secondary action and proof strip are present');
+ok(hero.includes('vf-v2-appstage')&&hero.includes('YOUR PLAN.')&&hero.includes('YOUR DATA.')&&hero.includes('YOUR COACH.'),'hero contains the VFIT app-stage experience');
+ok(pwa.includes("['01','Assess'")&&pwa.includes("['04','Track'"),'Assess to Program to Train to Track is present');
 ok(pwa.includes("name:'HOME 45'")&&pwa.includes("duration:'45 days'"),'public V2 HOME 45 marketing copy is present');
 ok(home.includes('HOME 45')&&home.includes('45 days'),'lightweight homepage uses HOME 45');
 ok(html.includes("id:'home-30day',title:'HOME 45: 45 Day Get In Shape Plan'"),'app catalogue uses HOME 45 while preserving the stable home-30day id');
@@ -27,7 +28,7 @@ ok(!html.includes("program.duration||program.weeks?`${program.weeks||program.dur
 ok(html.includes("program.duration||(program.weeks?`${program.weeks} weeks`:'8 weeks')"),'duration labels render complete strings exactly once');
 ok(!/\b(?:days|weeks)\s+weeks\b/i.test(html),'built app contains no duplicated duration unit text');
 ok(pwa.includes("name:'Kevin Mackey'")&&pwa.includes('Four coaches. One system.'),'four public coaches are present');
-ok(pwa.includes('proofMedia()')&&pwa.includes('out.slice(0,3)'),'legacy app results are capped to three real image candidates');
+ok(pwa.includes('proofMedia()')&&pwa.includes('out.slice(0,6)'),'public results are capped to six real image candidates');
 ok(css.includes('aspect-ratio:4/5')&&css.includes('max-height:58vh'),'legacy results aspect ratio and mobile height cap are present');
 ok(home.includes('VF_V2_HOME_MOBILE_GALLERY_20260819'),'homepage Results placeholder is replaced by the live gallery mount');
 ok(home.includes('href="/vf-mobile-home-fix.css"')&&home.includes('src="/vf-home-gallery.js"'),'homepage loads the mobile fix and gallery runtime');
