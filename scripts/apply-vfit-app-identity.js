@@ -19,16 +19,22 @@ for(const file of [cssSource,jsSource,homePath,appPath]){
 fs.copyFileSync(cssSource,cssTarget);
 fs.copyFileSync(jsSource,jsTarget);
 
+function insertBeforeLast(html,needle,insertion){
+  const index=html.lastIndexOf(needle);
+  if(index<0)throw new Error('Missing closing '+needle+' while applying VFIT identity');
+  return html.slice(0,index)+insertion+html.slice(index);
+}
+
 function inject(file){
   let html=fs.readFileSync(file,'utf8');
   if(!html.includes('data-vfit-app-fonts="20260917"')){
-    html=html.replace('</head>',`  <link data-vfit-app-fonts="20260917" rel="stylesheet" href="${fontHref}">\n</head>`);
+    html=insertBeforeLast(html,'</head>',`  <link data-vfit-app-fonts="20260917" rel="stylesheet" href="${fontHref}">\n`);
   }
   if(!html.includes('data-vfit-app-identity="20260917"')){
-    html=html.replace('</head>','  <link data-vfit-app-identity="20260917" rel="stylesheet" href="/vfit-app-identity-2026.css">\n</head>');
+    html=insertBeforeLast(html,'</head>','  <link data-vfit-app-identity="20260917" rel="stylesheet" href="/vfit-app-identity-2026.css">\n');
   }
   if(!html.includes('data-vfit-app-motion="20260917"')){
-    html=html.replace('</body>','  <script data-vfit-app-motion="20260917" defer src="/vfit-app-identity-2026.js"></script>\n</body>');
+    html=insertBeforeLast(html,'</body>','  <script data-vfit-app-motion="20260917" defer src="/vfit-app-identity-2026.js"></script>\n');
   }
   if(!html.includes('data-vfit-app-identity="20260917"')||!html.includes('data-vfit-app-motion="20260917"')){
     throw new Error('Identity injection failed for '+path.basename(file));
