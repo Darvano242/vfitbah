@@ -1,0 +1,219 @@
+/* VF_APP_IDENTITY_20260917
+   Shared VFIT visual identity for vfitbah.com, aligned with the VFIT on-demand app.
+   Fonts: Bebas Neue display, Barlow Condensed stats/titles, Geist UI/body, Geist Mono tabular data.
+   Palette: Ink #0C0F14, Bone #F4F1EA, Reef #00C2A8, Conch #FF6B4A, Marine #0A3D62.
+*/
+:root{
+  --vf-ink:#0C0F14;
+  --vf-bone:#F4F1EA;
+  --vf-reef:#00C2A8;
+  --vf-conch:#FF6B4A;
+  --vf-marine:#0A3D62;
+  --vf-card:#12171D;
+  --vf-card-2:#151C23;
+  --vf-line:rgba(244,241,234,.12);
+  --vf-muted-identity:#98A3AD;
+  --vf-ease:cubic-bezier(.2,.8,.2,1);
+  --vf-fast:150ms;
+  --vf-normal:200ms;
+  --vf-slow:300ms;
+  --vf-epic:500ms;
+  --vf-display:'Bebas Neue',Impact,sans-serif;
+  --vf-condensed:'Barlow Condensed','Arial Narrow',sans-serif;
+  --vf-body:'Geist',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --vf-mono:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* Compatibility aliases neutralize the old azure/violet visual system. */
+  --vf-bg:var(--vf-ink);
+  --vf-bg-2:#10151B;
+  --vf-surface:var(--vf-card);
+  --vf-surface-2:var(--vf-card-2);
+  --vf-surface-glass:var(--vf-card);
+  --vf-border:var(--vf-line);
+  --vf-border-strong:rgba(0,194,168,.34);
+  --vf-text:var(--vf-bone);
+  --vf-muted:var(--vf-muted-identity);
+  --vf-blue:var(--vf-reef);
+  --vf-blue-hot:var(--vf-reef);
+  --vf-violet:var(--vf-reef);
+  --vf-green:var(--vf-reef);
+  --vf-warning:var(--vf-conch);
+  --mu-primary:var(--vf-reef);
+  --mu-primary-2:var(--vf-reef);
+}
+
+html,body,#root{font-family:var(--vf-body)!important;background:var(--vf-ink)!important;color:var(--vf-bone)!important}
+body{background-image:none!important}
+body::before{content:none!important}
+
+/* Typography hierarchy */
+h1,.vf-v2-h1,.vf-display,.vf-headline,.vf-headline-lg,.vf-heading-hero{
+  font-family:var(--vf-display)!important;
+  font-weight:400!important;
+  text-transform:uppercase;
+  letter-spacing:.02em!important;
+  line-height:.88!important;
+}
+h2,.vf-v2-h2,.vf-headline-sm{
+  font-family:var(--vf-display)!important;
+  font-weight:400!important;
+  text-transform:uppercase;
+  letter-spacing:.02em!important;
+  line-height:.92!important;
+}
+h3,.vf-v2-h3,.vf-card-title,.vf-card-title-lg,.vfp-card h3,.mu-card h3,.mu-program-card h3{
+  font-family:var(--vf-condensed)!important;
+  font-weight:700!important;
+  letter-spacing:0!important;
+  line-height:1.05!important;
+}
+.vf-stat,.vf-v2-proofstat strong,.vf-v2-price,.vf-v2-num,.vfp-progress-summary strong,.vf-v2-metric strong,[data-vf-stat]{
+  font-family:var(--vf-condensed)!important;
+  font-weight:800!important;
+  letter-spacing:-.03em!important;
+  font-variant-numeric:tabular-nums;
+}
+.vf-kicker,.vf-v2-eyebrow,.vf-v2-todayeyebrow,.vf-stat-label,[data-vf-kicker]{
+  font-family:var(--vf-condensed)!important;
+  font-weight:700!important;
+  text-transform:uppercase;
+  letter-spacing:.16em!important;
+}
+.tabular,.tabular-nums,[data-vf-tabular]{font-family:var(--vf-mono)!important;font-variant-numeric:tabular-nums}
+button,a,input,select,textarea{font-family:var(--vf-body)!important}
+
+/* VFIT surfaces. Depth comes from hierarchy and imagery, not blur or glow. */
+.vfp-card,.mu-card,.mu-program-card,.vf-v2-card,.vf-v2-client-today,.vf-v2-admin-group,.vf-v2-package{
+  background:var(--vf-card)!important;
+  background-image:none!important;
+  border-color:var(--vf-line)!important;
+  box-shadow:none!important;
+}
+.vf-system-card,.vf-glass,.glass-3d{background:var(--vf-card)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}
+[class*="backdrop-blur"]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+[class*="shadow-"]{--tw-shadow-colored:0 0 #0000}
+
+/* Remove legacy gradient treatments. Buttons become solid Reef. */
+.gradient-text,.gradient-text-animated,.vf-blue-word,.vf-accent-word,.vf-accent-word-animated,.vf-v2-num,.bg-clip-text.text-transparent{
+  background:none!important;
+  background-image:none!important;
+  color:var(--vf-reef)!important;
+  -webkit-text-fill-color:var(--vf-reef)!important;
+  text-shadow:none!important;
+}
+.vf-v2-primary,.vf-v2-todayaction,.vf-proof-primary,.gradient-primary,.gradient-cta,
+button.bg-gradient-to-r,button.bg-gradient-to-br,a.bg-gradient-to-r,a.bg-gradient-to-br{
+  background:var(--vf-reef)!important;
+  background-image:none!important;
+  color:var(--vf-ink)!important;
+  box-shadow:none!important;
+}
+.vf-v2-phasebar span,.vf-proof-progress-bar{background:var(--vf-reef)!important;background-image:none!important;box-shadow:none!important}
+
+/* Compatibility sweep for old azure/violet/cyan utility colors. */
+[class*="text-cyan-"],[class*="text-blue-"],[class*="text-violet-"],[class*="text-purple-"]{color:var(--vf-reef)!important}
+[class*="border-cyan-"],[class*="border-blue-"],[class*="border-violet-"],[class*="border-purple-"]{border-color:rgba(0,194,168,.34)!important}
+
+/* Core controls */
+button,.vfp-btn,.vf-v2-primary,.vf-v2-secondary,.vf-v2-linkbtn{
+  transition:transform var(--vf-fast) var(--vf-ease),background-color var(--vf-normal) var(--vf-ease),border-color var(--vf-normal) var(--vf-ease),opacity var(--vf-normal) var(--vf-ease)!important;
+}
+button:active,.vfp-btn:active,.vf-v2-primary:active,.vf-v2-secondary:active,.vf-v2-linkbtn:active{transform:scale(.97)!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--vf-reef)!important;outline-offset:3px!important}
+.vf-v2-secondary{background:transparent!important;border-color:rgba(244,241,234,.18)!important;color:var(--vf-bone)!important}
+.vf-v2-linkbtn{background:var(--vf-marine)!important;border-color:rgba(0,194,168,.28)!important;color:var(--vf-bone)!important}
+
+/* Public site shell */
+#vf-v2-public-shell{background:var(--vf-ink)!important;color:var(--vf-bone)!important}
+.vf-v2-wrap{width:min(1280px,calc(100% - (var(--vf-gutter) * 2)))!important}
+.vf-v2-nav{background:var(--vf-ink)!important;border-color:var(--vf-line)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.vf-v2-bolt{background:var(--vf-marine)!important;color:var(--vf-reef)!important;border-color:rgba(0,194,168,.30)!important}
+.vf-v2-logo{font-family:var(--vf-condensed)!important;font-weight:800!important;letter-spacing:.02em!important}
+.vf-v2-navlinks{color:var(--vf-muted-identity)!important}
+.vf-v2-navlinks a:hover{color:var(--vf-bone)!important}
+.vf-v2-account,.vf-v2-menu{background:var(--vf-card)!important;border-color:var(--vf-line)!important;color:var(--vf-bone)!important}
+.vf-v2-mobilemenu{background:var(--vf-ink)!important;border-color:var(--vf-line)!important}
+.vf-v2-hero{background:var(--vf-ink)!important;background-image:none!important;min-height:calc(100svh - 64px)}
+.vf-v2-hero::before{content:none!important}
+.vf-v2-herobadge{border-color:rgba(0,194,168,.32)!important;background:rgba(0,194,168,.08)!important;color:var(--vf-reef)!important}
+.vf-v2-heroin .vf-v2-copy,.vf-v2-copy{color:var(--vf-muted-identity)!important}
+.vf-v2-proofstrip{color:var(--vf-muted-identity)!important}
+.vf-v2-proofbar{background:#10151B!important;border-block:1px solid var(--vf-line)}
+.vf-v2-proofstat strong{font-size:clamp(2.5rem,6vw,4rem)!important;line-height:.88!important;color:var(--vf-bone)!important}
+.vf-v2-proofstat span{font-size:10px!important;text-transform:uppercase;letter-spacing:.14em!important;color:var(--vf-muted-identity)!important}
+.vf-v2-eyebrow{color:var(--vf-reef)!important}
+.vf-v2-pill,.vf-v2-packageprices span{background:var(--vf-marine)!important;color:var(--vf-bone)!important}
+.vf-v2-avatar{background:var(--vf-marine)!important;border-color:rgba(0,194,168,.26)!important;color:var(--vf-bone)!important}
+.vf-v2-tier.recommended{border-color:rgba(0,194,168,.45)!important}
+.vf-v2-rec{color:var(--vf-reef)!important}
+.vf-v2-close,.vf-v2-resultsview,.vf-v2-emptyproof{background:var(--vf-card)!important;border-color:var(--vf-line)!important}
+
+/* Editorial layout: mixed card sizes, not a uniform SaaS grid. */
+@media(min-width:900px){
+  .vf-v2-programgrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;grid-auto-flow:dense;gap:16px!important}
+  .vf-v2-programgrid>.vf-v2-program:nth-child(7n+1){grid-column:span 2;grid-row:span 2;min-height:420px}
+  .vf-v2-programgrid>.vf-v2-program:nth-child(7n+4){grid-column:span 2}
+  .vf-v2-programgrid>.vf-v2-program:nth-child(7n+7){grid-column:1/-1;display:grid;grid-template-columns:1.2fr .8fr;align-items:end}
+  .vf-v2-grid2{grid-template-columns:1.25fr .75fr!important;gap:16px!important}
+  .vf-v2-coachgrid{grid-template-columns:1.3fr .7fr 1fr 1fr!important;gap:16px!important}
+}
+
+/* Dashboard and app shell: 12-column rhythm and compact athletic hierarchy. */
+body.vf-dashboard-page main,body.vf-dashboard-page #root>div{max-width:100%!important}
+body.vf-dashboard-page [data-vf-dashboard-grid]{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px 24px}
+.vf-v2-client-today{max-width:1200px!important;border-radius:22px!important}
+.vf-v2-todaytitle{font-family:var(--vf-condensed)!important;font-weight:700!important}
+.vf-v2-metric{background:#10151B!important;border:1px solid var(--vf-line);border-radius:16px!important}
+.vf-v2-nextsession{background:var(--vf-marine)!important;border-color:rgba(0,194,168,.25)!important}
+.vf-v2-client-bottomnav{background:var(--vf-card)!important;border:1px solid var(--vf-line)!important;border-radius:22px!important;left:12px!important;right:12px!important;bottom:max(12px,env(safe-area-inset-bottom))!important;box-shadow:0 8px 24px -8px rgba(0,0,0,.52),0 2px 6px -2px rgba(0,0,0,.28)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.vf-v2-client-bottomnav button.is-active{color:var(--vf-reef)!important}
+
+/* Photography and flat fields */
+.vf-flat-field,[data-vf-flat-field]{background:var(--vf-marine)!important;color:rgba(244,241,234,.5)!important}
+.vf-scrim-bottom,[data-vf-scrim-bottom]{background:linear-gradient(to top,rgba(12,15,20,.94),rgba(12,15,20,.46) 52%,transparent)!important}
+img{image-rendering:auto}
+
+/* Motion signature */
+.vf-identity-reveal{opacity:0;transform:translateY(16px);transition:opacity var(--vf-epic) var(--vf-ease),transform var(--vf-epic) var(--vf-ease)}
+.vf-identity-reveal.is-visible{opacity:1;transform:none}
+.vf-identity-card{opacity:0;transform:translateY(12px);transition:opacity var(--vf-slow) var(--vf-ease),transform var(--vf-slow) var(--vf-ease),border-color var(--vf-normal) var(--vf-ease)}
+.vf-identity-card.is-visible{opacity:1;transform:none}
+@media(hover:hover) and (pointer:fine){.vf-v2-card:hover,.vfp-card[data-interactive="true"]:hover,.mu-program-card:hover{transform:translateY(-2px);border-color:rgba(0,194,168,.30)!important}}
+
+/* Public theme toggle added by the runtime. */
+.vf-identity-theme-toggle{width:40px;height:40px;min-height:40px;display:grid;place-items:center;border-radius:50%;border:1px solid var(--vf-line);background:var(--vf-card);color:var(--vf-bone);padding:0;flex:0 0 auto}
+.vf-identity-theme-toggle svg{width:18px;height:18px;display:block}
+
+/* Light theme capability. Public marketing surfaces are fully supported. */
+html.light,html.light body{background:var(--vf-bone)!important;color:var(--vf-ink)!important;color-scheme:light}
+html.light{
+  --vf-card:#FBF9F4;
+  --vf-card-2:#ECE8E0;
+  --vf-line:rgba(12,15,20,.12);
+  --vf-muted-identity:#59636C;
+}
+html.light #vf-v2-public-shell{background:var(--vf-bone)!important;color:var(--vf-ink)!important}
+html.light .vf-v2-nav{background:var(--vf-bone)!important}
+html.light .vf-v2-mobilemenu{background:var(--vf-bone)!important}
+html.light .vf-v2-navlinks,html.light .vf-v2-copy,html.light .vf-v2-caption,html.light .vf-v2-proofstrip{color:var(--vf-muted-identity)!important}
+html.light .vf-v2-navlinks a:hover{color:var(--vf-ink)!important}
+html.light .vf-v2-account,html.light .vf-v2-menu,html.light .vf-identity-theme-toggle{background:#FBF9F4!important;color:var(--vf-ink)!important}
+html.light .vf-v2-hero{background:var(--vf-bone)!important}
+html.light .vf-v2-card,html.light .vf-v2-client-today,html.light .vf-v2-package,html.light .vf-v2-admin-group{background:#FBF9F4!important;color:var(--vf-ink)!important}
+html.light .vf-v2-proofbar{background:#ECE8E0!important}
+html.light .vf-v2-proofstat strong{color:var(--vf-ink)!important}
+html.light .vf-v2-secondary{color:var(--vf-ink)!important;border-color:rgba(12,15,20,.18)!important}
+html.light .vf-v2-close,html.light .vf-v2-resultsview,html.light .vf-v2-emptyproof{background:#FBF9F4!important;color:var(--vf-ink)!important}
+html.light .vf-v2-client-bottomnav{background:#FBF9F4!important}
+
+@media(max-width:767px){
+  .vf-v2-h1 span{white-space:normal!important}
+  .vf-v2-programgrid,.vf-v2-grid2,.vf-v2-coachgrid{grid-template-columns:minmax(0,1fr)!important}
+  .vf-v2-card{border-radius:18px!important}
+  .vf-v2-client-bottomnav{left:8px!important;right:8px!important;border-radius:20px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .vf-identity-reveal,.vf-identity-card{opacity:1!important;transform:none!important;transition:none!important}
+  button,.vfp-btn,.vf-v2-primary,.vf-v2-secondary,.vf-v2-linkbtn{transition:none!important}
+}
