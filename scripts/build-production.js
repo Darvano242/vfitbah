@@ -20,6 +20,8 @@ const steps=[
   'scripts/fix-hourglass-program.js',
   // Client-specific repair for the stale purchased Hourglass enrollment.
   'scripts/fix-jei-hourglass-enrollment.js',
+  // Apply the VFIT on-demand app visual identity after all HTML transformers so its fonts, themes and motion remain authoritative.
+  'scripts/apply-vfit-app-identity.js',
   'scripts/verify-hourglass-program.js',
   'scripts/verify-v2-execution.js',
   'scripts/verify-vfp-progress-design.js',
