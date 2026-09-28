@@ -182,6 +182,43 @@ function range(marker,from,until,to){
   after(A,TAIL,'})');
 }
 
+
+// 5f. Image uploads: Firebase Storage for this project rejects the site origin (CORS), which left uploads spinning.
+//     Images now go to the VFitness file host first, with the old inline fallback kept.
+once("async function uploadImageToStorage(file,folder='gallery'){const compressedDataUrl=await compressImage(file);if(storage){",
+     "async function uploadImageToStorage(file,folder='gallery'){const compressedDataUrl=await compressImage(file);try{if(window.vfHostUpload){return await window.vfHostUpload(compressedDataUrl,folder+'-'+(file.name||'image'));}}catch(hostErr){console.warn('File host upload failed, trying Storage',hostErr);}if(storage&&!window.vfSkipStorage){");
+once("publishLocal(dataUrl,'Image preview loaded. Uploading public version in the background...');if(!storage){",
+     "publishLocal(dataUrl,'Image preview loaded. Uploading public version in the background...');try{if(window.vfHostUpload){const hosted=await window.vfHostUpload(dataUrl,'homepage-'+(file.name||'image'));publishLocal(hosted,'Image uploaded. Save to publish it for every visitor.');setUploading(false);if(e&&e.target)e.target.value='';return;}}catch(hostErr){console.warn('File host upload failed',hostErr);}if(!storage){");
+
+
+// 5g. Site scope: registration, sessions, payments and business management. Training, nutrition,
+//     sleep and progress tracking live in the VFIT app, so they are removed from the site.
+{
+  const D='function VFLegacyDashboardPage(', A='function AdminPage({user})';
+  after(D,"const[activeTab,setActiveTab]=useState(initialTab);",
+    "const[activeTab,setActiveTab]=useState(initialTab);useEffect(()=>{if(!['overview','sessions','invoices','coach','chat'].includes(activeTab))setActiveTab(activeTab==='chat'?'coach':'overview');},[activeTab]);");
+  range(D,`activeTab==='overview'&&React.createElement("div",{className:"space-y-5"}`,",activeTab==='success'",
+    "activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession})");
+  after(A,"const[activeTab,setActiveTab]=useState('clients');",
+    "const[activeTab,setActiveTab]=useState('clients');useEffect(()=>{if(['workouts','mealplans','checkins','buttonqa'].includes(activeTab))setActiveTab('clients');},[activeTab]);");
+  once(`[{label:'Home',icon:'home',go:()=>{setDashboardTab('overview');setCurrentPage('dashboard');},active:currentPage==='dashboard'},{label:'Train',icon:'dumbbell',go:()=>setCurrentPage('workoutprograms'),active:currentPage==='workoutprograms'||currentPage==='library'},{label:'Nutrition',icon:'utensils',go:()=>setCurrentPage('meals'),active:currentPage==='meals'},{label:'Progress',icon:'trending-up',go:()=>{setDashboardTab('progress');setCurrentPage('dashboard');},active:false},{label:'Messages',icon:'message-circle',go:()=>{setDashboardTab('chat');setCurrentPage('dashboard');},active:false}]`,
+    `[{label:'Home',icon:'home',go:()=>{setDashboardTab('overview');setCurrentPage('dashboard');},active:currentPage==='dashboard'&&dashboardTab==='overview'},{label:'Sessions',icon:'calendar',go:()=>{setDashboardTab('sessions');setCurrentPage('dashboard');},active:currentPage==='dashboard'&&dashboardTab==='sessions'},{label:'Invoices',icon:'receipt',go:()=>{setDashboardTab('invoices');setCurrentPage('dashboard');},active:currentPage==='dashboard'&&dashboardTab==='invoices'},{label:'Messages',icon:'message-circle',go:()=>{setDashboardTab('coach');setCurrentPage('dashboard');},active:currentPage==='dashboard'&&(dashboardTab==='coach'||dashboardTab==='chat')},{label:'VFIT App',icon:'smartphone',go:()=>{try{window.open(window.VF_APP_URL||'https://vfit-core-flow.base44.app/membership','_blank','noopener');}catch(e){}},active:false}]`);
+}
+
+
+// 5h. Professional checkout and quieter pages.
+once('function TestimonialSlider(','function VFLegacyTestimonialSlider(');
+range('function TrainerSelectionModal(','if(!isOpen)return null;return','}// WORKOUT PACKAGES INTERFACE (CLIENT VIEW)',
+  "if(!isOpen)return null;return React.createElement(VF26Checkout,{trainers:trainers,selectedTrainer:selectedTrainer,loading:loading,showPayPal:showPayPal,paypalRef:paypalRef,selectedPackage:selectedPackage,onClose:onClose,onSelect:handleSelectTrainer,onBack:()=>{setShowPayPal(false);setSelectedTrainer(null);}});");
+
+once(`React.createElement("div",{className:"min-h-screen bg-black flex items-center justify-center"},/*#__PURE__*/React.createElement("div",{className:"text-4xl font-black text-cyan-400"},"Loading..."))`,
+     `React.createElement("div",{className:"vf26-boot"},React.createElement("img",{src:"/vf26/vfit-app-icon.webp",alt:"",width:56,height:56}),React.createElement("span",{className:"vf26-boot-bar"}))`);
+// Plain language in alerts and confirms: no emoji.
+{
+  const EMOJI=/(?:[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}\u{2702}-\u{2705}\u{2708}-\u{2712}\u{2716}-\u{27BF}\u{2B50}\u{2B55}\u{231A}\u{231B}\u{23E9}-\u{23FA}]\u{FE0F}?\s?)/gu;
+  html=html.replace(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/g,(m,attrs,code)=>(/type="application\/ld\+json"/.test(attrs)?m:'<script'+attrs+'>'+code.replace(EMOJI,'')+'</script>'));
+}
+
 // 5. Theme colour meta
 html=html.replace(/<meta name="theme-color" content="[^"]*">/,'<meta name="theme-color" content="#0f1115">');
 

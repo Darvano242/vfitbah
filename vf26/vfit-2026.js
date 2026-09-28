@@ -88,6 +88,7 @@ function Navigation(props){
  React.useEffect(function(){setOpen(false);},[currentPage]);
  /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
  React.useEffect(function(){try{document.body.classList.toggle('vf26-app-page',currentPage==='dashboard'||currentPage==='admin');}catch(e){}},[currentPage]);
+ React.useEffect(function(){var appOnly={meals:1,workoutprograms:1,library:1,saved:1,aichat:1,community:1,sleep:1,progress:1,search:1};if(appOnly[currentPage]){try{setCurrentPage(user?'dashboard':'home');}catch(e){}}},[currentPage,!!user]);
  var lastPage=React.useRef(currentPage);
  React.useEffect(function(){if(lastPage.current===currentPage)return;lastPage.current=currentPage;function top(){try{window.scrollTo({top:0,left:0,behavior:'instant'});}catch(e){window.scrollTo(0,0);}}top();requestAnimationFrame(top);setTimeout(top,120);},[currentPage]);
  React.useEffect(function(){if(user)return;var gated={dashboard:1,admin:1,saved:1,aichat:1,community:1};if(!gated[currentPage])return;var t=setTimeout(function(){try{if(!auth.currentUser)setCurrentPage('login');}catch(e){}},1500);return function(){clearTimeout(t);};},[user,currentPage]);
@@ -115,7 +116,7 @@ function Navigation(props){
    h('button',{className:'vf26-round vf26-menu-btn',onClick:function(){setOpen(!open);},'aria-label':open?'Close menu':'Open menu','aria-expanded':open},icon(open?'close':'menu',20)));
  }
  var more=[['locations','Locations'],['about','About']];
- var memberLinks=user?(isAdmin?[['admin','Admin Dashboard'],['dashboard','My Client Dashboard']]:[['dashboard','Dashboard'],['saved','Saved'],['aichat','AI Coach']]).concat([['community','Community'],['search','Search']]):[];
+ var memberLinks=user?(isAdmin?[['admin','Admin Dashboard'],['dashboard','My Client Portal']]:[['dashboard','Client Portal']]):[];
  var sheet=open?h('div',{className:'vf26 vf26-sheet',role:'dialog','aria-label':'Menu'},
    h('div',{className:'vf26-sheet-grid'},memberLinks.concat(PUBLIC_LINKS).concat(more).map(function(l,i){return h('button',{key:l[0]+i,className:currentPage===l[0]?'on':'',onClick:nav(l[0])},l[1],icon('arrow',16));})),
    h('div',{className:'vf26-sheet-cta'},user?h('button',{className:'vf26-btn vf26-btn-outline',onClick:logout},'Log Out'):[
@@ -207,7 +208,7 @@ function Faq(){
 
 
 /* ================= ONLINE TRAINING (VFIT app plans) ================= */
-var VF_APP_URL='https://vfit-core-flow.base44.app/membership';
+var VF_APP_URL='https://vfit-core-flow.base44.app/membership';window.VF_APP_URL=VF_APP_URL;
 var APP_PLANS=[
  {name:'Standard',mo:'14.99',yr:'164.99',tag:'Stop guessing. Follow the plan.',points:['Full VFitness training library','Workout tracking and weight memory','Automatic rest timer','Nutrition logging','Progress tools']},
  {name:'Premium',mo:'24.99',yr:'274.99',tag:'Your data guides the next decision.',featured:true,points:['Everything in Standard','Adaptive weight recommendations','Barcode nutrition scanning','Readiness and progress scans','Deeper analytics and Coach Assist']},
@@ -871,6 +872,65 @@ var DashboardPage=shell('DashboardPage','member');
 var GlobalSearchPage=shell('GlobalSearchPage','member');
 
 
+
+/* ================= IMAGE HOSTING ================= */
+var VF_UPLOAD_URL='https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/integration-endpoints/Core/UploadFile';
+window.vfSkipStorage=true;
+window.vfHostUpload=function(src,name){
+ function toBlob(){if(src instanceof Blob)return Promise.resolve(src);return fetch(src).then(function(r){return r.blob();});}
+ return toBlob().then(function(blob){
+  var fd=new FormData();var clean=String(name||'image').replace(/\.[a-z0-9]+$/i,'').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,60)||'image';
+  fd.append('file',blob,clean+(blob.type==='image/png'?'.png':'.jpg'));
+  var ctrl=typeof AbortController!=='undefined'?new AbortController():null;var t=setTimeout(function(){try{ctrl&&ctrl.abort();}catch(e){}},30000);
+  return fetch(VF_UPLOAD_URL,{method:'POST',body:fd,signal:ctrl?ctrl.signal:undefined}).then(function(r){clearTimeout(t);if(!r.ok)throw new Error('Upload failed ('+r.status+')');return r.json();}).then(function(j){if(!j||!j.file_url)throw new Error('Upload returned no file');return j.file_url;});
+ });
+};
+
+
+/* ================= CHECKOUT (package purchase) ================= */
+function VF26Checkout(p){
+ var pkg=p.selectedPackage||{},pay=p.showPayPal,sel=p.selectedTrainer;
+ function isOnline(t){return !!t&&(t.email==='darvano17@gmail.com'||String(t.name||'').toLowerCase().indexOf('darvano')>=0);}
+ function nice(t){var n=String(t.name||'').trim();if(/^darvano$/i.test(n))n='Darvano Andrews';if(!n)n='VFitness Trainer';return n.replace(/\b([a-z])/g,function(m){return m.toUpperCase();});}
+ var seen={},list=[];(p.trainers||[]).forEach(function(t){var n=nice(t),k=n.split(' ')[0].toLowerCase();if(!t.name||seen[k])return;seen[k]=1;list.push(t);});
+ list.sort(function(a,b){return (isOnline(b)?1:0)-(isOnline(a)?1:0);});
+ React.useEffect(function(){function k(e){if(e.key==='Escape')p.onClose&&p.onClose();}document.addEventListener('keydown',k);var o=document.body.style.overflow;document.body.style.overflow='hidden';return function(){document.removeEventListener('keydown',k);document.body.style.overflow=o;};},[]);
+ var price=Number(pkg.price||0);
+ var summary=h('aside',{className:'vf26-co-sum'},
+  h('p',{className:'vf26-kicker'},'Order summary'),
+  h('div',{className:'row'},h('span',null,'Package'),h('b',null,pkg.title||'Training package')),
+  pkg.sessions?h('div',{className:'row'},h('span',null,'Sessions'),h('b',null,pkg.sessions)):null,
+  sel?h('div',{className:'row'},h('span',null,'Trainer'),h('b',null,nice(sel))):null,
+  h('div',{className:'row total'},h('span',null,'Total due'),h('b',null,'$'+price.toFixed(2).replace(/\.00$/,''),h('small',null,' BSD'))),
+  h('ul',{className:'vf26-co-notes'},
+   h('li',null,icon('check',14),'Sessions are added to your client portal once payment is confirmed'),
+   h('li',null,icon('check',14),'An invoice is available under Invoices & Payments'),
+   h('li',null,icon('check',14),'Questions: vfitnessbahamas@gmail.com')));
+ return h('div',{className:'vf26-co-overlay',role:'dialog','aria-modal':'true','aria-label':'Checkout',onClick:p.onClose},
+  h('div',{className:'vf26-co',onClick:function(e){e.stopPropagation();}},
+   h('header',{className:'vf26-co-head'},
+    h('div',null,h('p',{className:'vf26-kicker'},'Secure checkout'),h('h2',null,pay?'Complete your payment':'Choose your trainer')),
+    h('ol',{className:'vf26-co-steps'},h('li',{className:pay?'done':'on'},h('i',null,pay?icon('check',12):'1'),'Trainer'),h('li',{className:pay?'on':''},h('i',null,'2'),'Payment')),
+    h('button',{type:'button',className:'vf26-co-x','aria-label':'Close',onClick:p.onClose},icon('close',18))),
+   h('div',{className:'vf26-co-body'},
+    h('div',{className:'vf26-co-main'},
+     !pay?h(React.Fragment,null,
+      h('p',{className:'vf26-co-lead'},'Select the trainer for this package. Darvano Andrews accepts secure online payment. Other trainers are paid in person at your first session.'),
+      h('div',{className:'vf26-co-trainers'},list.map(function(t){var on=isOnline(t),n=nice(t);
+       return h('button',{key:t.id||n,type:'button',className:'vf26-co-tr',disabled:p.loading,onClick:function(){p.onSelect&&p.onSelect(t);}},
+        h('span',{className:'av'},n.split(' ').map(function(w){return w.charAt(0);}).join('').slice(0,2)),
+        h('span',{className:'t'},h('b',null,n),h('small',null,on?'Online payment available':'Pay in person')),
+        h('span',{className:'cta'},on?'Continue to payment':'Request package',icon('arrow',14)));})),
+      p.loading?h('p',{className:'vf26-co-status'},'Submitting your request...'):null):
+     h(React.Fragment,null,
+      h('button',{type:'button',className:'vf26-co-back',onClick:p.onBack},icon('arrow',14,{style:{transform:'rotate(180deg)'}}),'Change trainer'),
+      h('p',{className:'vf26-co-lead'},'Pay with PayPal or a debit or credit card. Payments are processed securely by PayPal; VFitness never sees your card details.'),
+      h('div',{ref:p.paypalRef,className:'vf26-co-paypal'}),
+      h('p',{className:'vf26-co-fine'},icon('check',13),'Encrypted payment processing by PayPal'))),
+    summary)));
+}
+window.VF26Checkout=VF26Checkout;
+
 /* ================= MEMBER + COACH WORKSPACE (app layout) ================= */
 function LIco(name,size,extra){var C=window.Ico;return C?h(C,Object.assign({name:name,size:size||18,color:'currentColor'},extra||{})):null;}
 var TONES={primary:'66,150,240',teal:'95,221,204',fire:'249,112,102',violet:'136,105,236',green:'52,199,120',gold:'245,183,59'};
@@ -884,20 +944,24 @@ function greeting(){var hr=new Date().getHours();return hr<12?'Good morning':hr<
 function pkgTotal(p){return p.sessionsTotal||p.sessions||((p.sessionsRemaining||0)+(p.sessionsCompleted||0));}
 
 function VF26Tabs(p){
- var items=p.items||[],active=p.active,admin=p.kind==='admin';
+ var admin=p.kind==='admin',active=p.active;
+ var HIDE=admin?{workouts:1,mealplans:1,checkins:1,buttonqa:1}:{workouts:1,meals:1,progress:1,checkin:1,chat:1};
+ var LABEL=admin?{siteDesign:'Website',clientManagement:'Client Records',analytics:'Reports',auditTrail:'Activity Log',appointments:'Bookings'}:{overview:'Overview',sessions:'Sessions',invoices:'Invoices & Payments',coach:'Messages'};
+ var ICON=admin?{}:{invoices:'receipt',coach:'message-circle'};
+ var items=(p.items||[]).filter(function(t){return !HIDE[t.id];}).map(function(t){return {id:t.id,label:LABEL[t.id]||t.label,icon:ICON[t.id]||t.icon};});
  var stripRef=React.useRef(null);
  React.useEffect(function(){try{var el=stripRef.current&&stripRef.current.querySelector('.on');if(el)el.scrollIntoView({block:'nearest',inline:'center',behavior:reduceMotion?'auto':'smooth'});}catch(e){}},[active]);
  function pick(id){return function(){p.onChange&&p.onChange(id);try{var g=document.querySelector('.vf26-ws-grid');if(g&&g.getBoundingClientRect().top<0)window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});}catch(e){}};}
  var u=p.user||{};
  return h(React.Fragment,null,
-  h('aside',{className:'vf26-rail','aria-label':admin?'Coach workspace':'Member workspace'},
+  h('aside',{className:'vf26-rail','aria-label':admin?'Business management':'Client portal'},
    h('div',{className:'vf26-rail-card'},
     h('div',{className:'vf26-rail-id'},
-     h('p',{className:'k'},admin?'Coach workspace':'Member workspace'),
+     h('p',{className:'k'},admin?'Business management':'Client portal'),
      h('p',{className:'n'},firstName(u)),
-     h('p',{className:'s'},admin?(u.role==='admin'?'Admin access':'Trainer access'):'VFitness client')),
+     h('p',{className:'s'},admin?(u.role==='admin'?'Administrator':'Trainer'):'Client account')),
     h('nav',null,items.map(function(t,i){var on=t.id===active;
-     return h(React.Fragment,{key:t.id},(admin&&(i===6||i===11))?h('div',{className:'vf26-rail-div'}):null,
+     return h(React.Fragment,{key:t.id},(admin&&(i===6||i===9))?h('div',{className:'vf26-rail-div'}):null,
       h('button',{type:'button',className:'vf26-rail-item'+(on?' on':''),'aria-current':on?'page':undefined,onClick:pick(t.id)},LIco(t.icon,16),h('span',null,t.label),on?h('i',{className:'dot'}):null));})))),
   h('div',{className:'vf26-tabstrip',role:'tablist',ref:stripRef},items.map(function(t){var on=t.id===active;
    return h('button',{key:t.id,type:'button',role:'tab','aria-selected':on,className:on?'on':'',onClick:pick(t.id)},LIco(t.icon,15),t.label);})));
@@ -910,9 +974,9 @@ function VF26MemberHead(p){
  var na=p.newAssignments||{};
  return h('section',{className:'vf26-today'},
   h('div',{className:'vf26-today-main'},
-   h('p',{className:'vf26-kicker'},'Today ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
+   h('p',{className:'vf26-kicker'},'Client portal ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
    h('h1',null,greeting()+', ',h('span',null,firstName(u)+'.')),
-   h('p',{className:'lead'},'Your training, sessions, meals and progress in one place.'),
+   h('p',{className:'lead'},'Your sessions, bookings, invoices and trainer messages in one place.'),
    (na.workout||na.mealPlan)?h('div',{className:'vf26-today-new'},
      na.workout?h('span',null,LIco('dumbbell',14),'New workout program'):null,
      na.mealPlan?h('span',null,LIco('utensils',14),'New meal plan'):null):null),
@@ -926,9 +990,9 @@ function VF26AdminHead(p){
  var u=p.user||{},now=useNow(30000);
  return h('section',{className:'vf26-today vf26-today-admin'},
   h('div',{className:'vf26-today-main'},
-   h('p',{className:'vf26-kicker'},'Coach control center ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
+   h('p',{className:'vf26-kicker'},'Business management ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
    h('h1',null,greeting()+', ',h('span',null,firstName(u)+'.')),
-   h('p',{className:'lead'},'Clients, sessions, packages and programs for the whole team.')));
+   h('p',{className:'lead'},'Clients, bookings, packages, payments and reporting for the whole team.')));
 }
 
 function SessionMeter(p){
@@ -956,8 +1020,35 @@ function SessionMeter(p){
      h('div',{className:'vf26-pc-bar'},h('i',{className:'tone-'+tn,style:{width:Math.max(3,pc)+'%'}})),
      h('button',{type:'button',disabled:r<=0,className:'vf26-btn '+(r<=0?'vf26-btn-outline':'vf26-btn-primary')+' block',onClick:function(){onLog&&onLog(x);}},r<=0?'Package complete':h(React.Fragment,null,LIco('check',16),'I am at the gym, log session')));})));
 }
+
+function fmtWhen(a){try{var d=a.date&&a.date.toDate?a.date.toDate():(a.dateString?new Date(a.dateString+'T'+(a.time||'00:00')+':00'):null);if(!d||isNaN(d))return a.dateString||'';return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+(a.time?' · '+(function(t){var p=t.split(':');var hh=+p[0];return ((hh%12)||12)+':'+p[1]+(hh<12?' AM':' PM');})(a.time):'');}catch(e){return '';}}
+function VF26ClientOverview(p){
+ var pk=p.packages||[],ap=p.appointments||[],go=p.setActiveTab||function(){};
+ var now=Date.now();
+ var upcoming=ap.filter(function(a){var d=a.date&&a.date.toDate?a.date.toDate().getTime():0;return d>=now-3600000&&a.status!=='cancelled';}).sort(function(a,b){return (a.date&&a.date.toDate?a.date.toDate():0)-(b.date&&b.date.toDate?b.date.toDate():0);}).slice(0,3);
+ function page(x){return function(){var sp=window.__vf26SetPage;if(sp)sp(x);try{window.scrollTo(0,0);}catch(e){}};}
+ return h('div',{className:'vf26-ov'},
+  h(SessionMeter,{packages:pk,onLogSession:p.onLogSession}),
+  h('div',{className:'vf26-ov-grid'},
+   h('section',{className:'vf26-panel'},
+    h('div',{className:'vf26-panel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Bookings'),h('h3',null,'Upcoming sessions')),h('button',{type:'button',className:'vf26-btn vf26-btn-outline sm',onClick:function(){go('sessions');}},'Book a session')),
+    upcoming.length?h('ul',{className:'vf26-list'},upcoming.map(function(a,i){return h('li',{key:a.id||i},Ico3D({name:'calendar',tile:40,size:18}),h('div',{className:'t'},h('b',null,fmtWhen(a)),h('small',null,(a.trainerName||'VFitness trainer'))),h('span',{className:'vf26-status s-'+(a.status||'pending')},a.status==='confirmed'?'Confirmed':a.status==='completed'?'Completed':'Pending'));})):
+     h('div',{className:'vf26-empty slim'},h('p',null,'No upcoming sessions. Book a time with your trainer and it will appear here.'))),
+   h('section',{className:'vf26-panel'},
+    h('div',{className:'vf26-panel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Account'),h('h3',null,'Manage your account'))),
+    h('div',{className:'vf26-actions'},
+     [['receipt','Invoices & payments','View and download your invoices',function(){go('invoices');}],
+      ['message-circle','Message your trainer','Questions about sessions or scheduling',function(){go('coach');}],
+      ['credit-card','Buy or renew a package','Personal training and semi private packages',page('pricing')]].map(function(r){
+      return h('button',{key:r[1],type:'button',className:'vf26-action',onClick:r[3]},Ico3D({name:r[0],tile:40,size:18}),h('span',{className:'t'},h('b',null,r[1]),h('small',null,r[2])),icon('arrow',16));})))),
+  h('section',{className:'vf26-panel vf26-appband'},
+   h('img',{src:'/vf26/vfit-app-icon.webp',alt:'VFIT app',width:56,height:56}),
+   h('div',{className:'t'},h('p',{className:'vf26-kicker'},'VFIT app'),h('h3',null,'Training, nutrition and progress live in the VFIT app.'),h('p',null,'Use the same email to follow your program, log meals and track progress. App Store and Google Play releases are coming soon.')),
+   h('a',{className:'vf26-btn vf26-btn-primary',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Open the VFIT app',icon('arrow',16,{className:'vf26-arrow'}))));
+}
+window.VF26ClientOverview=VF26ClientOverview;
 window.Ico3D=Ico3D;window.RealTimeClock=RealTimeClock;window.SessionMeter=SessionMeter;
-window.VF26Tabs=VF26Tabs;window.VF26MemberHead=VF26MemberHead;window.VF26AdminHead=VF26AdminHead;
+window.VF26Tabs=VF26Tabs;window.TestimonialSlider=function(){return null;};window.VF26MemberHead=VF26MemberHead;window.VF26AdminHead=VF26AdminHead;
 
 var PAGES={PricingPage:PricingPage,TrainersPage:TrainersPage,VFResultsPage:VFResultsPage,VFLocationsPage:VFLocationsPage,VFContactPage:VFContactPage,AboutPage:AboutPage,
  LoginPage:LoginPage,SignupPage:SignupPage,StartHereFlow:StartHereFlow,ApplicationPage:ApplicationPage,WorkoutProgramsPage:WorkoutProgramsPage,ProgramLibraryPage:ProgramLibraryPage,
