@@ -143,6 +143,14 @@ return RC("article",{key:pkg.id,className:"vf26-pkg"+(paused?" is-paused":"")},
   once(`(name||'?').charAt(0).toUpperCase())`,`String(name||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase())`);
 }
 
+
+// 5d. Sign in must never fall back to a signed out blank page.
+//     A missing profile document is created as a client profile; a failed profile read keeps the person signed in.
+once("auth.onAuthStateChanged(async user=>{if(user){try{// Get user role and data\nconst userDoc=await db.collection('users').doc(user.uid).get();const userData=userDoc.data();",
+     "auth.onAuthStateChanged(async user=>{if(user){try{let userDoc=null;try{userDoc=await db.collection('users').doc(user.uid).get();}catch(readErr){console.warn('Profile read failed, retrying',readErr);await new Promise(r=>setTimeout(r,1200));userDoc=await db.collection('users').doc(user.uid).get();}let userData=userDoc&&userDoc.data();if(!userData){userData={email:user.email||'',name:user.displayName||(user.email||'').split('@')[0],role:'client',onboardingCompleted:false};try{await db.collection('users').doc(user.uid).set(Object.assign({},userData,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});}catch(createErr){console.warn('Profile create failed',createErr);}}");
+once("}}catch(error){console.error('Error loading user data:',error);setUser(null);setIsAdmin(false);}}else{setUser(null);setIsAdmin(false);}setLoading(false);",
+     "}}catch(error){console.error('Error loading user data:',error);setUser(prev=>prev&&prev.uid===user.uid?prev:{uid:user.uid,email:user.email,displayName:user.displayName,name:user.displayName||(user.email||'').split('@')[0],role:'client'});setCurrentPage(p=>p==='login'||p==='signup'?'dashboard':p);}}else{setUser(null);setIsAdmin(false);}setLoading(false);");
+
 // 5. Theme colour meta
 html=html.replace(/<meta name="theme-color" content="[^"]*">/,'<meta name="theme-color" content="#0f1115">');
 
