@@ -790,3 +790,5 @@ html[data-vf26] .mu-bottomnav ~ .vf26-footer,html[data-vf26] body.vf26-member .v
 .vf26-store span{display:block;font-size:.62rem;color:rgba(255,255,255,.75);line-height:1.1;}
 .vf26-store b{display:block;font-size:1rem;font-weight:700;line-height:1.15;}
 .vf26-store em{position:absolute;top:-.55rem;right:.5rem;font-style:normal;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .45rem;border-radius:99px;background:linear-gradient(125deg,var(--vf-primary),var(--vf-violet));color:#fff;}
+.vf26-store b{white-space:nowrap;}
+@media(max-width:430px){.vf26-store{padding:.65rem .6rem;gap:.45rem}.vf26-store b{font-size:.88rem}.vf26-store svg{width:22px;height:22px}}
