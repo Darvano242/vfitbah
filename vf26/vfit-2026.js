@@ -86,6 +86,8 @@ function Navigation(props){
  React.useEffect(function(){root.setAttribute('data-vf-theme',theme==='light'?'light':'dark');try{document.querySelector('meta[name="theme-color"]')&&document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='light'?'#f5f5f9':'#0f1115');}catch(e){}},[theme]);
  React.useEffect(function(){try{document.body.classList.toggle('vf26-member',!!(user&&!isAdmin));}catch(e){}},[user,isAdmin]);
  React.useEffect(function(){setOpen(false);},[currentPage]);
+ /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
+ React.useEffect(function(){if(!user)return;var t=null;function fix(){var target=isAdmin?'admin':'dashboard';if((isAdmin&&currentPage==='dashboard')||currentPage==='login'||currentPage==='signup'){try{setCurrentPage(target);}catch(e){}}}fix();t=setTimeout(fix,2200);return function(){clearTimeout(t);};},[user,isAdmin,currentPage]);
  React.useEffect(function(){try{document.body.style.overflow=open?'hidden':'';}catch(e){}return function(){try{document.body.style.overflow='';}catch(e){}};},[open]);
  function nav(page){return function(){setOpen(false);go(setCurrentPage,page)();};}
  function logout(){setOpen(false);try{auth.signOut().then(function(){setCurrentPage('home');});}catch(e){setCurrentPage('home');}}
@@ -197,6 +199,43 @@ function Faq(){
 }
 
 
+
+/* ================= ONLINE TRAINING (VFIT app plans) ================= */
+var VF_APP_URL='https://vfit-core-flow.base44.app/membership';
+var APP_PLANS=[
+ {name:'Standard',mo:'14.99',yr:'164.99',tag:'Stop guessing. Follow the plan.',points:['Full VFitness training library','Workout tracking and weight memory','Automatic rest timer','Nutrition logging','Progress tools']},
+ {name:'Premium',mo:'24.99',yr:'274.99',tag:'Your data guides the next decision.',featured:true,points:['Everything in Standard','Adaptive weight recommendations','Barcode nutrition scanning','Readiness and progress scans','Deeper analytics and Coach Assist']},
+ {name:'Elite',mo:'30',yr:'330',tag:'The complete system plus human oversight.',points:['Everything in Premium','Priority VFitness coach review','Plan and progress questions answered','Unlimited training programs']}
+];
+function openApp(){try{window.open(VF_APP_URL,'_blank','noopener');}catch(e){location.href=VF_APP_URL;}}
+function toOnlinePlans(setCurrentPage){return function(){go(setCurrentPage,'pricing')();setTimeout(scrollToId('vf26-remote'),400);};}
+function OnlinePlans(){
+ var cs=React.useState('mo'),cyc=cs[0],setCyc=cs[1];
+ return h('section',{className:'vf26-section tight',id:'vf26-remote'},h('div',{className:'vf26-wrap'},
+  h(SectionHead,{row:true,kicker:'Online training',title:'Train anywhere with the VFIT app.',lead:'Online training runs through the VFIT app: your program, tracking, nutrition and coaching in one place.',right:h('div',{className:'vf26-tabs',role:'tablist'},
+   h('button',{role:'tab','aria-selected':cyc==='mo',className:cyc==='mo'?'on':'',onClick:function(){setCyc('mo');}},'Monthly'),
+   h('button',{role:'tab','aria-selected':cyc==='yr',className:cyc==='yr'?'on':'',onClick:function(){setCyc('yr');}},'Annual'))}),
+  h('div',{className:'vf26-app-grid'},APP_PLANS.map(function(pl,i){
+   var save=Math.round((Number(pl.mo)*12-Number(pl.yr))*100)/100;
+   return h(Reveal,{key:pl.name,className:'vf26-app-plan'+(pl.featured?' featured':''),delay:i*80},
+    pl.featured?h('span',{className:'tag'},'Most popular'):null,
+    h('div',{className:'nm'},pl.name),h('p',{className:'tg'},pl.tag),
+    h('div',{className:'pr'},h('b',null,'$'+(cyc==='mo'?pl.mo:pl.yr)),h('small',null,cyc==='mo'?' / month':' / year')),
+    h('div',{className:'sv'},cyc==='yr'&&save>0?'You save $'+save.toFixed(2).replace(/\.00$/,'')+' a year':'Cancel any time'),
+    h('ul',{className:'vf26-ticks'},pl.points.map(function(t){return h('li',{key:t},icon('check',15),t);})),
+    h('a',{className:'vf26-btn '+(pl.featured?'vf26-btn-blend':'vf26-btn-outline'),href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Start '+pl.name,icon('arrow',16,{className:'vf26-arrow'})));})),
+  h(Reveal,{className:'vf26-command vf26-remote vf26-coach-plan'},
+   h('div',{style:{position:'relative',zIndex:1}},
+    h('p',{className:'vf26-kicker'},'Elite Online Coaching'),
+    h('h2',{className:'vf26-h2'},'A dedicated VFitness coach, online.'),
+    h('p',{className:'vf26-lead'},'Premium online coaching inside the VFIT app, capped at 20 clients per coach.'),
+    h('ul',{className:'vf26-ticks'},['Custom program rebuilt every 4 weeks','One 20 minute video call per week','Written weekly review every Monday','Unlimited form checks, 48 hour turnaround','Messaging with 24 hour weekday reply'].map(function(t){return h('li',{key:t},icon('check',15),t);}))),
+   h('div',{className:'vf26-remote-price'},
+    h('div',{className:'v'},'$197',h('small',null,' / month')),
+    h('a',{className:'vf26-btn vf26-btn-blend',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Start Elite Coaching',icon('arrow',16,{className:'vf26-arrow'})),
+    h('button',{className:'vf26-btn vf26-btn-outline',onClick:function(){var sp=window.__vf26SetPage;if(sp)sp('apply');try{window.scrollTo(0,0);}catch(e){}}},'Ask a coach first')))));
+}
+
 /* ================= TRANSFORMATION REEL (home) ================= */
 function useGallery(){
  var gs=React.useState(null),g=gs[0],setG=gs[1];
@@ -303,10 +342,10 @@ function HomePage(props){
     h(Reveal,{className:'vf26-path',delay:90},
      h('img',{src:'/vf26/fuel-the-fire-v1.webp',alt:'Balanced high protein meal with vegetables',loading:'lazy'}),
      h('div',{className:'vf26-path-in'},
-      h('div',{className:'k'},'Online'),h('h3',null,'Online coaching'),
-      h('p',null,'Remote coaching with a written weekly plan, nutrition targets, weekly check ins and coach messaging from anywhere.'),
-      h('ul',null,h('li',null,'$60 per month'),h('li',null,'Weekly check ins'),h('li',null,'Coach messaging')),
-      h('div',{style:{display:'flex',gap:'.6rem',flexWrap:'wrap'}},h('button',{className:'vf26-btn vf26-btn-primary',onClick:go(setCurrentPage,'apply')},'Apply for coaching'),h('button',{className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,'pricing')},'See pricing'))))))),
+      h('div',{className:'k'},'Online'),h('h3',null,'Online training'),
+      h('p',null,'Train anywhere with the VFIT app: your program, tracking and nutrition in one place, with Elite Online Coaching for a dedicated coach.'),
+      h('ul',null,h('li',null,'App plans from $14.99 a month'),h('li',null,'Elite Online Coaching $197 a month'),h('li',null,'Cancel any time')),
+      h('div',{style:{display:'flex',gap:'.6rem',flexWrap:'wrap'}},h('button',{className:'vf26-btn vf26-btn-primary',onClick:toOnlinePlans(setCurrentPage)},'See online plans'),h('button',{className:'vf26-btn vf26-btn-outline',onClick:openApp},'Open the app'))))))),
 
   /* Coaches */
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
@@ -330,7 +369,7 @@ function HomePage(props){
      h('p',{className:'vf26-lead'},'No lock in contracts. You always know what you are paying for and how many sessions you have left.')),
     h('div',{className:'vf26-price-grid'},
      h('div',{className:'vf26-price'},h('div',{className:'l'},'Personal training'),h('div',{className:'v'},'$30',h('small',null,' / session and up')),h('p',null,'One on one coaching in Nassau. Semi private sessions from $22.')),
-     h('div',{className:'vf26-price'},h('div',{className:'l'},'Remote coaching'),h('div',{className:'v'},'$60',h('small',null,' / month')),h('p',null,'A written weekly plan, nutrition targets and weekly check ins from anywhere.')),
+     h('div',{className:'vf26-price'},h('div',{className:'l'},'Online training'),h('div',{className:'v'},'$14.99',h('small',null,' / month and up')),h('p',null,'VFIT app plans with your program, tracking and nutrition. Elite Online Coaching $197 a month.')),
      h('div',{className:'vf26-price'},h('div',{className:'l'},'Free consultation'),h('div',{className:'v'},'Free'),h('p',null,'Goals, body assessment and the right starting plan before you commit.'))),
     h('div',{className:'vf26-cta-row'},h('button',{className:'vf26-btn vf26-btn-primary',onClick:go(setCurrentPage,'pricing')},'View pricing',icon('arrow',16,{className:'vf26-arrow'})),h('button',{className:'vf26-btn vf26-btn-outline',onClick:lead(setCurrentPage,{})},'Start Your Transformation'))))),
 
@@ -362,7 +401,7 @@ function Footer(props){
      h('a',{href:'https://www.instagram.com/xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'Instagram'},icon('instagram',17)),
      h('a',{href:'https://www.facebook.com/xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'Facebook'},icon('facebook',17)),
      h('a',{href:'https://www.tiktok.com/@xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'TikTok'},icon('tiktok',17)))),
-   h('div',null,h('h5',null,'Train'),b('Start Here','starthere'),b('Pricing','pricing'),b('Online Coaching','apply'),b('Book a Consultation','book'),b('Client Login','login')),
+   h('div',null,h('h5',null,'Train'),b('Start Here','starthere'),b('Pricing','pricing'),b('Online Training','pricing'),b('Book a Consultation','book'),b('Client Login','login')),
    h('div',null,h('h5',null,'Company'),b('Trainers','trainers'),b('Results','results'),b('Locations','locations'),b('About','about'),b('Contact','contact')),
    h('div',null,h('h5',null,'Legal'),b('Privacy Policy','privacy'),b('Terms of Service','terms'),b('Refund and Cancellation','refund'),h('a',{href:'mailto:vfitnessbahamas@gmail.com'},'vfitnessbahamas@gmail.com'))),
   h('div',{className:'vf26-foot-base'},h('span',null,'© '+new Date().getFullYear()+' VFITNESS Training Services, Nassau, The Bahamas.'),h('span',null,'Training, programming and progress tracking.'))));
@@ -441,8 +480,8 @@ function LocationCards(p){
    h('button',{className:'vf26-link',onClick:lead(p.setCurrentPage,{vf_lead_location:l.name})},'Train here',icon('arrow',15)));}),
   h(Reveal,{className:'vf26-loc online',delay:240},
    h('span',{className:'vf26-loc-pin'},icon('globe',20)),
-   h('div',{className:'k'},'Anywhere'),h('h3',null,'Online coaching'),h('p',{className:'a'},'Train from home or any gym'),h('p',null,'A written weekly plan, nutrition targets and weekly check ins in your account.'),
-   h('button',{className:'vf26-link',onClick:go(p.setCurrentPage,'apply')},'Apply for coaching',icon('arrow',15))));
+   h('div',{className:'k'},'Anywhere'),h('h3',null,'Online training'),h('p',{className:'a'},'Train from home or any gym'),h('p',null,'The VFIT app: your program, tracking and nutrition from $14.99 a month.'),
+   h('button',{className:'vf26-link',onClick:toOnlinePlans(p.setCurrentPage)},'See online plans',icon('arrow',15))));
 }
 function HoursCard(){
  return h('div',{className:'vf26-hours'},h('div',{className:'hd'},icon('clock',18),'Training hours'),
@@ -538,9 +577,9 @@ function PricingPage(props){
       h('div',{style:{display:'flex',gap:'.6rem',flexWrap:'wrap'}},h('button',{className:'vf26-btn vf26-btn-primary',onClick:scrollToId('vf26-packages')},'See in person prices')))),
     h(Reveal,{className:'vf26-path',delay:90},
      h('img',{src:'/vf26/fuel-the-fire-v1.webp',alt:'Balanced high protein meal',loading:'lazy'}),
-     h('div',{className:'vf26-path-in'},h('div',{className:'k'},'Online'),h('h3',null,'Online coaching'),
-      h('p',null,'Send a quick coaching inquiry so your coach can tailor the plan, check ins and nutrition targets to you.'),
-      h('div',{style:{display:'flex',gap:'.6rem',flexWrap:'wrap'}},h('button',{className:'vf26-btn vf26-btn-primary',onClick:go(setCurrentPage,'apply')},'Sign up for coaching'),h('button',{className:'vf26-btn vf26-btn-outline',onClick:scrollToId('vf26-remote')},'See remote pricing'))))))),
+     h('div',{className:'vf26-path-in'},h('div',{className:'k'},'Online'),h('h3',null,'Online training'),
+      h('p',null,'Online training runs through the VFIT app, from $14.99 a month. Elite Online Coaching adds a dedicated coach.'),
+      h('div',{style:{display:'flex',gap:'.6rem',flexWrap:'wrap'}},h('button',{className:'vf26-btn vf26-btn-primary',onClick:scrollToId('vf26-remote')},'See online plans'),h('a',{className:'vf26-btn vf26-btn-outline',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Open the app'))))))),
 
   h('section',{className:'vf26-section tight',id:'inperson'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'In person training',title:'Personal training in Nassau, The Bahamas.'}),
@@ -564,17 +603,7 @@ function PricingPage(props){
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),
 
-  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h(Reveal,{className:'vf26-command vf26-remote',id:'vf26-remote'},
-    h('div',{style:{position:'relative',zIndex:1}},
-     h('p',{className:'vf26-kicker'},'Remote training'),
-     h('h2',{className:'vf26-h2'},'Coaching from anywhere.'),
-     h('p',{className:'vf26-lead'},'Train from anywhere with remote coaching through the True Coach app, with a written plan and coach feedback every week.'),
-     h('ul',{className:'vf26-ticks'},['Written weekly program','Form feedback on video','Nutrition targets','Weekly check ins'].map(function(t){return h('li',{key:t},icon('check',15),t);}))),
-    h('div',{className:'vf26-remote-price'},
-     h('div',{className:'v'},'$60',h('small',null,' / month')),
-     h('button',{className:'vf26-btn vf26-btn-blend',onClick:function(){select({title:'Remote Training',price:60});}},'Select package',icon('arrow',16,{className:'vf26-arrow'})),
-     h('button',{className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,'apply')},'Ask a coach first'))))),
+  h(OnlinePlans,null),
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'FAQ',title:'Questions before you buy.'}),h(Faq,null))),
