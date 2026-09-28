@@ -190,7 +190,7 @@ var STEPS=[['01','Tell us your goal','Answer a few questions in Start Here and c
 
 
 var COACHES=[
- {name:'Darvano Andrews',first:'Darvano',role:'Founder and Head Coach',photo:'/vf26/darvano-andrews.webp',spec:['Physique transformation','Glute development','Muscle gain'],bio:'Founded VFitness in 2018 and leads the coaching team across personal training, coaching and fitness programs.'},
+ {name:'Darvano Andrews',first:'Darvano',role:'Founder and Head Coach',spec:['Physique transformation','Glute development','Muscle gain'],bio:'Founded VFitness in 2018 and leads the coaching team across personal training, coaching and fitness programs.'},
  {name:'Chavese Moss',first:'Chavese',role:'Senior Coach and Partnerships Lead',spec:['Strength training','Fat loss','Semi private sessions'],bio:'Eight years of coaching, handling client programming and business partnerships for the team.'},
  {name:'Lanardo Mackey',first:'Lanardo',role:'Senior Personal Trainer and Partnerships Lead',spec:['Strength training','Conditioning','Group training'],bio:'Six years coaching VFitness clients with a focus on consistency, technique and sustainable results.'},
  {name:'Kevin Mackey',first:'Kevin',role:'Coach',spec:['Beginner coaching','Fat loss','Accountability'],bio:'Helps new clients build confidence in the gym and stick to the plan week after week.'}
@@ -267,6 +267,26 @@ function AppAnnounce(){
     h(StoreBadge,{svg:APPLE_SVG,top:'Download on the',store:'App Store'}),
     h(StoreBadge,{svg:PLAY_SVG,top:'Get it on',store:'Google Play'})),
    h('a',{className:'vf26-btn vf26-btn-blend',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer',style:{width:'100%',marginTop:'1rem'}},'Use the VFIT app on the web now',icon('arrow',16,{className:'vf26-arrow'}))));
+}
+
+
+var TEAM_ACC=['#4296f0','#5fddcc','#8869ec','#f97066'];
+function TeamRow(p){
+ return h('div',{className:'vf26-team4'},COACHES.map(function(c,i){var ini=c.name.split(' ').map(function(x){return x[0];}).join('');
+  return h(Reveal,{key:c.name,delay:i*60},h('button',{className:'vf26-team4-card',onClick:go(p.setCurrentPage,'trainers'),style:{'--acc':TEAM_ACC[i%4]}},
+   h('span',{className:'ph'},h('span',{className:'mono'},ini),h('span',{className:'sp'},c.spec[0])),
+   h('b',null,c.name),h('small',null,c.role)));}));
+}
+function AppShowcase(p){
+ var feats=[['history','Weight and rep memory','Every set is saved, so your next session starts where the last one ended.'],['timer','Guided workouts','Your program with rest timing, built by a VFitness coach.'],['scan','Nutrition tracking','Log meals and hit calorie and protein targets.'],['trend','Progress you can see','Photos, body metrics and strength trends week to week.']];
+ return h('section',{className:'vf26-section tight vf26-appshow',id:'vfit-app'},h('div',{className:'vf26-wrap vf26-appshow-grid'},
+  h(Reveal,{className:'vf26-appshow-copy'},
+   h('p',{className:'vf26-kicker'},'The VFIT app'),
+   h('h2',{className:'vf26-h2'},'Your program, in your pocket.'),
+   h('p',{className:'vf26-lead'},'Train with structure anywhere. The VFIT app keeps your program, workout history, nutrition and progress in one place, with plans from $14.99 a month.'),
+   h('ul',{className:'vf26-appshow-feats'},feats.map(function(f){return h('li',{key:f[1]},h('span',{className:'ic'},icon(f[0],18)),h('div',null,h('b',null,f[1]),h('p',null,f[2])));})),
+   h('div',{className:'vf26-cta-row'},h('button',{className:'vf26-btn vf26-btn-outline',onClick:toOnlinePlans(p.setCurrentPage)},'Compare app plans',icon('arrow',16,{className:'vf26-arrow'})))),
+  h(AppAnnounce,null)));
 }
 
 /* ================= TRANSFORMATION REEL (home) ================= */
@@ -348,6 +368,8 @@ function HomePage(props){
     h('div',{className:'pr'},h('span',null,'From'),h('b',null,x.p),h('small',null,x.u)),
     h('button',{className:'vf26-link',onClick:x.a},x.cta,icon('arrow',15)));})))),
 
+  h(AppShowcase,{setCurrentPage:setCurrentPage}),
+
   h(TransformReel,{setCurrentPage:setCurrentPage}),
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-how3-wrap'},
@@ -355,11 +377,8 @@ function HomePage(props){
    h('ol',{className:'vf26-how3'},HOW3.map(function(s,i){return h(Reveal,{key:s[0],className:'vf26-how3-item',delay:i*80},h('span',{className:'n'},String(i+1).padStart(2,'0')),h('b',null,s[0]),h('p',null,s[1]));})))),
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{row:true,kicker:'Leadership and coaching',title:'A team that works from one system.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'trainers')},'Meet the team',icon('arrow',16))}),
-   h('div',{className:'vf26-team4'},COACHES.map(function(c,i){var ini=c.name.split(' ').map(function(x){return x[0];}).join('');
-    return h(Reveal,{key:c.name,delay:i*60},h('button',{className:'vf26-team4-card',onClick:go(setCurrentPage,'trainers')},
-     h('span',{className:'ph'},c.photo?h('img',{src:c.photo,alt:c.name,loading:'lazy'}):h('span',{className:'mono'},ini)),
-     h('b',null,c.name),h('small',null,c.role)));})))),
+   h(SectionHead,{row:true,kicker:'The team',title:'Four coaches. One standard.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'trainers')},'Meet the team',icon('arrow',16))}),
+   h(TeamRow,{setCurrentPage:setCurrentPage}))),
 
   h(FinalCTA,{setCurrentPage:setCurrentPage}));
 }
@@ -571,7 +590,7 @@ function PricingPage(props){
 
 /* ================= TRAINERS ================= */
 var TRAINERS=[
- {name:'Darvano Andrews',first:'Darvano',role:'Founder and Head Coach',specialty:'Body recomposition and glute specialist',experience:'10+ years',phone:'242-454-9063',rating:'5.0',photo:'/vf26/darvano-andrews.webp',accent:'#4296f0',bio:'Founded VFitness in 2018. Builds shape, muscle and confidence through structured programming, progressive overload, nutrition support and accountability.',certs:['Certified Personal Trainer','Functional Movement','Nutrition Coaching'],spec:['Body recomposition','Glute development','Muscle gain']},
+ {name:'Darvano Andrews',first:'Darvano',role:'Founder and Head Coach',specialty:'Body recomposition and glute specialist',experience:'10+ years',phone:'242-454-9063',rating:'5.0',accent:'#4296f0',bio:'Founded VFitness in 2018. Builds shape, muscle and confidence through structured programming, progressive overload, nutrition support and accountability.',certs:['Certified Personal Trainer','Functional Movement','Nutrition Coaching'],spec:['Body recomposition','Glute development','Muscle gain']},
  {name:'Chavese Moss',first:'Chavese',role:'Senior Coach and Partnerships Lead',specialty:'Weight loss and athletic coaching',experience:'8+ years',phone:'242-525-8834',rating:'4.9',accent:'#5fddcc',bio:'Helps clients lose fat, improve performance, move better and build athletic strength through disciplined coaching. Also leads business partnerships for the team.',certs:['Strength and Conditioning','Sports Performance'],spec:['Weight loss','Body recomposition','Athletic coaching']},
  {name:'Lanardo Mackey',first:'Lanardo',role:'Senior Personal Trainer and Partnerships Lead',specialty:'Weight loss and group training',experience:'7+ years',phone:'242-818-5128',rating:'4.9',accent:'#8869ec',bio:'Helps clients lose weight, improve conditioning and stay consistent through structured group and transformation coaching.',certs:['Sports Nutrition','Performance Coaching'],spec:['Weight loss','Conditioning','Group training']},
  {name:'Kevin Mackey',first:'Kevin',role:'Coach',specialty:'Body recomposition and group training',experience:'Team coach',phone:'242-454-9063',rating:'4.9',accent:'#F97066',bio:'Helps clients build structure, improve body composition and stay consistent through group training and accountability based coaching.',certs:['Group Training','Accountability Coaching'],spec:['Beginner coaching','Body recomposition','Group training']}
@@ -695,17 +714,20 @@ function AboutPage(props){
   ['Accountability','Sessions, packages and payments are recorded, so clients always know where they stand.'],
   ['Transparency','Published pricing, no lock in contracts and invoices for every package.'],
   ['Local expertise','A Nassau team that knows the gyms, the schedules and the way people live here.']];
- var facts=[['Founded','2018'],['Headquarters','Nassau, The Bahamas'],['Clients served','2,000+'],['Services','Personal, semi private and online training']];
+ var facts=[['Founded','2018'],['Coaching team','4 certified coaches'],['Clients served','2,000+'],['Locations','3 in Nassau, plus online']];
  return h('main',{className:'vf26 vf26-page'},
-  h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau personal training company founded in 2018, delivering in person coaching across three locations and online coaching through the VFIT app.'}),
+  h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau coaching team delivering personal training across three locations and online coaching through the VFIT app.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-about2'},
-   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/darvano-andrews.webp',alt:'Darvano Andrews, Founder and Head Coach',loading:'lazy'})),
+   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/welcome-glute-v1.webp',alt:'A VFitness client training in a Nassau gym',loading:'lazy'})),
    h(Reveal,{className:'vf26-about2-copy',delay:80},
     h('p',{className:'vf26-kicker'},'Our story'),
-    h('h2',{className:'vf26-h2'},'Built from real coaching.'),
-    h('p',{className:'vf26-lead'},'Darvano Andrews founded VFitness in 2018 to bring structure to personal training in The Bahamas. What began as one on one coaching has grown into a team of four coaches serving more than 2,000 clients.'),
+    h('h2',{className:'vf26-h2'},'One team. One coaching standard.'),
+    h('p',{className:'vf26-lead'},'Since 2018 VFitness has grown into a team of four certified coaches serving more than 2,000 clients. Every coach works from the same programming, tracking and client care standard, so the experience is consistent whoever you train with.'),
     h('p',{className:'vf26-muted'},'Today VFitness runs in person training at Empire Fitness, Fanta C Fitness and the Royal Bahamas Police College, and online coaching through the VFIT app. Clients register, book, pay and manage their sessions through a single client portal.'),
     h('dl',{className:'vf26-facts'},facts.map(function(f){return h('div',{key:f[0]},h('dt',null,f[0]),h('dd',null,f[1]));}))))),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+   h(SectionHead,{row:true,kicker:'The team',title:'The coaches behind VFitness.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'trainers')},'Full profiles',icon('arrow',16))}),
+   h(TeamRow,{setCurrentPage:setCurrentPage}))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'Our standards',title:'What clients can expect.'}),
    h('div',{className:'vf26-values'},values.map(function(v,i){return h(Reveal,{key:v[0],className:'vf26-value',delay:i*60},h('span',{className:'n'},String(i+1).padStart(2,'0')),h('b',null,v[0]),h('p',null,v[1]));})))),

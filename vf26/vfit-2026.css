@@ -1193,3 +1193,22 @@ html[data-vf26] body .vf26-ws button[class*="uppercase"]{text-transform:none !im
 .vf26-value b{display:block;margin-top:.6rem;font-size:1.1rem;font-weight:800;letter-spacing:-.02em;color:var(--vf-text);}
 .vf26-value p{margin:.45rem 0 0;font-size:.9rem;line-height:1.55;color:var(--vf-dim);}
 .vf26-loc-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr)) !important;}
+
+/* team row: equal treatment for every coach */
+.vf26-team4-card .ph{position:relative;background:radial-gradient(120% 90% at 20% 0%,color-mix(in srgb,var(--acc,#4296f0) 26%,transparent),transparent 60%),linear-gradient(160deg,var(--vf-surface-2),var(--vf-card));}
+.vf26-team4-card .mono{color:var(--vf-text);opacity:.9;font-size:3.6rem;}
+.vf26-team4-card .sp{position:absolute;left:.75rem;bottom:.75rem;font-size:.7rem;font-weight:700;letter-spacing:.06em;padding:.3rem .6rem;border-radius:99px;background:rgba(15,17,21,.6);color:#fff;border:1px solid rgba(255,255,255,.14);}
+.vf26-team4-card:hover .ph{border-color:color-mix(in srgb,var(--acc,#4296f0) 55%,transparent);}
+
+/* app showcase */
+.vf26-appshow{position:relative;}
+.vf26-appshow::before{content:"";position:absolute;inset:8% 0 auto 0;height:70%;background:radial-gradient(50rem 22rem at 80% 30%,rgba(66,150,240,.12),transparent 70%);pointer-events:none;}
+.vf26-appshow-grid{position:relative;display:grid;gap:2rem;align-items:center;}
+@media(min-width:1024px){.vf26-appshow-grid{grid-template-columns:1.1fr .9fr;gap:3.5rem;}}
+.vf26-appshow-feats{list-style:none;margin:1.75rem 0 0;padding:0;display:grid;gap:1rem;}
+@media(min-width:640px){.vf26-appshow-feats{grid-template-columns:1fr 1fr;}}
+.vf26-appshow-feats li{display:flex;gap:.8rem;align-items:flex-start;}
+.vf26-appshow-feats .ic{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:rgba(66,150,240,.12);border:1px solid rgba(66,150,240,.26);color:var(--vf-primary);}
+.vf26-appshow-feats b{display:block;font-size:.95rem;color:var(--vf-text);}
+.vf26-appshow-feats p{margin:.2rem 0 0;font-size:.84rem;line-height:1.5;color:var(--vf-dim);}
+.vf26-appshow .vf26-cta-row{margin-top:1.75rem;}
