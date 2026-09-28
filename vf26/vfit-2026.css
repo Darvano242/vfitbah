@@ -770,3 +770,23 @@ html[data-vf26] .mu-bottomnav ~ .vf26-footer,html[data-vf26] body.vf26-member .v
 .vf26-app-plan .vf26-ticks li{font-size:.9rem;}
 .vf26-app-plan .vf26-btn{width:100%;}
 .vf26-coach-plan{margin-top:1rem;}
+
+/* ---------- VFIT app announcement (home hero) ---------- */
+.vf26-appcard{position:relative;overflow:hidden;border-radius:28px;border:1px solid rgba(66,150,240,.25);background:var(--vf-marine);color:#fff;box-shadow:var(--vf-shadow-float);padding:1.75rem;}
+@media(min-width:640px){.vf26-appcard{padding:2.25rem}}
+.vf26-appcard-glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(28rem 16rem at 100% 0%,rgba(66,150,240,.28),transparent 60%),radial-gradient(22rem 16rem at 0% 100%,rgba(136,105,236,.22),transparent 60%);}
+.vf26-appcard-glow::after{content:'';position:absolute;width:16rem;height:16rem;right:-6rem;top:-8rem;border:2.6rem solid rgba(66,150,240,.12);border-radius:999px;}
+.vf26-appcard>*:not(.vf26-appcard-glow){position:relative;z-index:1;}
+.vf26-appcard-icon{width:4rem;height:4rem;border-radius:1.2rem;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1c1f27,#262b36);border:1px solid rgba(255,255,255,.12);box-shadow:0 12px 30px -12px rgba(66,150,240,.7);margin-bottom:1.25rem;animation:vf26-float 5s ease-in-out infinite;}
+.vf26-appcard-icon .vf26-zap{width:34px;height:34px;}
+@keyframes vf26-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.vf26-appcard .vf26-kicker{color:#7dd3fc;}
+.vf26-appcard-title{margin:.6rem 0 0;font-family:'Geist',sans-serif !important;font-size:clamp(1.8rem,3vw,2.4rem) !important;font-weight:800 !important;letter-spacing:-.04em !important;line-height:1.1 !important;color:#fff !important;}
+.vf26-appcard-lead{margin:.8rem 0 0;color:rgba(255,255,255,.72);line-height:1.6;}
+.vf26-appcard .vf26-ticks li{color:rgba(255,255,255,.88);font-size:.92rem;}
+.vf26-stores{margin-top:1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.vf26-store{position:relative;display:flex;align-items:center;gap:.6rem;padding:.7rem .85rem;border-radius:.9rem;background:#000;border:1px solid rgba(255,255,255,.22);color:#fff;opacity:.92;cursor:default;}
+.vf26-store div{min-width:0;}
+.vf26-store span{display:block;font-size:.62rem;color:rgba(255,255,255,.75);line-height:1.1;}
+.vf26-store b{display:block;font-size:1rem;font-weight:700;line-height:1.15;}
+.vf26-store em{position:absolute;top:-.55rem;right:.5rem;font-style:normal;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .45rem;border-radius:99px;background:linear-gradient(125deg,var(--vf-primary),var(--vf-violet));color:#fff;}

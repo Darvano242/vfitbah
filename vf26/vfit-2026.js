@@ -238,6 +238,32 @@ function OnlinePlans(){
     h('button',{className:'vf26-btn vf26-btn-outline',onClick:function(){var sp=window.__vf26SetPage;if(sp)sp('apply');try{window.scrollTo(0,0);}catch(e){}}},'Ask a coach first')))));
 }
 
+
+/* ================= VFIT APP ANNOUNCEMENT (home hero) ================= */
+var APPLE_SVG='<path fill="currentColor" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.7 0 0-2.5-1-2.5-3.7ZM14.2 5.8c.6-.8 1.1-1.9 1-2.9-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.8-1 2.8 1 .1 2.1-.5 2.7-1.3Z"/>';
+var PLAY_SVG='<path fill="currentColor" d="M4.2 2.6c-.2.2-.3.6-.3 1v16.8c0 .4.1.8.3 1l9.4-9.4-9.4-9.4Zm10.6 10.6 2.7 2.7-11.2 6.4 8.5-9.1Zm0-2.4L6.3 1.7l11.2 6.4-2.7 2.7Zm3.9-1.7 3 1.7c.9.5.9 1.4 0 1.9l-3 1.7-3-2.7 3-2.6Z"/>';
+function StoreBadge(p){
+ return h('div',{className:'vf26-store','aria-label':p.store+', coming soon'},
+  h('svg',{viewBox:'0 0 24 24',width:26,height:26,'aria-hidden':'true',dangerouslySetInnerHTML:{__html:p.svg}}),
+  h('div',null,h('span',null,p.top),h('b',null,p.store)),
+  h('em',null,'Coming soon'));
+}
+function AppAnnounce(){
+ return h('div',{className:'vf26-demo vf26-enter',style:{'--d':'120ms'}},
+  h('div',{className:'vf26-demo-top'},h('span',null,'Introducing'),h('span',{className:'vf26-live'},h('i'),'Coming soon')),
+  h('div',{className:'vf26-appcard'},
+   h('div',{className:'vf26-appcard-glow','aria-hidden':'true'}),
+   h('div',{className:'vf26-appcard-icon'},zap()),
+   h('p',{className:'vf26-kicker'},'The VFIT app'),
+   h('h2',{className:'vf26-appcard-title'},'Try the VFIT app today.'),
+   h('p',{className:'vf26-appcard-lead'},'Your program, workout tracking, nutrition and coaching in your pocket. Coming soon to the App Store and Google Play.'),
+   h('ul',{className:'vf26-ticks'},['Weight and rep memory','Automatic rest timer','Food logging and macros','Progress photos and body metrics'].map(function(t){return h('li',{key:t},icon('check',15),t);})),
+   h('div',{className:'vf26-stores'},
+    h(StoreBadge,{svg:APPLE_SVG,top:'Download on the',store:'App Store'}),
+    h(StoreBadge,{svg:PLAY_SVG,top:'Get it on',store:'Google Play'})),
+   h('a',{className:'vf26-btn vf26-btn-blend',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer',style:{width:'100%',marginTop:'1rem'}},'Use the VFIT app on the web now',icon('arrow',16,{className:'vf26-arrow'}))));
+}
+
 /* ================= TRANSFORMATION REEL (home) ================= */
 function useGallery(){
  var gs=React.useState(null),g=gs[0],setG=gs[1];
@@ -304,7 +330,7 @@ function HomePage(props){
       h('div',null,icon('timer',16),'Rest timing'),
       h('div',null,icon('scan',16),'Food tracking'),
       h('div',null,icon('camera',16),'Body progress'))),
-    h(DemoWorkout,{setCurrentPage:setCurrentPage}))),
+    h(AppAnnounce,null))),
 
   /* Stats */
   h('section',{className:'vf26-stats','aria-label':'VFitness by the numbers'},h('div',{className:'vf26-wrap'},h('div',{className:'vf26-stats-grid'},
