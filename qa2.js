@@ -11,10 +11,10 @@ async function cleanup(pg){await pg.evaluate(async()=>{try{await db.collection('
  async function shot(pg,name,full){const f='/vercel/qa/out/'+name+'.jpg';await pg.screenshot({path:f,type:'jpeg',quality:60,fullPage:!!full});shots.push(f);}
  // client mobile
  {const ctx=await b.newContext({...devices['iPhone 13'],deviceScaleFactor:1});const pg=await ctx.newPage();const errs=new Set();pg.on('pageerror',e=>errs.add(e.message.slice(0,100)));
-  await login(pg,false);await shot(pg,'c-overview',true);
+  await login(pg,false);await pg.waitForTimeout(5000);await pg.evaluate(()=>window.scrollTo(0,0));await shot(pg,'c-overview',true);
   console.log('CLIENT TABS',await pg.$$eval('.vf26-tabstrip button',x=>x.map(b=>b.textContent).join('|')));
   console.log('NAV',await pg.$$eval('.mu-bottomnav button',x=>x.map(b=>b.textContent).join('|')));
-  await pg.evaluate(()=>{window.__vf26SetPage('pricing');});await pg.waitForTimeout(2500);
+  await pg.evaluate(()=>{window.__vf26SetPage('pricing');});await pg.waitForTimeout(3500);await pg.evaluate(()=>{const e=document.querySelector('.vf26-pkg');e&&e.scrollIntoView();});await shot(pg,'c-pricing');
   const btn=await pg.$('.vf26-pkg .vf26-btn');console.log('pkgbtn',!!btn);if(btn){await btn.click();await pg.waitForTimeout(2500);await shot(pg,'c-checkout1');
    const tr=await pg.$('.vf26-co-tr');if(tr){await tr.click();await pg.waitForTimeout(4000);await shot(pg,'c-checkout2');}}
   console.log('CERRS',[...errs].join(' || '));await cleanup(pg);await ctx.close();}
