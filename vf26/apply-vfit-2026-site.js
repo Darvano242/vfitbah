@@ -9,7 +9,7 @@ const here=__dirname;
 const site=path.join(root,'site');
 const indexPath=path.join(site,'index.html');
 const MARK='VFIT_2026_SITE_LAYER';
-const VERSION='20260928c';
+const VERSION=require('crypto').createHash('md5').update(fs.readFileSync(path.join(here,'vfit-2026.js'))).update(fs.readFileSync(path.join(here,'vfit-2026.css'))).digest('hex').slice(0,10);
 
 let html=fs.readFileSync(indexPath,'utf8');
 if(html.includes(MARK)){console.log('VFIT 2026 layer already applied');process.exit(0);}
