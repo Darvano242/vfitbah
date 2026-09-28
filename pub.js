@@ -8,7 +8,7 @@ async function up(file){const fd=new FormData();fd.append('file',new Blob([fs.re
  const pages=(process.env.P||'home,pricing,trainers,results,about,contact').split(',');const shots=[];
  for(const p of pages){await pg.evaluate(p=>window.__vf26SetPage(p),p);await pg.waitForTimeout(1800);
   // reveal all
-  await pg.evaluate(async()=>{for(let y=0;y<document.body.scrollHeight;y+=500){window.scrollTo(0,y);await new Promise(r=>setTimeout(r,60));}window.scrollTo(0,0);});await pg.waitForTimeout(900);
+  await pg.evaluate(async()=>{let y=0;while(y<document.documentElement.scrollHeight){window.scrollTo(0,y);await new Promise(r=>setTimeout(r,120));y+=400;}window.scrollTo(0,0);});await pg.waitForTimeout(1200);console.log(p,'hidden reveals',await pg.evaluate(()=>[...document.querySelectorAll('.vf26-reveal,[class*=reveal]')].filter(e=>getComputedStyle(e).opacity==='0').length));
   const f='/vercel/qa/out/'+p+'-'+W+'.png';await pg.screenshot({path:f,fullPage:true});shots.push([p,f]);}
  const sheet=await b.newPage({deviceScaleFactor:1});const colW=W<600?260:420;
  for(let i=0;i<shots.length;i+=3){const g=shots.slice(i,i+3);await sheet.setViewportSize({width:colW*3+32,height:800});
