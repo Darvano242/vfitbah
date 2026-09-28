@@ -917,8 +917,8 @@ function VF26MemberHead(p){
      na.workout?h('span',null,LIco('dumbbell',14),'New workout program'):null,
      na.mealPlan?h('span',null,LIco('utensils',14),'New meal plan'):null):null),
   h('div',{className:'vf26-today-stats'},
-   h('div',{className:'vf26-mini'},h('span',null,'Sessions left'),h('b',{className:'vf26-condensed'},left)),
-   h('div',{className:'vf26-mini'},h('span',null,'Active packages'),h('b',{className:'vf26-condensed'},active)),
+   h('div',{className:'vf26-mini'},h('span',null,'Sessions'),h('b',{className:'vf26-condensed'},left)),
+   h('div',{className:'vf26-mini'},h('span',null,'Packages'),h('b',{className:'vf26-condensed'},active)),
    h('div',{className:'vf26-mini'},h('span',null,'Time'),h('b',{className:'vf26-condensed'},now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})))));
 }
 

@@ -1025,3 +1025,6 @@ html[data-vf26] body.vf26-app-page .fixed.inset-0[class*="bg-black"]{-webkit-bac
 html[data-vf26] body.vf26-app-page .vf26-footer .vf26-foot-grid{display:none !important;}
 html[data-vf26] body.vf26-app-page .vf26-footer{padding-top:1.25rem !important;}
 html[data-vf26] body.vf26-app-page .vf26-footer .vf26-foot-base{margin-top:0 !important;padding-top:0 !important;border-top:0 !important;}
+
+.vf26-ws .grid.grid-cols-2{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+@media(min-width:768px){.vf26-ws .grid.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}.vf26-ws .grid.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr)) !important;}}
