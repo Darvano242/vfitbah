@@ -65,6 +65,7 @@ function AnimIcon(p){return h('span',{className:'vf26-itile',style:{color:p.acce
 /* Reveal on scroll */
 var io=null,ioCallbacks=new WeakMap();
 function getIO(){if(io||typeof IntersectionObserver==='undefined')return io;io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){var cb=ioCallbacks.get(en.target);if(cb)cb(en.target);io.unobserve(en.target);}});},{rootMargin:'0px 0px -60px 0px',threshold:.08});return io;}
+var revealSweep=(function(){var queued=false;function sweep(){queued=false;var vh=window.innerHeight||800;document.querySelectorAll('.vf26-reveal:not(.is-in)').forEach(function(el){var r=el.getBoundingClientRect();if(r.top<vh-20&&r.bottom>-200){el.classList.add('is-in');}});}function q(){if(queued)return;queued=true;(window.requestAnimationFrame||setTimeout)(sweep);}try{window.addEventListener('scroll',q,{passive:true});window.addEventListener('resize',q);setInterval(q,1500);}catch(e){}return q;})();
 function useInView(ref,cb){React.useEffect(function(){var el=ref.current;if(!el)return;var o=getIO();if(!o||reduceMotion){cb(el);return;}ioCallbacks.set(el,cb);o.observe(el);return function(){try{o.unobserve(el);}catch(e){}};},[]);}
 function Reveal(p){var ref=React.useRef(null);useInView(ref,function(el){el.classList.add('is-in');});
  return h(p.as||'div',Object.assign({ref:ref,className:'vf26-reveal '+(p.className||''),style:Object.assign({'--d':(p.delay||0)+'ms'},p.style||{})},p.id?{id:p.id}:{}),p.children);}
