@@ -208,7 +208,7 @@ function Faq(){
 
 
 /* ================= ONLINE TRAINING (VFIT app plans) ================= */
-var VF_APP_URL='https://vfit-core-flow.base44.app/membership';window.VF_APP_URL=VF_APP_URL;
+var VF_APP_URL='https://vfitnow.app/';window.VF_APP_URL=VF_APP_URL;
 var APP_PLANS=[
  {name:'Standard',mo:'14.99',yr:'164.99',tag:'Stop guessing. Follow the plan.',points:['Full VFitness training library','Workout tracking and weight memory','Automatic rest timer','Nutrition logging','Progress tools']},
  {name:'Premium',mo:'24.99',yr:'274.99',tag:'Your data guides the next decision.',featured:true,points:['Everything in Standard','Adaptive weight recommendations','Barcode nutrition scanning','Readiness and progress scans','Deeper analytics and Coach Assist']},
