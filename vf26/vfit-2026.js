@@ -87,6 +87,8 @@ function Navigation(props){
  React.useEffect(function(){try{document.body.classList.toggle('vf26-member',!!(user&&!isAdmin));}catch(e){}},[user,isAdmin]);
  React.useEffect(function(){setOpen(false);},[currentPage]);
  /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
+ var lastPage=React.useRef(currentPage);
+ React.useEffect(function(){if(lastPage.current===currentPage)return;lastPage.current=currentPage;function top(){try{window.scrollTo({top:0,left:0,behavior:'instant'});}catch(e){window.scrollTo(0,0);}}top();requestAnimationFrame(top);setTimeout(top,120);},[currentPage]);
  var signedAt=React.useRef(0);
  React.useEffect(function(){signedAt.current=user?Date.now():0;},[!!user]);
  React.useEffect(function(){if(!user)return;var t=null;function fix(){var fresh=Date.now()-signedAt.current<6000;if(currentPage==='login'||currentPage==='signup'){try{setCurrentPage(isAdmin?'admin':'dashboard');}catch(e){}}else if(isAdmin&&fresh&&currentPage==='dashboard'){try{setCurrentPage('admin');}catch(e){}}}fix();t=setTimeout(fix,2200);return function(){clearTimeout(t);};},[user,isAdmin,currentPage]);
