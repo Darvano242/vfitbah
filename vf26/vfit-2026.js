@@ -87,7 +87,9 @@ function Navigation(props){
  React.useEffect(function(){try{document.body.classList.toggle('vf26-member',!!(user&&!isAdmin));}catch(e){}},[user,isAdmin]);
  React.useEffect(function(){setOpen(false);},[currentPage]);
  /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
- React.useEffect(function(){if(!user)return;var t=null;function fix(){var target=isAdmin?'admin':'dashboard';if((isAdmin&&currentPage==='dashboard')||currentPage==='login'||currentPage==='signup'){try{setCurrentPage(target);}catch(e){}}}fix();t=setTimeout(fix,2200);return function(){clearTimeout(t);};},[user,isAdmin,currentPage]);
+ var signedAt=React.useRef(0);
+ React.useEffect(function(){signedAt.current=user?Date.now():0;},[!!user]);
+ React.useEffect(function(){if(!user)return;var t=null;function fix(){var fresh=Date.now()-signedAt.current<6000;if(currentPage==='login'||currentPage==='signup'){try{setCurrentPage(isAdmin?'admin':'dashboard');}catch(e){}}else if(isAdmin&&fresh&&currentPage==='dashboard'){try{setCurrentPage('admin');}catch(e){}}}fix();t=setTimeout(fix,2200);return function(){clearTimeout(t);};},[user,isAdmin,currentPage]);
  React.useEffect(function(){try{document.body.style.overflow=open?'hidden':'';}catch(e){}return function(){try{document.body.style.overflow='';}catch(e){}};},[open]);
  function nav(page){return function(){setOpen(false);go(setCurrentPage,page)();};}
  function logout(){setOpen(false);try{auth.signOut().then(function(){setCurrentPage('home');});}catch(e){setCurrentPage('home');}}
@@ -99,7 +101,7 @@ function Navigation(props){
    h('button',{className:'vf26-round vf26-hide-sm',onClick:nav('search'),'aria-label':'Search'},icon('search',18)),
    themeBtn,
    h('button',{className:'vf26-btn vf26-btn-ghost vf26-hide-sm',onClick:logout},'Log Out'),
-   h('button',{className:'vf26-btn vf26-btn-primary vf26-hide-sm',onClick:nav(isAdmin?'admin':'dashboard')},isAdmin?'Admin':'Dashboard'),
+   h('button',{className:'vf26-btn vf26-btn-primary vf26-hide-sm',onClick:nav(isAdmin?'admin':'dashboard')},isAdmin?'Admin Dashboard':'Dashboard'),
    h('button',{className:'vf26-round vf26-menu-btn',onClick:function(){setOpen(!open);},'aria-label':open?'Close menu':'Open menu','aria-expanded':open},icon(open?'close':'menu',20)));
  }else{
   right=h('div',{className:'vf26-actions'},
@@ -109,7 +111,7 @@ function Navigation(props){
    h('button',{className:'vf26-round vf26-menu-btn',onClick:function(){setOpen(!open);},'aria-label':open?'Close menu':'Open menu','aria-expanded':open},icon(open?'close':'menu',20)));
  }
  var more=[['locations','Locations'],['about','About']];
- var memberLinks=user?[[isAdmin?'admin':'dashboard',isAdmin?'Admin':'Dashboard']].concat(isAdmin?[]:[['saved','Saved'],['aichat','AI Coach']]).concat([['community','Community'],['search','Search']]):[];
+ var memberLinks=user?(isAdmin?[['admin','Admin Dashboard'],['dashboard','My Client Dashboard']]:[['dashboard','Dashboard'],['saved','Saved'],['aichat','AI Coach']]).concat([['community','Community'],['search','Search']]):[];
  var sheet=open?h('div',{className:'vf26 vf26-sheet',role:'dialog','aria-label':'Menu'},
    h('div',{className:'vf26-sheet-grid'},memberLinks.concat(PUBLIC_LINKS).concat(more).map(function(l,i){return h('button',{key:l[0]+i,className:currentPage===l[0]?'on':'',onClick:nav(l[0])},l[1],icon('arrow',16));})),
    h('div',{className:'vf26-sheet-cta'},user?h('button',{className:'vf26-btn vf26-btn-outline',onClick:logout},'Log Out'):[
