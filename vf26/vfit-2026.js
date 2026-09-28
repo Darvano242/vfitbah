@@ -119,7 +119,7 @@ function Navigation(props){
      h('button',{key:'l',className:'vf26-btn vf26-btn-outline',onClick:nav('login')},'Log In')])):null;
  return h(React.Fragment,null,
   h('header',{className:'vf26 vf26-header'},h('div',{className:'vf26-wrap vf26-header-in'},
-   h('button',{className:'vf26-brand',onClick:nav('home'),'aria-label':'VFitness home'},h('span',{className:'vf26-brand-tile'},zap()),h('span',{className:'vf26-brand-word'},'VFITNESS')),
+   h('button',{className:'vf26-brand',onClick:nav('home'),'aria-label':'VFitness home'},h('span',{className:'vf26-brand-tile'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'',width:40,height:40})),h('span',{className:'vf26-brand-word'},'VFITNESS')),
    seg,right)),
   sheet);
 }
@@ -253,7 +253,7 @@ function AppAnnounce(){
   h('div',{className:'vf26-demo-top'},h('span',null,'Introducing'),h('span',{className:'vf26-live'},h('i'),'Coming soon')),
   h('div',{className:'vf26-appcard'},
    h('div',{className:'vf26-appcard-glow','aria-hidden':'true'}),
-   h('div',{className:'vf26-appcard-icon'},zap()),
+   h('div',{className:'vf26-appcard-icon'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'VFIT app icon',width:72,height:72})),
    h('p',{className:'vf26-kicker'},'The VFIT app'),
    h('h2',{className:'vf26-appcard-title'},'Try the VFIT app today.'),
    h('p',{className:'vf26-appcard-lead'},'Your program, workout tracking, nutrition and coaching in your pocket. Coming soon to the App Store and Google Play.'),
@@ -423,7 +423,7 @@ function Footer(props){
  return h('footer',{className:'vf26 vf26-footer'},h('div',{className:'vf26-wrap'},
   h('div',{className:'vf26-foot-grid'},
    h('div',null,
-    h('button',{className:'vf26-brand',onClick:go(setCurrentPage,'home'),style:{padding:0}},h('span',{className:'vf26-brand-tile'},zap()),h('span',{className:'vf26-brand-word'},'VFITNESS')),
+    h('button',{className:'vf26-brand',onClick:go(setCurrentPage,'home'),style:{padding:0}},h('span',{className:'vf26-brand-tile'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'',width:40,height:40})),h('span',{className:'vf26-brand-word'},'VFITNESS')),
     h('p',{className:'vf26-muted',style:{margin:'1rem 0 0',fontSize:'.9rem',lineHeight:1.6,maxWidth:'22rem'}},'Personal training in Nassau and coaching online. Built in The Bahamas from real coaching, real check ins and results we can point to.'),
     h('div',{className:'vf26-socials'},
      h('a',{href:'https://www.instagram.com/xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'Instagram'},icon('instagram',17)),

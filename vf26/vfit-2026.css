@@ -792,3 +792,9 @@ html[data-vf26] .mu-bottomnav ~ .vf26-footer,html[data-vf26] body.vf26-member .v
 .vf26-store em{position:absolute;top:-.55rem;right:.5rem;font-style:normal;font-size:.58rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .45rem;border-radius:99px;background:linear-gradient(125deg,var(--vf-primary),var(--vf-violet));color:#fff;}
 .vf26-store b{white-space:nowrap;}
 @media(max-width:430px){.vf26-store{padding:.65rem .6rem;gap:.45rem}.vf26-store b{font-size:.88rem}.vf26-store svg{width:22px;height:22px}}
+
+/* App icon as brand mark */
+.vf26-brand-tile{overflow:hidden;background:none !important;border:0 !important;border-radius:.8rem !important;box-shadow:0 6px 16px -8px rgba(66,150,240,.8);}
+.vf26-brand-tile img{width:100%;height:100%;display:block;animation:vf26-zap .7s var(--vf-ease) both;}
+.vf26-appcard-icon{width:4.5rem;height:4.5rem;padding:0;background:none;border:0;overflow:visible;}
+.vf26-appcard-icon img{width:100%;height:100%;display:block;border-radius:1.1rem;box-shadow:0 14px 34px -12px rgba(66,150,240,.8);}
