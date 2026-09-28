@@ -899,7 +899,7 @@ function VF26Tabs(p){
     h('nav',null,items.map(function(t,i){var on=t.id===active;
      return h(React.Fragment,{key:t.id},(admin&&(i===6||i===11))?h('div',{className:'vf26-rail-div'}):null,
       h('button',{type:'button',className:'vf26-rail-item'+(on?' on':''),'aria-current':on?'page':undefined,onClick:pick(t.id)},LIco(t.icon,16),h('span',null,t.label),on?h('i',{className:'dot'}):null));})))),
-  h('div',{className:'vf26-seg',role:'tablist',ref:stripRef},items.map(function(t){var on=t.id===active;
+  h('div',{className:'vf26-tabstrip',role:'tablist',ref:stripRef},items.map(function(t){var on=t.id===active;
    return h('button',{key:t.id,type:'button',role:'tab','aria-selected':on,className:on?'on':'',onClick:pick(t.id)},LIco(t.icon,15),t.label);})));
 }
 
