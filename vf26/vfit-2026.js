@@ -306,8 +306,7 @@ function TransformReel(p){
    h('div',{className:'vf26-reel-empty'},h(TransformationShowcaseSafe,null)),
   n>2?h('div',{className:'vf26-marquee','aria-hidden':'true'},h('div',{className:'vf26-marquee-track',style:{animationDuration:Math.max(30,n*5)+'s'}},strip.map(function(x,k){return h('img',{key:x.id+'-'+k,src:x.imageUrl,alt:'',loading:'lazy'});}))):null,
   h('div',{className:'vf26-cta-row'},
-   h('button',{className:'vf26-btn vf26-btn-primary',onClick:lead(setCurrentPage,{})},'Start your transformation',icon('arrow',16,{className:'vf26-arrow'})),
-   h('button',{className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,'results')},'See client results')),
+   h('button',{className:'vf26-link',onClick:go(setCurrentPage,'results')},'See all client results',icon('arrow',16))),
   h('p',{className:'vf26-note'},'Results vary with consistency, nutrition and individual differences.')));
 }
 function TransformationShowcaseSafe(){return typeof TransformationShowcase==='function'?h(TransformationShowcase,null):null;}
@@ -534,7 +533,7 @@ function PricingPage(props){
  ];
  var list=PKG[tab];var base=list[0].price;
  return h('main',{className:'vf26 vf26-page'},
-  h(PageHero,{eyebrow:'Services and pricing',title:'Clear pricing.',accent:'No lock in contracts.',lead:'Personal training in Nassau and online coaching. No lock in contracts, and you always know how many sessions you have left.',
+  h(PageHero,{eyebrow:'Services and pricing',title:'Clear pricing.',accent:'No lock in contracts.',lead:'In person training at three Nassau locations and online coaching through the VFIT app. Pay securely online and track every session in your client portal.',
    chips:[['check','No lock in contracts'],['history','Sessions tracked in your dashboard'],['shield','Secure checkout']],
    aside:h(SessionWidget,null),
    actions:[h('button',{key:'a',className:'vf26-btn vf26-btn-primary',onClick:scrollToId('vf26-packages')},'See session packages',icon('arrow',16,{className:'vf26-arrow'})),h('button',{key:'b',className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,'book')},'Book a free consult')]}),
@@ -565,7 +564,7 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'FAQ',title:'Questions before you buy.'}),h(Faq,null))),
-  h(FinalCTA,{setCurrentPage:setCurrentPage}),
+  h(FinalCTA,{setCurrentPage:setCurrentPage,secondaryPage:'contact',secondaryLabel:'Contact us'}),
   typeof TrainerSelectionModal==='function'?h(TrainerSelectionModal,{isOpen:showModal,onClose:function(){setShowModal(false);},selectedPackage:selected,user:user,theme:theme}):null);
 }
 
