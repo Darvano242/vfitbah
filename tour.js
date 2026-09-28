@@ -26,11 +26,11 @@ const adminInit=()=>{const iv=setInterval(()=>{if(!window.firebase||!firebase.fi
   for(const t of tabs){await pg.evaluate(t=>{const row=document.querySelector('.mu-tabscroll')||document.querySelector('.vf26-tabs-member');const b=[...row.querySelectorAll('button')].find(x=>x.textContent.trim()===t);b&&b.click();},t);await pg.waitForTimeout(2200);await shot(t.replace(/\W+/g,'_'));}
   // contact sheets: scale each full page to width 300, clip height 2200
   const pages=[];for(const [n,f] of shots){pages.push([n,'data:image/png;base64,'+fs.readFileSync(f).toString('base64')]);}
-  const sheet=await ctx.newPage();
+  const sheet=await b.newPage({deviceScaleFactor:1});
   for(let i=0;i<pages.length;i+=4){const grp=pages.slice(i,i+4);
     await sheet.setViewportSize({width:1280,height:900});
     await sheet.setContent(`<body style="margin:0;background:#888;display:flex;gap:8px;align-items:flex-start">${grp.map(([n,u])=>`<div style="width:314px"><div style="font:bold 14px sans-serif;background:#000;color:#fff;padding:2px">${n}</div><img src="${u}" style="width:314px;display:block"></div>`).join('')}</body>`);
-    await sheet.waitForTimeout(300);const f=`/vercel/qa/out/sheet-${TAG}-${i/4}.jpg`;await sheet.screenshot({path:f,type:'jpeg',quality:62,fullPage:true,clip:undefined});await up(f);}
+    await sheet.waitForTimeout(300);const f=`/vercel/qa/out/sheet-${TAG}-${i/4}.jpg`;await sheet.screenshot({path:f,type:'jpeg',quality:55,fullPage:true,clip:undefined});await up(f);}
   console.log('ERRS',[...errs].join(' || '));
   await pg.evaluate(async()=>{try{await db.collection('users').doc(auth.currentUser.uid).delete();}catch(e){}try{await auth.currentUser.delete();}catch(e){}});
   await b.close();
