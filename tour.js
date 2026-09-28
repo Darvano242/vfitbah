@@ -21,9 +21,9 @@ const adminInit=()=>{const iv=setInterval(()=>{if(!window.firebase||!firebase.fi
   const shots=[];
   async function shot(name){await pg.evaluate(()=>window.scrollTo(0,0));await pg.waitForTimeout(700);const f=`/vercel/qa/out/${TAG}-${String(shots.length).padStart(2,'0')}-${name}.png`;await pg.screenshot({path:f,fullPage:true});shots.push([name,f]);}
   await shot('start');
-  const tabs=await pg.evaluate(()=>{const row=document.querySelector('.vf26-seg')||document.querySelector('.mu-tabscroll');if(!row)return[];return [...row.querySelectorAll('button')].map(b=>b.textContent.trim());});
+  const tabs=await pg.evaluate(()=>{const row=document.querySelector('.vf26-tabstrip')||document.querySelector('.mu-tabscroll');if(!row)return[];return [...row.querySelectorAll('button')].map(b=>b.textContent.trim());});
   console.log('TABS',tabs.join('|'));
-  for(const t of tabs){await pg.evaluate(t=>{const row=document.querySelector('.vf26-seg')||document.querySelector('.mu-tabscroll');const b=[...row.querySelectorAll('button')].find(x=>x.textContent.trim()===t);b&&b.click();},t);await pg.waitForTimeout(2200);await shot(t.replace(/\W+/g,'_'));}
+  for(const t of tabs){await pg.evaluate(t=>{const row=document.querySelector('.vf26-tabstrip')||document.querySelector('.mu-tabscroll');const b=[...row.querySelectorAll('button')].find(x=>x.textContent.trim()===t);b&&b.click();},t);await pg.waitForTimeout(2200);await shot(t.replace(/\W+/g,'_'));}
   // contact sheets: scale each full page to width 300, clip height 2200
   const pages=[];for(const [n,f] of shots){pages.push([n,'data:image/png;base64,'+fs.readFileSync(f).toString('base64')]);}
   const sheet=await b.newPage({deviceScaleFactor:1});
