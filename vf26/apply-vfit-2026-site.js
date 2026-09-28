@@ -9,8 +9,7 @@ const here=__dirname;
 const site=path.join(root,'site');
 const indexPath=path.join(site,'index.html');
 const MARK='VFIT_2026_SITE_LAYER';
-if(fs.existsSync(path.join(here,'vfit-2026.base.js')))require('./build.js');
-const VERSION='20260928b';
+const VERSION='20260928c';
 
 let html=fs.readFileSync(indexPath,'utf8');
 if(html.includes(MARK)){console.log('VFIT 2026 layer already applied');process.exit(0);}
@@ -81,6 +80,14 @@ const anchor='<script src="/vfp-programs.js';
 const ai=html.indexOf(anchor);
 if(ai<0)throw new Error('Could not find the app script anchor');
 html=html.slice(0,ai)+`<script src="/vf26/vfit-2026.js?v=${VERSION}"></script>\n    `+html.slice(ai);
+
+// 5a. Site title
+const OLD_TITLE="VFITNESS Bahamas | Nassau's Premium Body Transformation System";
+const NEW_TITLE="VFITNESS | Train Smart. Train Elite.";
+html=html.split('<title>'+OLD_TITLE+'</title>').join('<title>'+NEW_TITLE+'</title>');
+html=html.split('content="'+OLD_TITLE+'"').join('content="'+NEW_TITLE+'"');
+html=html.split('home:"'+OLD_TITLE+'"').join('home:"'+NEW_TITLE+'"');
+if(!html.includes('<title>'+NEW_TITLE+'</title>'))throw new Error('Title not updated');
 
 // 5. Theme colour meta
 html=html.replace(/<meta name="theme-color" content="[^"]*">/,'<meta name="theme-color" content="#0f1115">');
