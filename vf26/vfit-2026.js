@@ -1010,7 +1010,7 @@ function SessionMeter(p){
    h('div',{className:'vf26-meter-num tone-'+tone},h('b',{className:'vf26-condensed'},left),h('span',null,'sessions left'))),
   total>0?h('div',{className:'vf26-meter-bar'},h('i',{className:'tone-'+tone,style:{width:Math.max(3,pct)+'%'}})):null,
   total>0?h('div',{className:'vf26-meter-count'},h('span',null,done,' completed'),h('span',null,total,' total')):null,
-  tone==='low'&&total>0?h('div',{className:'vf26-note warn'},LIco('alert-triangle',16),h('div',null,h('b',null,'Time to renew'),h('p',null,'You have ',left,' session',left===1?'':'s',' left. Renew your package to keep your training on track.'),h('button',{type:'button',className:'vf26-btn vf26-btn-primary sm',onClick:go('pricing')},'Renew package'))):null,
+  tone==='low'&&total>0?h('div',{className:'vf26-alertbox warn'},LIco('alert-triangle',16),h('div',null,h('b',null,'Time to renew'),h('p',null,'You have ',left,' session',left===1?'':'s',' left. Renew your package to keep your training on track.'),h('button',{type:'button',className:'vf26-btn vf26-btn-primary sm',onClick:go('pricing')},'Renew package'))):null,
   h('div',{className:'vf26-meter-list'},
    h('div',{className:'vf26-meter-head'},h('span',null,'Your packages'),h('small',null,'Tap Log session when you arrive at the gym.')),
    pk.length===0?h('div',{className:'vf26-empty'},Ico3D({name:'package',tile:44,size:20}),h('b',null,'No active package'),h('p',null,'When a package is assigned or purchased, your sessions show here.'),h('button',{type:'button',className:'vf26-btn vf26-btn-primary sm',onClick:go('pricing')},'See packages')):
@@ -1030,18 +1030,18 @@ function VF26ClientOverview(p){
  return h('div',{className:'vf26-ov'},
   h(SessionMeter,{packages:pk,onLogSession:p.onLogSession}),
   h('div',{className:'vf26-ov-grid'},
-   h('section',{className:'vf26-panel'},
-    h('div',{className:'vf26-panel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Bookings'),h('h3',null,'Upcoming sessions')),h('button',{type:'button',className:'vf26-btn vf26-btn-outline sm',onClick:function(){go('sessions');}},'Book a session')),
+   h('section',{className:'vf26-wpanel'},
+    h('div',{className:'vf26-wpanel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Bookings'),h('h3',null,'Upcoming sessions')),h('button',{type:'button',className:'vf26-btn vf26-btn-outline sm',onClick:function(){go('sessions');}},'Book a session')),
     upcoming.length?h('ul',{className:'vf26-list'},upcoming.map(function(a,i){return h('li',{key:a.id||i},Ico3D({name:'calendar',tile:40,size:18}),h('div',{className:'t'},h('b',null,fmtWhen(a)),h('small',null,(a.trainerName||'VFitness trainer'))),h('span',{className:'vf26-status s-'+(a.status||'pending')},a.status==='confirmed'?'Confirmed':a.status==='completed'?'Completed':'Pending'));})):
      h('div',{className:'vf26-empty slim'},h('p',null,'No upcoming sessions. Book a time with your trainer and it will appear here.'))),
-   h('section',{className:'vf26-panel'},
-    h('div',{className:'vf26-panel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Account'),h('h3',null,'Manage your account'))),
-    h('div',{className:'vf26-actions'},
+   h('section',{className:'vf26-wpanel'},
+    h('div',{className:'vf26-wpanel-head'},h('div',null,h('p',{className:'vf26-kicker'},'Account'),h('h3',null,'Manage your account'))),
+    h('div',{className:'vf26-acts'},
      [['receipt','Invoices & payments','View and download your invoices',function(){go('invoices');}],
       ['message-circle','Message your trainer','Questions about sessions or scheduling',function(){go('coach');}],
       ['credit-card','Buy or renew a package','Personal training and semi private packages',page('pricing')]].map(function(r){
       return h('button',{key:r[1],type:'button',className:'vf26-action',onClick:r[3]},Ico3D({name:r[0],tile:40,size:18}),h('span',{className:'t'},h('b',null,r[1]),h('small',null,r[2])),icon('arrow',16));})))),
-  h('section',{className:'vf26-panel vf26-appband'},
+  h('section',{className:'vf26-wpanel vf26-appband'},
    h('img',{src:'/vf26/vfit-app-icon.webp',alt:'VFIT app',width:56,height:56}),
    h('div',{className:'t'},h('p',{className:'vf26-kicker'},'VFIT app'),h('h3',null,'Training, nutrition and progress live in the VFIT app.'),h('p',null,'Use the same email to follow your program, log meals and track progress. App Store and Google Play releases are coming soon.')),
    h('a',{className:'vf26-btn vf26-btn-primary',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Open the VFIT app',icon('arrow',16,{className:'vf26-arrow'}))));
