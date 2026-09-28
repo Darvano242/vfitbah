@@ -87,6 +87,7 @@ function Navigation(props){
  React.useEffect(function(){try{document.body.classList.toggle('vf26-member',!!(user&&!isAdmin));}catch(e){}},[user,isAdmin]);
  React.useEffect(function(){setOpen(false);},[currentPage]);
  /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
+ React.useEffect(function(){try{document.body.classList.toggle('vf26-app-page',currentPage==='dashboard'||currentPage==='admin');}catch(e){}},[currentPage]);
  var lastPage=React.useRef(currentPage);
  React.useEffect(function(){if(lastPage.current===currentPage)return;lastPage.current=currentPage;function top(){try{window.scrollTo({top:0,left:0,behavior:'instant'});}catch(e){window.scrollTo(0,0);}}top();requestAnimationFrame(top);setTimeout(top,120);},[currentPage]);
  React.useEffect(function(){if(user)return;var gated={dashboard:1,admin:1,saved:1,aichat:1,community:1};if(!gated[currentPage])return;var t=setTimeout(function(){try{if(!auth.currentUser)setCurrentPage('login');}catch(e){}},1500);return function(){clearTimeout(t);};},[user,currentPage]);
@@ -868,6 +869,95 @@ var LegalPage=shell('LegalPage','doc');
 var PremiumTrainingDirectionPage=shell('PremiumTrainingDirectionPage','store');
 var DashboardPage=shell('DashboardPage','member');
 var GlobalSearchPage=shell('GlobalSearchPage','member');
+
+
+/* ================= MEMBER + COACH WORKSPACE (app layout) ================= */
+function LIco(name,size,extra){var C=window.Ico;return C?h(C,Object.assign({name:name,size:size||18,color:'currentColor'},extra||{})):null;}
+var TONES={primary:'66,150,240',teal:'95,221,204',fire:'249,112,102',violet:'136,105,236',green:'52,199,120',gold:'245,183,59'};
+function Ico3D(p){var tile=p.tile||44,t=TONES[p.variant]||TONES.primary;
+ return h('span',{className:'mu-ico3d vf26-tile '+(p.className||''),style:Object.assign({width:tile,height:tile,minWidth:tile,borderRadius:Math.round(tile*0.3),display:'inline-flex',alignItems:'center',justifyContent:'center',background:'rgba('+t+',.12)',border:'1px solid rgba('+t+',.26)',color:'rgb('+t+')'},p.style||{})},LIco(p.name,p.size||22,{stroke:2}));}
+function useNow(ms){var st=React.useState(new Date()),now=st[0],set=st[1];React.useEffect(function(){var t=setInterval(function(){set(new Date());},ms||1000);return function(){clearInterval(t);};},[]);return now;}
+function RealTimeClock(){var now=useNow(1000);
+ return h('div',{className:'vf26-clock'},icon('timer',16),h('span',null,now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})),h('b',null,now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})));}
+function firstName(u){var n=(u&&(u.name||u.displayName))||'';if(!n&&u&&u.email)n=u.email.split('@')[0];n=String(n).trim().split(/\s+/)[0]||'Athlete';return n.charAt(0).toUpperCase()+n.slice(1);}
+function greeting(){var hr=new Date().getHours();return hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';}
+function pkgTotal(p){return p.sessionsTotal||p.sessions||((p.sessionsRemaining||0)+(p.sessionsCompleted||0));}
+
+function VF26Tabs(p){
+ var items=p.items||[],active=p.active,admin=p.kind==='admin';
+ var stripRef=React.useRef(null);
+ React.useEffect(function(){try{var el=stripRef.current&&stripRef.current.querySelector('.on');if(el)el.scrollIntoView({block:'nearest',inline:'center',behavior:reduceMotion?'auto':'smooth'});}catch(e){}},[active]);
+ function pick(id){return function(){p.onChange&&p.onChange(id);try{var g=document.querySelector('.vf26-ws-grid');if(g&&g.getBoundingClientRect().top<0)window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});}catch(e){}};}
+ var u=p.user||{};
+ return h(React.Fragment,null,
+  h('aside',{className:'vf26-rail','aria-label':admin?'Coach workspace':'Member workspace'},
+   h('div',{className:'vf26-rail-card'},
+    h('div',{className:'vf26-rail-id'},
+     h('p',{className:'k'},admin?'Coach workspace':'Member workspace'),
+     h('p',{className:'n'},firstName(u)),
+     h('p',{className:'s'},admin?(u.role==='admin'?'Admin access':'Trainer access'):'VFitness client')),
+    h('nav',null,items.map(function(t,i){var on=t.id===active;
+     return h(React.Fragment,{key:t.id},(admin&&(i===6||i===11))?h('div',{className:'vf26-rail-div'}):null,
+      h('button',{type:'button',className:'vf26-rail-item'+(on?' on':''),'aria-current':on?'page':undefined,onClick:pick(t.id)},LIco(t.icon,16),h('span',null,t.label),on?h('i',{className:'dot'}):null));})))),
+  h('div',{className:'vf26-seg',role:'tablist',ref:stripRef},items.map(function(t){var on=t.id===active;
+   return h('button',{key:t.id,type:'button',role:'tab','aria-selected':on,className:on?'on':'',onClick:pick(t.id)},LIco(t.icon,15),t.label);})));
+}
+
+function VF26MemberHead(p){
+ var u=p.user||{},pk=p.packages||[],now=useNow(30000);
+ var left=pk.reduce(function(a,x){return a+(x.sessionsRemaining||0);},0);
+ var active=pk.filter(function(x){return (x.sessionsRemaining||0)>0&&x.status!=='paused';}).length;
+ var na=p.newAssignments||{};
+ return h('section',{className:'vf26-today'},
+  h('div',{className:'vf26-today-main'},
+   h('p',{className:'vf26-kicker'},'Today ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
+   h('h1',null,greeting()+', ',h('span',null,firstName(u)+'.')),
+   h('p',{className:'lead'},'Your training, sessions, meals and progress in one place.'),
+   (na.workout||na.mealPlan)?h('div',{className:'vf26-today-new'},
+     na.workout?h('span',null,LIco('dumbbell',14),'New workout program'):null,
+     na.mealPlan?h('span',null,LIco('utensils',14),'New meal plan'):null):null),
+  h('div',{className:'vf26-today-stats'},
+   h('div',{className:'vf26-mini'},h('span',null,'Sessions left'),h('b',{className:'vf26-condensed'},left)),
+   h('div',{className:'vf26-mini'},h('span',null,'Active packages'),h('b',{className:'vf26-condensed'},active)),
+   h('div',{className:'vf26-mini'},h('span',null,'Time'),h('b',{className:'vf26-condensed'},now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})))));
+}
+
+function VF26AdminHead(p){
+ var u=p.user||{},now=useNow(30000);
+ return h('section',{className:'vf26-today vf26-today-admin'},
+  h('div',{className:'vf26-today-main'},
+   h('p',{className:'vf26-kicker'},'Coach control center ',h('span',null,now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}))),
+   h('h1',null,greeting()+', ',h('span',null,firstName(u)+'.')),
+   h('p',{className:'lead'},'Clients, sessions, packages and programs for the whole team.')));
+}
+
+function SessionMeter(p){
+ var pk=p.packages||[],onLog=p.onLogSession;
+ var total=pk.reduce(function(a,x){return a+pkgTotal(x);},0);
+ var left=pk.reduce(function(a,x){return a+(x.sessionsRemaining||0);},0);
+ var done=pk.reduce(function(a,x){return a+(x.sessionsCompleted||0);},0);
+ var pct=total>0?Math.round(left/total*100):0;
+ var tone=total===0?'none':left<=2?'low':left<=5?'mid':'ok';
+ var status={none:'No sessions on your account yet',low:'Running low',mid:'Getting low',ok:'You are on track'}[tone];
+ function go(page){return function(){var sp=window.__vf26SetPage;if(sp)sp(page);try{window.scrollTo(0,0);}catch(e){}};}
+ return h('div',{className:'vf26-meter'},
+  h('div',{className:'vf26-meter-top'},
+   h('div',null,h('p',{className:'vf26-kicker'},'Session balance'),h('h3',null,status)),
+   h('div',{className:'vf26-meter-num tone-'+tone},h('b',{className:'vf26-condensed'},left),h('span',null,'sessions left'))),
+  total>0?h('div',{className:'vf26-meter-bar'},h('i',{className:'tone-'+tone,style:{width:Math.max(3,pct)+'%'}})):null,
+  total>0?h('div',{className:'vf26-meter-count'},h('span',null,done,' completed'),h('span',null,total,' total')):null,
+  tone==='low'&&total>0?h('div',{className:'vf26-note warn'},LIco('alert-triangle',16),h('div',null,h('b',null,'Time to renew'),h('p',null,'You have ',left,' session',left===1?'':'s',' left. Renew your package to keep your training on track.'),h('button',{type:'button',className:'vf26-btn vf26-btn-primary sm',onClick:go('pricing')},'Renew package'))):null,
+  h('div',{className:'vf26-meter-list'},
+   h('div',{className:'vf26-meter-head'},h('span',null,'Your packages'),h('small',null,'Tap Log session when you arrive at the gym.')),
+   pk.length===0?h('div',{className:'vf26-empty'},Ico3D({name:'package',tile:44,size:20}),h('b',null,'No active package'),h('p',null,'When a package is assigned or purchased, your sessions show here.'),h('button',{type:'button',className:'vf26-btn vf26-btn-primary sm',onClick:go('pricing')},'See packages')):
+   pk.map(function(x,i){var t=pkgTotal(x),c=x.sessionsCompleted||0,r=x.sessionsRemaining||0,pc=t>0?c/t*100:0,tn=r<=2?'low':r<=5?'mid':'ok';
+    return h('div',{key:x.id||i,className:'vf26-meter-pkg'},
+     h('div',{className:'row'},h('div',{className:'nm'},h('b',null,x.packageName||x.title||('Package '+(i+1))),h('small',null,c,' of ',t,' sessions completed')),h('span',{className:'vf26-pc-left tone-'+tn},h('b',null,r),h('small',null,'left'))),
+     h('div',{className:'vf26-pc-bar'},h('i',{className:'tone-'+tn,style:{width:Math.max(3,pc)+'%'}})),
+     h('button',{type:'button',disabled:r<=0,className:'vf26-btn '+(r<=0?'vf26-btn-outline':'vf26-btn-primary')+' block',onClick:function(){onLog&&onLog(x);}},r<=0?'Package complete':h(React.Fragment,null,LIco('check',16),'I am at the gym, log session')));})));
+}
+window.Ico3D=Ico3D;window.RealTimeClock=RealTimeClock;window.SessionMeter=SessionMeter;
+window.VF26Tabs=VF26Tabs;window.VF26MemberHead=VF26MemberHead;window.VF26AdminHead=VF26AdminHead;
 
 var PAGES={PricingPage:PricingPage,TrainersPage:TrainersPage,VFResultsPage:VFResultsPage,VFLocationsPage:VFLocationsPage,VFContactPage:VFContactPage,AboutPage:AboutPage,
  LoginPage:LoginPage,SignupPage:SignupPage,StartHereFlow:StartHereFlow,ApplicationPage:ApplicationPage,WorkoutProgramsPage:WorkoutProgramsPage,ProgramLibraryPage:ProgramLibraryPage,

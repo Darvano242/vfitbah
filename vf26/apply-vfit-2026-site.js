@@ -107,39 +107,39 @@ once("if(isLanardo){trainerFilter='Lanardo Mackey';}else if(isChavese){trainerFi
   const b=html.indexOf(end), a=b<0?-1:html.lastIndexOf(start,b);
   if(a<0||b<0||html.indexOf(end,b+1)>=0||b-a>9000)throw new Error('Package card block not found');
   const card=`const tone=remaining<=2?'low':remaining<=5?'mid':'ok';const paused=pkg.status==='paused';const created=pkg.createdAt?.toDate?.()?.toLocaleDateString()||pkg.purchaseDate?.toDate?.()?.toLocaleDateString()||'N/A';const RC=React.createElement;const who=client?.name||pkg.clientName||'Unknown Client';const pct=Math.max(0,Math.min(100,percentage));
-return RC("article",{key:pkg.id,className:"vf26-pkg"+(paused?" is-paused":"")},
- RC("header",{className:"vf26-pkg-head"},
-  RC("span",{className:"vf26-pkg-avatar"},String(who).trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase()),
-  RC("div",{className:"vf26-pkg-id"},RC("h3",null,who),RC("p",null,pkg.packageName||pkg.title||(total+'-Session Package'))),
-  RC("span",{className:"vf26-pkg-left tone-"+tone},RC("b",null,remaining),RC("small",null,"left"))),
- paused?RC("div",{className:"vf26-pkg-flag"},RC(Ico,{name:"pause",size:13}),"Package paused"):null,
- RC("div",{className:"vf26-pkg-meter"},
-  RC("div",{className:"vf26-pkg-bar"},RC("i",{className:"tone-"+tone,style:{width:Math.max(3,pct)+'%'}})),
-  RC("div",{className:"vf26-pkg-count"},RC("span",null,RC("b",null,completed)," of ",total," sessions completed"),RC("span",null,Math.round(pct),"%"))),
- RC("div",{className:"vf26-pkg-fields"},
-  RC("label",{className:"vf26-pkg-field"},RC("span",null,"Assigned trainer"),
+return RC("article",{key:pkg.id,className:"vf26-pc"+(paused?" is-paused":"")},
+ RC("header",{className:"vf26-pc-head"},
+  RC("span",{className:"vf26-pc-avatar"},String(who).trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase()),
+  RC("div",{className:"vf26-pc-id"},RC("h3",null,who),RC("p",null,pkg.packageName||pkg.title||(total+'-Session Package'))),
+  RC("span",{className:"vf26-pc-left tone-"+tone},RC("b",null,remaining),RC("small",null,"left"))),
+ paused?RC("div",{className:"vf26-pc-flag"},RC(Ico,{name:"pause",size:13}),"Package paused"):null,
+ RC("div",{className:"vf26-pc-meter"},
+  RC("div",{className:"vf26-pc-bar"},RC("i",{className:"tone-"+tone,style:{width:Math.max(3,pct)+'%'}})),
+  RC("div",{className:"vf26-pc-count"},RC("span",null,RC("b",null,completed)," of ",total," sessions completed"),RC("span",null,Math.round(pct),"%"))),
+ RC("div",{className:"vf26-pc-fields"},
+  RC("label",{className:"vf26-pc-field"},RC("span",null,"Assigned trainer"),
    RC("select",{value:pkg.assignedTrainerId||pkg.assignedById||getPackageTrainerIdByName(pkg.assignedTrainerName||pkg.assignedBy)||'',onChange:e=>assignPackageTrainer(pkg,e.target.value)},PACKAGE_ASSIGN_TRAINERS.map(t=>RC("option",{key:t.id,value:t.id},t.name)))),
-  RC("label",{className:"vf26-pkg-field"},RC("span",null,"Discount %"),
+  RC("label",{className:"vf26-pc-field"},RC("span",null,"Discount %"),
    RC("input",{type:"number",min:0,max:100,defaultValue:discountPct,onBlur:e=>updatePackageDiscount(pkg,e.target.value)}))),
- RC("div",{className:"vf26-pkg-bill"},
+ RC("div",{className:"vf26-pc-bill"},
   RC("div",null,RC("span",null,"Base"),RC("b",null,"$",money(baseAmount))),
   RC("div",null,RC("span",null,"Discount"),RC("b",null,"-$",money(discountAmount))),
   RC("div",{className:"total"},RC("span",null,"Charge"),RC("b",null,"$",money(finalAmount)))),
- RC("div",{className:"vf26-pkg-main"},
-  RC("button",{type:"button",onClick:()=>adjustSessions(pkg.id,-1,pkg),className:"vf26-pkg-btn primary"},RC(Ico,{name:"check",size:16}),"Log session"),
-  RC("button",{type:"button",onClick:()=>adjustSessions(pkg.id,1,pkg),className:"vf26-pkg-btn"},RC(Ico,{name:"plus",size:16}),"Add session")),
- RC("div",{className:"vf26-pkg-tools"},
-  RC("button",{type:"button",onClick:()=>togglePackagePause(pkg),className:"vf26-pkg-tool"+(paused?" on":"")},RC(Ico,{name:paused?'play':'pause',size:15}),paused?'Resume':'Pause'),
-  RC("button",{type:"button",onClick:()=>toggleAutoRenewal(pkg),className:"vf26-pkg-tool"+(pkg.autoRenewalEnabled?" on":"")},RC(Ico,{name:pkg.autoRenewalEnabled?"refresh-cw":"repeat",size:15}),pkg.autoRenewalEnabled?'Auto renew on':'Auto renew'),
-  RC("button",{type:"button",onClick:()=>downloadPackageInvoice(pkg,client),className:"vf26-pkg-tool"},RC(Ico,{name:"file-text",size:15}),"Invoice")),
- RC("footer",{className:"vf26-pkg-foot"},"Created ",created));`;
+ RC("div",{className:"vf26-pc-main"},
+  RC("button",{type:"button",onClick:()=>adjustSessions(pkg.id,-1,pkg),className:"vf26-pc-btn primary"},RC(Ico,{name:"check",size:16}),"Log session"),
+  RC("button",{type:"button",onClick:()=>adjustSessions(pkg.id,1,pkg),className:"vf26-pc-btn"},RC(Ico,{name:"plus",size:16}),"Add session")),
+ RC("div",{className:"vf26-pc-tools"},
+  RC("button",{type:"button",onClick:()=>togglePackagePause(pkg),className:"vf26-pc-tool"+(paused?" on":"")},RC(Ico,{name:paused?'play':'pause',size:15}),paused?'Resume':'Pause'),
+  RC("button",{type:"button",onClick:()=>toggleAutoRenewal(pkg),className:"vf26-pc-tool"+(pkg.autoRenewalEnabled?" on":"")},RC(Ico,{name:pkg.autoRenewalEnabled?"refresh-cw":"repeat",size:15}),pkg.autoRenewalEnabled?'Auto renew on':'Auto renew'),
+  RC("button",{type:"button",onClick:()=>downloadPackageInvoice(pkg,client),className:"vf26-pc-tool"},RC(Ico,{name:"file-text",size:15}),"Invoice")),
+ RC("footer",{className:"vf26-pc-foot"},"Created ",created));`;
   html=html.slice(0,a)+card+html.slice(b);
   once(`className:"flex items-center gap-2 mb-5 px-4 py-2 rounded-xl font-semibold",style:{background:'var(--mu-surface)',border:'1px solid var(--mu-border)',color:'var(--mu-text-dim)'}},/*#__PURE__*/React.createElement(Ico,{name:"arrow-left",size:16})," All trainers")`,
-       `className:"vf26-pkg-back"},/*#__PURE__*/React.createElement(Ico,{name:"arrow-left",size:16}),"All trainers")`);
+       `className:"vf26-pc-back"},/*#__PURE__*/React.createElement(Ico,{name:"arrow-left",size:16}),"All trainers")`);
   once(`React.createElement("div",{className:"flex items-center gap-3 mb-5"},/*#__PURE__*/React.createElement(Ico3D,{name:"user",variant:"primary",tile:46,size:23}),/*#__PURE__*/React.createElement("div",null,/*#__PURE__*/React.createElement("h3",{className:"text-xl font-black text-white"},selectedTrainer)`,
-       `React.createElement("div",{className:"vf26-pkg-group"},React.createElement("span",{className:"vf26-pkg-gavatar"},String(selectedTrainer||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase()),/*#__PURE__*/React.createElement("div",null,/*#__PURE__*/React.createElement("h3",null,selectedTrainer)`);
-  once(`className:"grid md:grid-cols-2 gap-4"},list.map(renderCard))`,`className:"vf26-pkg-grid"},list.map(renderCard))`);
-  once(`className:"text-left p-5 rounded-2xl transition-all hover:-translate-y-0.5",style:{background:'var(--mu-surface)',border:'1px solid var(--mu-border)'}}`,`className:"vf26-pkg-trainer"}`);
+       `React.createElement("div",{className:"vf26-pc-group"},React.createElement("span",{className:"vf26-pc-gavatar"},String(selectedTrainer||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase()),/*#__PURE__*/React.createElement("div",null,/*#__PURE__*/React.createElement("h3",null,selectedTrainer)`);
+  once(`className:"grid md:grid-cols-2 gap-4"},list.map(renderCard))`,`className:"vf26-pc-grid"},list.map(renderCard))`);
+  once(`className:"text-left p-5 rounded-2xl transition-all hover:-translate-y-0.5",style:{background:'var(--mu-surface)',border:'1px solid var(--mu-border)'}}`,`className:"vf26-pc-trainer"}`);
   once(`(name||'?').charAt(0).toUpperCase())`,`String(name||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase())`);
 }
 
@@ -150,6 +150,37 @@ once("auth.onAuthStateChanged(async user=>{if(user){try{// Get user role and dat
      "auth.onAuthStateChanged(async user=>{if(user){try{let userDoc=null;try{userDoc=await db.collection('users').doc(user.uid).get();}catch(readErr){console.warn('Profile read failed, retrying',readErr);await new Promise(r=>setTimeout(r,1200));userDoc=await db.collection('users').doc(user.uid).get();}let userData=userDoc&&userDoc.data();if(!userData){userData={email:user.email||'',name:user.displayName||(user.email||'').split('@')[0],role:'client',onboardingCompleted:false};try{await db.collection('users').doc(user.uid).set(Object.assign({},userData,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});}catch(createErr){console.warn('Profile create failed',createErr);}}");
 once("}}catch(error){console.error('Error loading user data:',error);setUser(null);setIsAdmin(false);}}else{setUser(null);setIsAdmin(false);}setLoading(false);",
      "}}catch(error){console.error('Error loading user data:',error);setUser(prev=>prev&&prev.uid===user.uid?prev:{uid:user.uid,email:user.email,displayName:user.displayName,name:user.displayName||(user.email||'').split('@')[0],role:'client'});setCurrentPage(p=>p==='login'||p==='signup'?'dashboard':p);}}else{setUser(null);setIsAdmin(false);}setLoading(false);");
+
+
+// 5e. Member and coach workspaces in the app layout.
+for(const n of ['SessionMeter','Ico3D','RealTimeClock'])once('function '+n+'(','function VFLegacy'+n+'(');
+function after(marker,from,to){
+  const st=html.indexOf(marker);if(st<0)throw new Error('Missing '+marker);
+  const i=html.indexOf(from,st);if(i<0||i-st>300000)throw new Error('Missing "'+from.slice(0,60)+'" after '+marker);
+  html=html.slice(0,i)+to+html.slice(i+from.length);
+}
+function range(marker,from,until,to){
+  const st=html.indexOf(marker);const i=html.indexOf(from,st);const j=html.indexOf(until,i);
+  if(st<0||i<0||j<0||j-i>20000)throw new Error('Range not found: '+from.slice(0,50));
+  html=html.slice(0,i)+to+html.slice(j);
+}
+{
+  const TAIL=`.map(tab=>/*#__PURE__*/React.createElement("button",{key:tab.id,onClick:()=>setActiveTab(tab.id),className:"px-5 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2",style:activeTab===tab.id?{background:'linear-gradient(120deg,#4296f0,#8869ec)',color:'#fff',boxShadow:'0 10px 30px -8px rgba(66,150,240,.6)',transform:'translateY(-1px)'}:{background:'var(--mu-surface)',color:'var(--mu-text-dim)',border:'1px solid var(--mu-border)'}},/*#__PURE__*/React.createElement(Ico,{name:tab.icon,size:17,color:activeTab===tab.id?'#fff':'var(--mu-primary)'}),tab.label)))`;
+  const HEAD='/*#__PURE__*/React.createElement("div",{className:"flex flex-wrap gap-2 mb-8 mu-tabscroll"},';
+  const D='function VFLegacyDashboardPage(', A='function AdminPage({user})';
+  // client
+  after(D,'min-h-screen pt-32 pb-20 px-4 ','vf26-ws ');
+  after(D,'{className:"max-w-7xl mx-auto"}','{className:"vf26-ws-grid"}');
+  range(D,'/*#__PURE__*/React.createElement("div",{className:"relative rounded-3xl overflow-hidden mb-8 mu-pop"',HEAD,'React.createElement(VF26MemberHead,{user:user,packages:packages,newAssignments:newAssignments}),');
+  after(D,HEAD,"React.createElement(VF26Tabs,{kind:'client',user:user,active:activeTab,onChange:setActiveTab,items:");
+  after(D,TAIL,'})');
+  // coach / admin
+  after(A,'min-h-screen bg-black pt-32 pb-20 px-4','vf26-ws vf26-ws-admin');
+  after(A,'{className:"max-w-7xl mx-auto"}','{className:"vf26-ws-grid"}');
+  range(A,'/*#__PURE__*/React.createElement("div",{className:"mb-8 mu-pop"}','/*#__PURE__*/React.createElement("div",{className:"mb-8 rounded-2xl mu-pop-2 overflow-hidden"','React.createElement(VF26AdminHead,{user:user}),');
+  after(A,HEAD,"React.createElement(VF26Tabs,{kind:'admin',user:user,active:activeTab,onChange:setActiveTab,items:");
+  after(A,TAIL,'})');
+}
 
 // 5. Theme colour meta
 html=html.replace(/<meta name="theme-color" content="[^"]*">/,'<meta name="theme-color" content="#0f1115">');
@@ -165,7 +196,7 @@ for(const f of fs.readdirSync(here)){
 const scripts=[...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((code,i)=>{try{new vm.Script(code,{filename:'inline-'+i+'.js'});}catch(e){throw new Error('Inline script '+i+' failed to parse: '+e.message);}});
 new vm.Script(fs.readFileSync(path.join(outDir,'vfit-2026.js'),'utf8'),{filename:'vfit-2026.js'});
-for(const needle of ["{id:'kevin_mackey',name:'Kevin Mackey'}",'className:"vf26-pkg"',...PAGE_NAMES.map(n=>'function VFLegacy'+n+'('),'function VFLegacyHomePage(','function VFLegacyNavigation(','function VFLegacyFooter(','/vf26/vfit-2026.js','/vf26/vfit-2026.css'])
+for(const needle of ["{id:'kevin_mackey',name:'Kevin Mackey'}",'className:"vf26-pc"','React.createElement(VF26Tabs,{kind:\'admin\'','React.createElement(VF26MemberHead,',...PAGE_NAMES.map(n=>'function VFLegacy'+n+'('),'function VFLegacyHomePage(','function VFLegacyNavigation(','function VFLegacyFooter(','/vf26/vfit-2026.js','/vf26/vfit-2026.css'])
   if(!html.includes(needle))throw new Error('Missing '+needle);
 for(const img of ['vfit-app-icon.webp','vfit-app-icon-180.png','welcome-glute-v1.webp','darvano-andrews.webp','strength-editorial-v1.webp','fuel-the-fire-v1.webp'])
   if(!fs.existsSync(path.join(outDir,img)))throw new Error('Missing image '+img);
