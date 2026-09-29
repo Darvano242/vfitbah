@@ -929,7 +929,7 @@ function VF26Broadcast(p){
  var seen={},recips=[];
  (p.clients||[]).forEach(function(c){var em=String(c.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)||seen[em])return;seen[em]=1;recips.push({email:em,name:String(c.name||'').trim()});});
  var pending=recips.filter(function(r){return done.indexOf(r.email)<0;});
- var noEmail=(p.clients||[]).length-recips.length;var toSend=pending.filter(function(r){return skipped.indexOf(r.email)<0;});
+ var noEmail=(p.clients||[]).filter(function(c){return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.email||'').trim());}).length;var toSend=pending.filter(function(r){return skipped.indexOf(r.email)<0;});
  React.useEffect(function(){if(!open)return;try{if(typeof db!=='undefined')db.collection('broadcasts').doc(BC_ID).get().then(function(d){var x=d.exists&&d.data().sent;if(x&&x.length){var m=bcSentLoad();x.forEach(function(e){if(m.indexOf(e)<0)m.push(e);});bcSentSave(m);setDone(m);}}).catch(function(){});}catch(e){}},[open]);
  function first(n){var f=(n||'').split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
