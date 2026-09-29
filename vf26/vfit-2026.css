@@ -1218,3 +1218,19 @@ html[data-vf26] body .vf26-mtog button{padding:.6rem .5rem;border-radius:9px;fon
 html[data-vf26] body .vf26-mtog button.on{background:var(--vf-primary,#4296f0);color:#fff}
 html[data-vf26] body .vf26-mform{display:grid;gap:8px}
 html[data-vf26] body .vf26-mnote{font-size:12px;color:var(--vf-mute,#9aa3b2);margin:0 0 2px}
+/* Client broadcast email */
+html[data-vf26] body .vf26-bc-bar,html[data-vf26] body .vf26-bc{border:1px solid var(--vf-border);background:var(--vf-surface-2);border-radius:18px;padding:1rem 1.1rem;margin-bottom:16px}
+html[data-vf26] body .vf26-bc-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+html[data-vf26] body .vf26-bc-bar b,html[data-vf26] body .vf26-bc-head b{display:block;font-weight:800;color:var(--vf-text,#fff)}
+html[data-vf26] body .vf26-bc-bar span,html[data-vf26] body .vf26-bc-head span{font-size:13px;color:var(--vf-mute)}
+html[data-vf26] body .vf26-bc{display:grid;gap:8px}
+html[data-vf26] body .vf26-bc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:4px}
+html[data-vf26] body .vf26-bc label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--vf-mute)}
+html[data-vf26] body .vf26-bc input,html[data-vf26] body .vf26-bc textarea{width:100%;padding:.75rem .9rem;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--vf-border);color:var(--vf-text,#fff);font:inherit;font-size:14px;line-height:1.5}
+html[data-vf26] body .vf26-bc textarea{resize:vertical;min-height:220px}
+html[data-vf26] body .vf26-bc-acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
+html[data-vf26] body .vf26-bc-prog{display:grid;gap:6px;font-size:13px;color:var(--vf-mute)}
+html[data-vf26] body .vf26-bc-track{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+html[data-vf26] body .vf26-bc-track i{display:block;height:100%;background:var(--vf-primary,#4296f0);transition:width .3s}
+html[data-vf26] body .vf26-bc-msg{font-size:13px;color:var(--vf-text,#fff);margin:0}
+html[data-vf26] body .vf26-bc button:disabled{opacity:.5;cursor:not-allowed}

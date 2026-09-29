@@ -224,7 +224,7 @@ allClients.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));set
 if(trainerFilter){const ids=allClients.map(c=>c.id);apptDocs=apptDocs.filter(a=>ids.includes(a.clientId));}setAppointments(apptDocs);
 setVfLoadErr(errs.length&&!allClients.length?errs.join(' | '):'');};`);
   once(`activeTab==='clients'&&/*#__PURE__*/React.createElement("div",null,`,
-    `activeTab==='clients'&&/*#__PURE__*/React.createElement("div",null,vfLoadErr?React.createElement("div",{className:"vf26-alertbox",role:"alert",style:{marginBottom:16}},React.createElement("b",null,"Client records could not be loaded. "),"Firebase refused the request for this account (",vfLoadErr,"). Confirm this account's role is admin in the users collection.",React.createElement("button",{type:"button",onClick:()=>loadAdminData(),style:{marginLeft:12,textDecoration:'underline'}},"Retry")):null,`);
+    `activeTab==='clients'&&/*#__PURE__*/React.createElement("div",null,vfLoadErr?React.createElement("div",{className:"vf26-alertbox",role:"alert",style:{marginBottom:16}},React.createElement("b",null,"Client records could not be loaded. "),"Firebase refused the request for this account (",vfLoadErr,"). Confirm this account's role is admin in the users collection.",React.createElement("button",{type:"button",onClick:()=>loadAdminData(),style:{marginLeft:12,textDecoration:'underline'}},"Retry")):null,isAdmin?React.createElement(VF26Broadcast,{clients:clients,user:user}):null,`);
 }
 
 
