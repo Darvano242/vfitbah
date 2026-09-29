@@ -915,16 +915,21 @@ var BC_SUBJECT='Your VFIT app early access: 7 days of Premium, free';
 var BC_BODY='Hi {name},\n\nThe VFIT app launches on the App Store and Google Play this October, but as a VFitness client, you can get started today.\n\nYour training programs, nutrition, sleep and progress tracking are together in one place, keeping you connected to your coach between sessions.\n\nTry VFIT free for 7 days. An active app membership is required to continue after your trial.\n\nGet started: [vfitnow.app](https://vfitnow.app/)\n\nYour training sessions, packages and payments will continue to be managed at [vfitbah.com](https://vfitbah.com/), just as always.\n\nNeed help getting started? Reply to this email or ask me at your next session.\n\nSee you at the gym,\nDarvano Andrews\nFounder, VFitness Training Services\n[vfitnessbahamas@gmail.com](mailto:vfitnessbahamas@gmail.com)';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
+function bcSkipLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-skip-'+BC_ID)||'[]');}catch(e){return [];}}
+function bcSkipSave(list){try{localStorage.setItem('vf-bc-skip-'+BC_ID,JSON.stringify(list));}catch(e){}}
 function VF26Broadcast(p){
  var o=React.useState(false),open=o[0],setOpen=o[1];
  var s1=React.useState(BC_SUBJECT),subject=s1[0],setSubject=s1[1];
  var s2=React.useState(BC_BODY),body=s2[0],setBody=s2[1];
  var s3=React.useState({state:'idle',sent:0,failed:0,total:0,msg:''}),run=s3[0],setRun=s3[1];
  var s4=React.useState(bcSentLoad()),done=s4[0],setDone=s4[1];
- var stopRef=React.useRef(false);
+ var stopRef=React.useRef(false),resumeRef=React.useRef(null),sendAllRef=React.useRef(null);
+ var s5=React.useState(bcSkipLoad()),skipped=s5[0],setSkipped=s5[1];
+ React.useEffect(function(){return function(){if(resumeRef.current)clearTimeout(resumeRef.current);};},[]);
  var seen={},recips=[];
  (p.clients||[]).forEach(function(c){var em=String(c.email||'').trim().toLowerCase();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)||seen[em])return;seen[em]=1;recips.push({email:em,name:String(c.name||'').trim()});});
  var pending=recips.filter(function(r){return done.indexOf(r.email)<0;});
+ var noEmail=(p.clients||[]).length-recips.length;var toSend=pending.filter(function(r){return skipped.indexOf(r.email)<0;});
  React.useEffect(function(){if(!open)return;try{if(typeof db!=='undefined')db.collection('broadcasts').doc(BC_ID).get().then(function(d){var x=d.exists&&d.data().sent;if(x&&x.length){var m=bcSentLoad();x.forEach(function(e){if(m.indexOf(e)<0)m.push(e);});bcSentSave(m);setDone(m);}}).catch(function(){});}catch(e){}},[open]);
  function first(n){var f=(n||'').split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -937,34 +942,50 @@ function VF26Broadcast(p){
  }
  function sendTest(){var me=(p.user&&p.user.email)||'vfitnessbahamas@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
   sendOne({email:me,name:(p.user&&p.user.name)||'Darvano'}).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test sent to '+me+'. Check the inbox before sending to clients.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test failed: '+((e&&(e.message||e.text))||e)});});}
- function sendAll(){
-  if(!pending.length)return;
-  if(!window.confirm('Send this email to '+pending.length+' clients now? This cannot be undone.'))return;
-  stopRef.current=false;var list=pending.slice(),i=0,ok=0,bad=0,streak=0,sentList=done.slice();
+ function isLimit(e){var m=String((e&&(e.message||e.text))||'').toLowerCase();return m.indexOf('limit')>=0||(e&&e.status===429);}
+ function sendAll(auto){
+  var list=pending.filter(function(r){return skipped.indexOf(r.email)<0;});
+  if(!list.length)return;
+  if(!auto&&!window.confirm('Send this email to '+list.length+' clients now? This cannot be undone.'))return;
+  stopRef.current=false;if(resumeRef.current){clearTimeout(resumeRef.current);resumeRef.current=null;}
+  var i=0,ok=0,bad=0,sentList=done.slice(),skipList=skipped.slice();
   setRun({state:'sending',sent:0,failed:0,total:list.length,msg:''});
+  function finish(msg){setRun({state:'idle',sent:ok,failed:bad,total:list.length,msg:msg});}
   function step(){
-   if(stopRef.current||i>=list.length){setRun({state:'idle',sent:ok,failed:bad,total:list.length,msg:(stopRef.current?'Stopped. ':'Finished. ')+ok+' sent'+(bad?', '+bad+' failed':'')+'.'});return;}
+   if(stopRef.current){finish('Stopped. '+ok+' sent.');return;}
+   if(i>=list.length){finish('Finished. '+ok+' sent'+(bad?', '+bad+' addresses could not receive email and were skipped':'')+'.');return;}
    var r=list[i++];
-   sendOne(r).then(function(){ok++;streak=0;sentList.push(r.email);bcSentSave(sentList);setDone(sentList.slice());
+   sendOne(r).then(function(){ok++;sentList.push(r.email);bcSentSave(sentList);setDone(sentList.slice());
      try{db.collection('broadcasts').doc(BC_ID).set({subject:subject,sent:firebase.firestore.FieldValue.arrayUnion(r.email),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});}catch(e){}
-    },function(e){bad++;streak++;console.warn('Broadcast send failed',r.email,e);
-     if(streak>=3){stopRef.current=true;setRun({state:'idle',sent:ok,failed:bad,total:list.length,msg:'Paused after repeated failures ('+((e&&(e.message||e.status))||'send error')+'). The email service may have hit its sending limit. '+ok+' sent so far; press Send again later to continue with the rest.'});}
-    }).then(function(){setRun(function(x){return x.state==='sending'?{state:'sending',sent:ok,failed:bad,total:list.length,msg:''}:x;});if(!(streak>=3))setTimeout(step,400);});
+     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,1500);
+    },function(e){
+     if(isLimit(e)){
+      // Hourly sending cap reached: wait, then carry on automatically from where it stopped.
+      var at=new Date(Date.now()+61*60000);
+      setRun({state:'waiting',sent:ok,failed:bad,total:list.length,msg:ok+' sent this round. The mail service allows a limited number of emails per hour, so sending pauses and resumes automatically at '+at.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'. Keep this tab open, or press Send again any time after that.'});
+      resumeRef.current=setTimeout(function(){resumeRef.current=null;sendAllRef.current(true);},61*60000);
+      return;
+     }
+     // This address cannot receive email: skip it for good and move on.
+     bad++;skipList.push(r.email);bcSkipSave(skipList);setSkipped(skipList.slice());console.warn('Broadcast skipped',r.email,e);
+     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,1500);
+    });
   }
   step();
  }
+ sendAllRef.current=sendAll;
  var busy=run.state!=='idle';
  var btn=function(label,on,cls,dis){return h('button',{type:'button',className:'vf26-btn '+(cls||'vf26-btn-outline'),onClick:on,disabled:!!dis},label);};
  if(!open)return h('div',{className:'vf26-bc-bar'},h('div',null,h('b',null,'Email your clients'),h('span',null,recips.length+' clients with an email on file'+(done.length?' · '+done.length+' already received the app announcement':''))),btn('Compose email',function(){setOpen(true);},'vf26-btn-primary'));
  return h('div',{className:'vf26-bc'},
-  h('div',{className:'vf26-bc-head'},h('div',null,h('b',null,'Email all clients'),h('span',null,pending.length+' of '+recips.length+' still to receive this email. {name} becomes each client\'s first name.')),btn('Close',function(){if(!busy)setOpen(false);},'vf26-btn-ghost',busy)),
+  h('div',{className:'vf26-bc-head'},h('div',null,h('b',null,'Email all clients'),h('span',null,toSend.length+' of '+recips.length+' still to receive this email'+(noEmail>0?' · '+noEmail+' clients have no email on file and are left out':'')+(skipped.length?' · '+skipped.length+' addresses could not receive email':'')+'. {name} becomes each client\'s first name.')),btn('Close',function(){if(!busy)setOpen(false);},'vf26-btn-ghost',busy)),
   h('label',null,'Subject'),h('input',{type:'text',value:subject,onChange:function(e){setSubject(e.target.value);},disabled:busy}),
   h('label',null,'Message'),h('textarea',{rows:14,value:body,onChange:function(e){setBody(e.target.value);},disabled:busy}),
   run.state==='sending'?h('div',{className:'vf26-bc-prog'},h('div',{className:'vf26-bc-track'},h('i',{style:{width:(run.total?Math.round((run.sent+run.failed)/run.total*100):0)+'%'}})),h('span',null,'Sending '+(run.sent+run.failed)+' of '+run.total+(run.failed?' · '+run.failed+' failed':'')+'. Keep this tab open.')):null,
   run.msg?h('p',{className:'vf26-bc-msg'},run.msg):null,
   h('div',{className:'vf26-bc-acts'},
    btn('Send test to me',sendTest,'vf26-btn-outline',busy),
-   run.state==='sending'?btn('Stop',function(){stopRef.current=true;},'vf26-btn-outline'):btn(pending.length?'Send to '+pending.length+' clients':'All clients have received it',sendAll,'vf26-btn-primary',busy||!pending.length)));
+   run.state==='sending'||run.state==='waiting'?btn('Stop',function(){stopRef.current=true;if(resumeRef.current){clearTimeout(resumeRef.current);resumeRef.current=null;}setRun(function(x){return {state:'idle',sent:x.sent,failed:x.failed,total:x.total,msg:'Stopped. '+x.sent+' sent. Press Send to continue with the rest.'};});},'vf26-btn-outline'):btn(toSend.length?'Send to '+toSend.length+' clients':'All clients have received it',function(){sendAll(false);},'vf26-btn-primary',run.state==='sending'||!toSend.length)));
 }
 window.VF26Broadcast=VF26Broadcast;
 
