@@ -927,13 +927,16 @@ function VF26Broadcast(p){
  var pending=recips.filter(function(r){return done.indexOf(r.email)<0;});
  React.useEffect(function(){if(!open)return;try{if(typeof db!=='undefined')db.collection('broadcasts').doc(BC_ID).get().then(function(d){var x=d.exists&&d.data().sent;if(x&&x.length){var m=bcSentLoad();x.forEach(function(e){if(m.indexOf(e)<0)m.push(e);});bcSentSave(m);setDone(m);}}).catch(function(){});}catch(e){}},[open]);
  function first(n){var f=(n||'').split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
+ function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+ function toHtml(txt){var parts=esc(txt).split(/\n{2,}/).map(function(par){return '<p style="margin:0 0 16px">'+par.replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" style="color:#4296f0;font-weight:700">$1</a>').replace(/\n/g,'<br>')+'</p>';}).join('');
+  return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0"><div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span></div><div style="padding:24px;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'<p style="margin:24px 0 0"><a href="https://vfitnow.app/" style="display:inline-block;background:#4296f0;color:#ffffff;text-decoration:none;font-weight:700;padding:12px 22px;border-radius:10px">Get early access</a></p></div><div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</div></div></div>';}
+ var SEND_URL='https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/integration-endpoints/Core/SendEmail';
  function sendOne(r){
-  if(typeof emailjs==='undefined')return Promise.reject(new Error('Email service did not load. Refresh the page and try again.'));
-  try{if(!window.__vfBcInit){emailjs.init(EMAILJS_PUBLIC_KEY);window.__vfBcInit=1;}}catch(e){}
-  return emailjs.send(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,{to_email:r.email,email:r.email,to_name:r.name||'VFitness client',subject:subject,message:body.split('{name}').join(first(r.name)),from_name:'VFITNESS',reply_to:'vfitnessbahamas@gmail.com'});
+  return fetch(SEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:r.email,subject:subject,from_name:'VFITNESS',body:toHtml(body.split('{name}').join(first(r.name)))})})
+   .then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.success===false){var e=new Error((j&&(j.message||j.detail))||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
  }
  function sendTest(){var me=(p.user&&p.user.email)||'vfitnessbahamas@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
-  sendOne({email:me,name:(p.user&&p.user.name)||'Darvano'}).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test sent to '+me+'. Check the inbox before sending to clients.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test failed: '+((e&&(e.text||e.message))||e)});});}
+  sendOne({email:me,name:(p.user&&p.user.name)||'Darvano'}).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test sent to '+me+'. Check the inbox before sending to clients.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test failed: '+((e&&(e.message||e.text))||e)});});}
  function sendAll(){
   if(!pending.length)return;
   if(!window.confirm('Send this email to '+pending.length+' clients now? This cannot be undone.'))return;
@@ -945,8 +948,8 @@ function VF26Broadcast(p){
    sendOne(r).then(function(){ok++;streak=0;sentList.push(r.email);bcSentSave(sentList);setDone(sentList.slice());
      try{db.collection('broadcasts').doc(BC_ID).set({subject:subject,sent:firebase.firestore.FieldValue.arrayUnion(r.email),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});}catch(e){}
     },function(e){bad++;streak++;console.warn('Broadcast send failed',r.email,e);
-     if(streak>=3){stopRef.current=true;setRun({state:'idle',sent:ok,failed:bad,total:list.length,msg:'Paused after repeated failures ('+((e&&(e.text||e.status))||'send error')+'). The email service may have hit its sending limit. '+ok+' sent so far; press Send again later to continue with the rest.'});}
-    }).then(function(){setRun(function(x){return x.state==='sending'?{state:'sending',sent:ok,failed:bad,total:list.length,msg:''}:x;});if(!(streak>=3))setTimeout(step,1200);});
+     if(streak>=3){stopRef.current=true;setRun({state:'idle',sent:ok,failed:bad,total:list.length,msg:'Paused after repeated failures ('+((e&&(e.message||e.status))||'send error')+'). The email service may have hit its sending limit. '+ok+' sent so far; press Send again later to continue with the rest.'});}
+    }).then(function(){setRun(function(x){return x.state==='sending'?{state:'sending',sent:ok,failed:bad,total:list.length,msg:''}:x;});if(!(streak>=3))setTimeout(step,400);});
   }
   step();
  }
