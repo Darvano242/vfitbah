@@ -206,6 +206,28 @@ once("publishLocal(dataUrl,'Image preview loaded. Uploading public version in th
 }
 
 
+// 5i. Coach dashboard data: each source loads on its own, so one refused read can no longer zero
+//     every count. Clients fall back to the full user list, then to package and appointment records.
+{
+  const A='function AdminPage({user})';
+  after(A,"const[alertsExpanded,setAlertsExpanded]=useState(false);",
+    "const[alertsExpanded,setAlertsExpanded]=useState(false);const[vfLoadErr,setVfLoadErr]=useState('');");
+  range(A,"const loadAdminData=async()=>{","// ===== COACH AUTOMATION ALERTS =====",
+`const loadAdminData=async()=>{const errs=[];let allClients=[];let apptDocs=[];
+try{if(auth.currentUser)await auth.currentUser.getIdToken(true);}catch(e){}
+try{let q=db.collection('users').where('role','==','client');if(trainerFilter&&!isAdmin)q=q.where('assignedTrainer','==',trainerFilter);const s=await q.get();allClients=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){console.warn('Client query failed',e);errs.push('clients: '+(e.code||e.message));}
+if(!allClients.length&&!trainerFilter){try{const s=await db.collection('users').get();allClients=s.docs.map(d=>({id:d.id,...d.data()})).filter(u=>u.role!=='admin'&&u.role!=='trainer');}catch(e){console.warn('User list failed',e);}}
+try{const s=await db.collection('appointments').orderBy('date','desc').limit(50).get();apptDocs=s.docs.map(d=>({id:d.id,...d.data()}));}catch(e){console.warn('Appointments ordered query failed',e);try{const s=await db.collection('appointments').limit(200).get();apptDocs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>((b.date&&b.date.toDate?b.date.toDate():0)-(a.date&&a.date.toDate?a.date.toDate():0))).slice(0,50);}catch(e2){errs.push('appointments: '+(e2.code||e2.message));}}
+if(!allClients.length){const map={};try{const s=await db.collection('packages').get();s.docs.forEach(d=>{const p=d.data();if(p.clientId&&!map[p.clientId])map[p.clientId]={id:p.clientId,name:p.clientName||'Client',email:p.clientEmail||'',role:'client',assignedTrainer:p.assignedTrainerName||p.assignedBy||''};});}catch(e){errs.push('packages: '+(e.code||e.message));}
+apptDocs.forEach(a=>{if(a.clientId&&!map[a.clientId])map[a.clientId]={id:a.clientId,name:a.clientName||'Client',email:a.clientEmail||'',role:'client'};});allClients=Object.values(map);if(trainerFilter)allClients=allClients.filter(c=>!c.assignedTrainer||c.assignedTrainer===trainerFilter);}
+allClients.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));setClients(allClients);
+if(trainerFilter){const ids=allClients.map(c=>c.id);apptDocs=apptDocs.filter(a=>ids.includes(a.clientId));}setAppointments(apptDocs);
+setVfLoadErr(errs.length&&!allClients.length?errs.join(' | '):'');};`);
+  once(`activeTab==='clients'&&/*#__PURE__*/React.createElement("div",null,`,
+    `activeTab==='clients'&&/*#__PURE__*/React.createElement("div",null,vfLoadErr?React.createElement("div",{className:"vf26-alertbox",role:"alert",style:{marginBottom:16}},React.createElement("b",null,"Client records could not be loaded. "),"Firebase refused the request for this account (",vfLoadErr,"). Confirm this account's role is admin in the users collection.",React.createElement("button",{type:"button",onClick:()=>loadAdminData(),style:{marginLeft:12,textDecoration:'underline'}},"Retry")):null,`);
+}
+
+
 // 5h. Professional checkout and quieter pages.
 once('function TestimonialSlider(','function VFLegacyTestimonialSlider(');
 range('function TrainerSelectionModal(','if(!isOpen)return null;return','}// WORKOUT PACKAGES INTERFACE (CLIENT VIEW)',
