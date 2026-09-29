@@ -910,7 +910,7 @@ function VF26MemberHead(p){
 
 /* Client broadcast email. Sends one personal email per client through the site's EmailJS account,
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
-var BC_ID='vfit-app-trial-2026-10';
+var BC_ID='vfit-app-trial-2026-10-r2';
 var BC_SUBJECT='Your VFIT app early access: 7 days of Premium, free';
 var BC_BODY='Hi {name},\n\nThe VFIT app launches on the App Store and Google Play this October, but as a VFitness client, you can get started today.\n\nYour training programs, nutrition, sleep and progress tracking are together in one place, keeping you connected to your coach between sessions.\n\nTry VFIT free for 7 days. An active app membership is required to continue after your trial.\n\nGet started: [vfitnow.app](https://vfitnow.app/)\n\nYour training sessions, packages and payments will continue to be managed at [vfitbah.com](https://vfitbah.com/), just as always.\n\nNeed help getting started? Reply to this email or ask me at your next session.\n\nSee you at the gym,\nDarvano Andrews\nFounder, VFitness Training Services\n[vfitnessbahamas@gmail.com](mailto:vfitnessbahamas@gmail.com)';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
@@ -968,7 +968,7 @@ function VF26Broadcast(p){
       resumeRef.current=setTimeout(function(){resumeRef.current=null;sendAllRef.current(true);},61*60000);
       return;
      }
-     if(e&&(e.status===403||e.status===500||e.status===502&&/sender|domain|not valid|unauthori/i.test(e.message||''))){finish('Sending stopped: '+(e.message||'service error')+'. '+ok+' sent.');return;}
+     if(e&&(e.status===403||e.status===500||e.status===503||e.status===502&&/sender|domain|not valid|unauthori/i.test(e.message||''))){finish('Sending stopped: '+(e.message||'service error')+'. '+ok+' sent.');return;}
      // This address cannot receive email: skip it for good and move on.
      bad++;skipList.push(r.email);bcSkipSave(skipList);setSkipped(skipList.slice());console.warn('Broadcast skipped',r.email,e);
      setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,600);
