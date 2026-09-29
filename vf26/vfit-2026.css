@@ -1212,3 +1212,9 @@ html[data-vf26] body .vf26-ws button[class*="uppercase"]{text-transform:none !im
 .vf26-appshow-feats b{display:block;font-size:.95rem;color:var(--vf-text);}
 .vf26-appshow-feats p{margin:.2rem 0 0;font-size:.84rem;line-height:1.5;color:var(--vf-dim);}
 .vf26-appshow .vf26-cta-row{margin-top:1.75rem;}
+/* Package Control: manual client entry */
+html[data-vf26] body .vf26-mtog{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--mu-border,rgba(255,255,255,.1));margin-bottom:10px}
+html[data-vf26] body .vf26-mtog button{padding:.6rem .5rem;border-radius:9px;font-size:13px;font-weight:700;color:var(--vf-mute,#9aa3b2);background:transparent;transition:background .2s,color .2s}
+html[data-vf26] body .vf26-mtog button.on{background:var(--vf-primary,#4296f0);color:#fff}
+html[data-vf26] body .vf26-mform{display:grid;gap:8px}
+html[data-vf26] body .vf26-mnote{font-size:12px;color:var(--vf-mute,#9aa3b2);margin:0 0 2px}

@@ -228,6 +228,33 @@ setVfLoadErr(errs.length&&!allClients.length?errs.join(' | '):'');};`);
 }
 
 
+// 5j. Package Control: manual client entry for clients who have not registered online.
+//     The coach types a name (phone and email optional); a client profile is created and the package is attached to it.
+{
+  const P='function AddPackageForm(';
+  after(P,"const[clientFallbacks,setClientFallbacks]=useState([]);",
+    "const[clientFallbacks,setClientFallbacks]=useState([]);const[manualMode,setManualMode]=useState(false);const[mName,setMName]=useState('');const[mPhone,setMPhone]=useState('');const[mEmail,setMEmail]=useState('');");
+  after(P,"e.preventDefault();if(!selectedClient){alert('Please select a client');return;}setLoading(true);try{const client=clientList.find(c=>c.id===selectedClient);",
+`e.preventDefault();if(manualMode){if(!mName.trim()){alert('Enter the client name');return;}}else if(!selectedClient){alert('Please select a client');return;}setLoading(true);try{let clientKey=selectedClient;let client=null;
+if(manualMode){const nm=mName.trim().replace(/\\s+/g,' ');const em=mEmail.trim().toLowerCase();const ph=mPhone.trim();const existing=clientList.find(c=>(em&&(c.email||'').toLowerCase()===em)||(!em&&(c.name||'').toLowerCase()===nm.toLowerCase()));
+ if(existing){clientKey=existing.id;client=existing;}else{const prof={name:nm,email:em,phone:ph,role:'client',manualEntry:true,registered:false,onboardingCompleted:true,createdBy:'coach',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  try{const ref=await db.collection('users').add(prof);clientKey=ref.id;client={id:ref.id,name:nm,email:em,phone:ph,manual:true};}catch(profErr){console.warn('Manual profile create failed, package only',profErr);clientKey='manual_'+Date.now().toString(36);client={id:clientKey,name:nm,email:em,phone:ph,manual:true};}}}
+else{client=clientList.find(c=>c.id===selectedClient);}`);
+  after(P,"clientId:selectedClient,clientName:client.name,clientEmail:client.email,",
+    "clientId:clientKey,clientName:client.name,clientEmail:client.email||'',clientPhone:client.phone||'',manualClient:!!client.manual,");
+  after(P,"try{await db.collection('users').doc(selectedClient).set({assignedTrainer","try{if(!String(clientKey).startsWith('manual_'))await db.collection('users').doc(clientKey).set({assignedTrainer");
+  after(P,"setSelectedClient('');setPackageType('1on1');","setSelectedClient('');setMName('');setMPhone('');setMEmail('');setManualMode(false);setPackageType('1on1');");
+  after(P,'"Select Client"),clientList.length===0?',
+`"Client"),React.createElement("div",{className:"vf26-mtog",role:"tablist"},React.createElement("button",{type:"button",role:"tab","aria-selected":!manualMode,className:!manualMode?"on":"",onClick:()=>setManualMode(false)},"Registered client"),React.createElement("button",{type:"button",role:"tab","aria-selected":manualMode,className:manualMode?"on":"",onClick:()=>{setManualMode(true);setSelectedClient('');}},"Add manually")),
+manualMode?React.createElement("div",{className:"vf26-mform"},React.createElement("p",{className:"vf26-mnote"},"For clients who have not registered online. A client profile is created with this name."),
+ React.createElement("input",{type:"text",value:mName,onChange:e=>setMName(e.target.value),placeholder:"Full name (required)",autoComplete:"off",className:"w-full px-4 py-3 rounded-lg text-white",style:{background:'rgba(255,255,255,.04)',border:'1px solid var(--mu-border)'}}),
+ React.createElement("input",{type:"tel",value:mPhone,onChange:e=>setMPhone(e.target.value),placeholder:"Phone (optional)",autoComplete:"off",className:"w-full px-4 py-3 rounded-lg text-white",style:{background:'rgba(255,255,255,.04)',border:'1px solid var(--mu-border)'}}),
+ React.createElement("input",{type:"email",value:mEmail,onChange:e=>setMEmail(e.target.value),placeholder:"Email (optional)",autoComplete:"off",className:"w-full px-4 py-3 rounded-lg text-white",style:{background:'rgba(255,255,255,.04)',border:'1px solid var(--mu-border)'}})):
+clientList.length===0?`);
+  once("pkgs=pkgs.filter(pkg=>clientIds.includes(pkg.clientId));","pkgs=pkgs.filter(pkg=>clientIds.includes(pkg.clientId)||pkg.manualClient);");
+}
+
+
 // 5h. Professional checkout and quieter pages.
 once('function TestimonialSlider(','function VFLegacyTestimonialSlider(');
 range('function TrainerSelectionModal(','if(!isOpen)return null;return','}// WORKOUT PACKAGES INTERFACE (CLIENT VIEW)',
