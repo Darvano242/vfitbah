@@ -935,10 +935,12 @@ function VF26Broadcast(p){
  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
  function toHtml(txt){var parts=esc(txt).split(/\n{2,}/).map(function(par){return '<p style="margin:0 0 16px">'+par.replace(/\[([^\]]+)\]\(((?:https?:|mailto:)[^)\s]+)\)/g,'<a href="$2" style="color:#4296f0;font-weight:700">$1</a>').replace(/(^|[^"'>\/])(https?:\/\/[^\s<"]+)/g,'$1<a href="$2" style="color:#4296f0;font-weight:700">$2</a>').replace(/\n/g,'<br>')+'</p>';}).join('');
   return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0"><div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span></div><div style="padding:24px;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'</div><div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</div></div></div>';}
- var SEND_URL='https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/integration-endpoints/Core/SendEmail';
  function sendOne(r){
-  return fetch(SEND_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:r.email,subject:subject,from_name:'VFITNESS',body:toHtml(body.split('{name}').join(first(r.name)))})})
-   .then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.success===false){var e=new Error((j&&(j.message||j.detail))||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
+  var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||null;
+  if(!u)return Promise.reject(new Error('Sign in again to send email.'));
+  return u.getIdToken().then(function(tok){
+   return fetch('https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/clientBroadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok,to:r.email,name:r.name||'',subject:subject,html:toHtml(body.split('{name}').join(first(r.name)))})});
+  }).then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.ok===false){var e=new Error((j&&j.error)||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
  }
  function sendTest(){var me=(p.user&&p.user.email)||'vfitnessbahamas@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
   sendOne({email:me,name:(p.user&&p.user.name)||'Darvano'}).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test sent to '+me+'. Check the inbox before sending to clients.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test failed: '+((e&&(e.message||e.text))||e)});});}
@@ -957,18 +959,19 @@ function VF26Broadcast(p){
    var r=list[i++];
    sendOne(r).then(function(){ok++;sentList.push(r.email);bcSentSave(sentList);setDone(sentList.slice());
      try{db.collection('broadcasts').doc(BC_ID).set({subject:subject,sent:firebase.firestore.FieldValue.arrayUnion(r.email),updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(){});}catch(e){}
-     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,1500);
+     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,600);
     },function(e){
      if(isLimit(e)){
       // Hourly sending cap reached: wait, then carry on automatically from where it stopped.
       var at=new Date(Date.now()+61*60000);
-      setRun({state:'waiting',sent:ok,failed:bad,total:list.length,msg:ok+' sent this round. The mail service allows a limited number of emails per hour, so sending pauses and resumes automatically at '+at.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'. Keep this tab open, or press Send again any time after that.'});
+      setRun({state:'waiting',sent:ok,failed:bad,total:list.length,msg:ok+' sent this round. The daily email allowance has been reached, so sending pauses and tries again automatically at '+at.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})+'. Keep this tab open, or press Send again any time after that.'});
       resumeRef.current=setTimeout(function(){resumeRef.current=null;sendAllRef.current(true);},61*60000);
       return;
      }
+     if(e&&(e.status===403||e.status===500||e.status===502&&/sender|domain|not valid|unauthori/i.test(e.message||''))){finish('Sending stopped: '+(e.message||'service error')+'. '+ok+' sent.');return;}
      // This address cannot receive email: skip it for good and move on.
      bad++;skipList.push(r.email);bcSkipSave(skipList);setSkipped(skipList.slice());console.warn('Broadcast skipped',r.email,e);
-     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,1500);
+     setRun({state:'sending',sent:ok,failed:bad,total:list.length,msg:''});setTimeout(step,600);
     });
   }
   step();
