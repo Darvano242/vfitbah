@@ -910,9 +910,10 @@ function VF26MemberHead(p){
 
 /* Client broadcast email. Sends one personal email per client through the site's EmailJS account,
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
-var BC_ID='vfit-app-trial-2026-10-r2';
-var BC_SUBJECT='Your VFIT app early access: 7 days of Premium, free';
-var BC_BODY='Hi {name},\n\nThe VFIT app launches on the App Store and Google Play this October, but as a VFitness client, you can get started today.\n\nYour training programs, nutrition, sleep and progress tracking are together in one place, keeping you connected to your coach between sessions.\n\nTry VFIT free for 7 days. An active app membership is required to continue after your trial.\n\nGet started: [vfitnow.app](https://vfitnow.app/)\n\nYour training sessions, packages and payments will continue to be managed at [vfitbah.com](https://vfitbah.com/), just as always.\n\nNeed help getting started? Reply to this email or ask me at your next session.\n\nSee you at the gym,\nDarvano Andrews\nFounder, VFitness Training Services\n[vfitnessbahamas@gmail.com](mailto:vfitnessbahamas@gmail.com)';
+var BC_ID='pink-beach-burn-2026-10-17';
+var BC_SUBJECT="You're invited: PINK Beach Burn, Saturday Oct 17 at Goodman's Bay";
+var BC_IMAGE='https://www.vfitbah.com/vf26/pink-beach-burn-2026.jpg';
+var BC_BODY='Hi {name},\n\nIn support of Breast Cancer Awareness Month, VFitness and Empire Fitness are hosting the PINK Beach Burn Bootcamp, and you are invited.\n\nSaturday, October 17\n7:00 AM, about 60 to 75 minutes\nGoodman\'s Bay, Nassau\n\nThe morning runs through a check in and warm up, a beach circuit, a beach challenge, a core finisher, and a cooldown and stretch. Every fitness level is welcome.\n\nDrinks are provided, a DJ keeps the energy up all morning, and there will be giveaways and prizes, plus professional photos and video.\n\nIt is free to all. Bring your friends and family, and wear pink.\n\nMove. Sweat. Support. Together.\n\nSee you on the beach,\nDarvano Andrews\nVFitness Training Services';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
 function bcSkipLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-skip-'+BC_ID)||'[]');}catch(e){return [];}}
@@ -921,6 +922,7 @@ function VF26Broadcast(p){
  var o=React.useState(false),open=o[0],setOpen=o[1];
  var s1=React.useState(BC_SUBJECT),subject=s1[0],setSubject=s1[1];
  var s2=React.useState(BC_BODY),body=s2[0],setBody=s2[1];
+ var s6=React.useState(BC_IMAGE),image=s6[0],setImage=s6[1];var s7=React.useState(false),upl=s7[0],setUpl=s7[1];
  var s3=React.useState({state:'idle',sent:0,failed:0,total:0,msg:''}),run=s3[0],setRun=s3[1];
  var s4=React.useState(bcSentLoad()),done=s4[0],setDone=s4[1];
  var stopRef=React.useRef(false),resumeRef=React.useRef(null),sendAllRef=React.useRef(null);
@@ -934,7 +936,7 @@ function VF26Broadcast(p){
  function first(n){var f=(n||'').split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
  function toHtml(txt){var parts=esc(txt).split(/\n{2,}/).map(function(par){return '<p style="margin:0 0 16px">'+par.replace(/\[([^\]]+)\]\(((?:https?:|mailto:)[^)\s]+)\)/g,'<a href="$2" style="color:#4296f0;font-weight:700">$1</a>').replace(/(^|[^"'>\/])(https?:\/\/[^\s<"]+)/g,'$1<a href="$2" style="color:#4296f0;font-weight:700">$2</a>').replace(/\n/g,'<br>')+'</p>';}).join('');
-  return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0"><div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span></div><div style="padding:24px;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'</div><div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</div></div></div>';}
+  return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0"><div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span></div>'+(image?'<img src="'+esc(image)+'" alt="" width="560" style="display:block;width:100%;max-width:560px;height:auto;border:0">':'')+'<div style="padding:24px;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'</div><div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</div></div></div>';}
  function sendOne(r){
   var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||null;
   if(!u)return Promise.reject(new Error('Sign in again to send email.'));
@@ -979,11 +981,19 @@ function VF26Broadcast(p){
  sendAllRef.current=sendAll;
  var busy=run.state!=='idle';
  var btn=function(label,on,cls,dis){return h('button',{type:'button',className:'vf26-btn '+(cls||'vf26-btn-outline'),onClick:on,disabled:!!dis},label);};
- if(!open)return h('div',{className:'vf26-bc-bar'},h('div',null,h('b',null,'Email your clients'),h('span',null,recips.length+' clients with an email on file'+(done.length?' · '+done.length+' already received the app announcement':''))),btn('Compose email',function(){setOpen(true);},'vf26-btn-primary'));
+ if(!open)return h('div',{className:'vf26-bc-bar'},h('div',null,h('b',null,'Email your clients'),h('span',null,recips.length+' clients with an email on file'+(done.length?' · '+done.length+' already received this email':''))),btn('Compose email',function(){setOpen(true);},'vf26-btn-primary'));
  return h('div',{className:'vf26-bc'},
   h('div',{className:'vf26-bc-head'},h('div',null,h('b',null,'Email all clients'),h('span',null,toSend.length+' of '+recips.length+' still to receive this email'+(noEmail>0?' · '+noEmail+' clients have no email on file and are left out':'')+(skipped.length?' · '+skipped.length+' addresses could not receive email':'')+'. {name} becomes each client\'s first name.')),btn('Close',function(){if(!busy)setOpen(false);},'vf26-btn-ghost',busy)),
   h('label',null,'Subject'),h('input',{type:'text',value:subject,onChange:function(e){setSubject(e.target.value);},disabled:busy}),
   h('label',null,'Message'),h('textarea',{rows:14,value:body,onChange:function(e){setBody(e.target.value);},disabled:busy}),
+  h('label',null,'Image (shown at the top of the email)'),
+  h('div',{className:'vf26-bc-img'},
+   image?h('img',{src:image,alt:''}):h('span',null,'No image'),
+   h('div',{className:'vf26-bc-imgacts'},
+    h('label',{className:'vf26-btn vf26-btn-outline'+(busy||upl?' is-disabled':'')},upl?'Uploading...':(image?'Replace image':'Add image'),
+     h('input',{type:'file',accept:'image/*',hidden:true,disabled:busy||upl,onChange:function(e){var f=e.target.files&&e.target.files[0];if(!f)return;setUpl(true);
+      (window.vfHostUpload?window.vfHostUpload(f,'email-'+(f.name||'image')):Promise.reject(new Error('Upload unavailable'))).then(function(u){setImage(u);},function(err){window.alert('Image upload failed: '+((err&&err.message)||err));}).then(function(){setUpl(false);e.target.value='';});}})),
+    image?btn('Remove image',function(){setImage('');},'vf26-btn-ghost',busy):null)),
   run.state==='sending'?h('div',{className:'vf26-bc-prog'},h('div',{className:'vf26-bc-track'},h('i',{style:{width:(run.total?Math.round((run.sent+run.failed)/run.total*100):0)+'%'}})),h('span',null,'Sending '+(run.sent+run.failed)+' of '+run.total+(run.failed?' · '+run.failed+' failed':'')+'. Keep this tab open.')):null,
   run.msg?h('p',{className:'vf26-bc-msg'},run.msg):null,
   h('div',{className:'vf26-bc-acts'},
