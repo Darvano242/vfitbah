@@ -1240,3 +1240,10 @@ html[data-vf26] body .vf26-bc-img>span{font-size:13px;color:var(--vf-mute);paddi
 html[data-vf26] body .vf26-bc-imgacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 html[data-vf26] body .vf26-bc-imgacts label.vf26-btn{cursor:pointer;text-transform:none;letter-spacing:0;font-size:14px}
 html[data-vf26] body .vf26-bc-imgacts label.is-disabled{opacity:.5;pointer-events:none}
+
+/* Monthly statements */
+.vf26-pc-stmt{width:100%;margin-top:-.25rem;}
+.vf26-pc-stmt.is-off{opacity:.55;}
+.vf26-pc-stmt:disabled{cursor:progress;opacity:.7;}
+html[data-vf26] body .vf26-st-bar .vf26-st-msg{display:block;margin-top:.35rem;color:var(--vf-text,#fff);}
+.vf26-st-acts{display:flex;gap:.5rem;flex-wrap:wrap;}

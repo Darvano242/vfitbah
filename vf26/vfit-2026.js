@@ -1002,6 +1002,142 @@ function VF26Broadcast(p){
 }
 window.VF26Broadcast=VF26Broadcast;
 
+/* Monthly client statements. One button per package card, and one button that sends every client their
+   statement for the month. Sent through the same verified admin function as the client broadcast.
+   Each package remembers the month it was last sent, so nobody receives the same month twice by accident,
+   and the sessions completed at that point, so the next statement can show the sessions used since. */
+var ST_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function stMonthKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function stMonthLabel(d){d=d||new Date();return ST_MONTHS[d.getMonth()]+' '+d.getFullYear();}
+function stEmailOk(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(e||'').trim());}
+function stEsc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function stMoney(n){n=Number(n||0);return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function stFirst(n){var f=String(n||'').trim().split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
+function stCall(fn,pkg,fb){try{var f=window[fn];if(typeof f==='function'){var v=f(pkg);if(v!=null&&!isNaN(v))return Number(v);}}catch(e){}return fb;}
+function stSentThisMonth(pkg){return !!pkg&&pkg.lastStatementMonth===stMonthKey();}
+function stRecipient(pkg,client){client=client||{};return {email:String(client.email||pkg.clientEmail||'').trim().toLowerCase(),name:String(client.name||pkg.clientName||'').trim()};}
+function stFacts(pkg){
+ var remaining=Number(pkg.sessionsRemaining||0),completed=Number(pkg.sessionsCompleted||0);
+ var total=Number(pkg.sessionsTotal||pkg.sessions||remaining+completed||0);
+ var base=stCall('getPackageBaseAmount',pkg,Number(pkg.basePrice||pkg.originalPrice||pkg.packagePrice||pkg.price||0));
+ var disc=stCall('getPackageDiscountAmount',pkg,Number(pkg.discountAmount||0));
+ var charge=stCall('getPackageFinalAmount',pkg,Math.max(0,base-disc));
+ var since=null,thisMonth=stMonthKey();
+ var ref=pkg.lastStatementMonth===thisMonth?pkg.prevStatementCompleted:pkg.lastStatementCompleted;
+ if(ref!=null&&!isNaN(ref))since=Math.max(0,completed-Number(ref));
+ return {remaining:remaining,completed:completed,total:total,base:base,disc:disc,charge:charge,since:since,
+  name:String(pkg.packageName||pkg.title||(total+' Session Package')).replace(/\s*[-\u2013\u2014]\s*/g,', '),
+  trainer:pkg.assignedTrainerName||pkg.assignedBy||pkg.trainerName||'VFitness',
+  paid:pkg.paymentStatus==='completed',paused:pkg.status==='paused'};
+}
+function stHtml(pkg,r){
+ var f=stFacts(pkg),mo=stMonthLabel(),today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+ function row(k,v,strong){return '<tr><td style="padding:10px 0;border-bottom:1px solid #eef1f6;color:#5b6474;font-size:14px">'+stEsc(k)+'</td><td align="right" style="padding:10px 0;border-bottom:1px solid #eef1f6;font-size:14px;color:#1b1f27;font-weight:'+(strong?'800':'600')+'">'+stEsc(v)+'</td></tr>';}
+ var pct=f.total>0?Math.round(f.completed/f.total*100):0;
+ var rows=row('Package',f.name)+row('Trainer',f.trainer)+row('Sessions in package',f.total)+row('Sessions completed',f.completed)+
+  (f.since!=null?row('Sessions since last statement',f.since):'')+row('Sessions remaining',f.remaining,true)+
+  (f.paused?row('Status','Paused'):'');
+ var bill=row('Package price',stMoney(f.base))+(f.disc>0?row('Discount','-'+stMoney(f.disc)):'')+row('Package total',stMoney(f.charge),true)+(f.paid?row('Payment','Paid'):'');
+ var note=f.remaining<=0?'Your package has no sessions remaining. Speak with your trainer or email '+VF_EMAIL+' to start your next package.':
+  f.remaining<=3?'You have '+f.remaining+' session'+(f.remaining===1?'':'s')+' left. Speak with your trainer or email '+VF_EMAIL+' to renew so there is no gap in your training.':
+  'Thank you for training with VFitness. Keep the momentum going this month.';
+ return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0">'+
+  '<div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span><span style="float:right;color:#8a93a3;font-size:12px;letter-spacing:.12em;line-height:22px">STATEMENT</span></div>'+
+  '<div style="padding:24px 24px 8px;color:#1b1f27;font-size:15px;line-height:1.6">'+
+  '<p style="margin:0 0 4px;color:#8a93a3;font-size:12px;letter-spacing:.12em;text-transform:uppercase">'+stEsc(mo)+'</p>'+
+  '<p style="margin:0 0 16px;font-size:22px;font-weight:800">Your monthly statement</p>'+
+  '<p style="margin:0 0 16px">Hi '+stEsc(stFirst(r.name))+',</p>'+
+  '<p style="margin:0 0 20px">Here is your VFitness package statement as of '+stEsc(today)+'.</p>'+
+  '<div style="margin:0 0 8px;height:8px;background:#eef1f6;border-radius:8px;overflow:hidden"><div style="height:8px;width:'+Math.max(3,pct)+'%;background:#4296f0"></div></div>'+
+  '<p style="margin:0 0 18px;font-size:13px;color:#5b6474">'+f.completed+' of '+f.total+' sessions completed ('+pct+'%)</p>'+
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 22px">'+rows+'</table>'+
+  '<p style="margin:0 0 6px;color:#8a93a3;font-size:12px;letter-spacing:.12em;text-transform:uppercase">Billing</p>'+
+  '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 22px">'+bill+'</table>'+
+  '<p style="margin:0 0 16px">'+stEsc(note)+'</p>'+
+  '<p style="margin:0 0 16px">You can view your sessions and download your invoice any time in your client portal at <a href="https://www.vfitbah.com" style="color:#4296f0;font-weight:700">vfitbah.com</a>.</p>'+
+  '<p style="margin:0 0 20px">Kind regards,<br>VFitness Training Services</p></div>'+
+  '<div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px;line-height:1.5">Questions about this statement? Email '+VF_EMAIL+'.<br>You are receiving this because you have an active VFitness package. Nassau, The Bahamas.</div></div></div>';
+}
+function stPost(to,name,subject,html){
+ var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||null;
+ if(!u)return Promise.reject(new Error('Sign in again to send email.'));
+ return u.getIdToken().then(function(tok){
+  return fetch('https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/clientBroadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok,to:to,name:name||'',subject:subject,html:html})});
+ }).then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.ok===false){var e=new Error((j&&j.error)||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
+}
+function stSubject(){return 'Your VFitness statement for '+stMonthLabel();}
+// Sends one statement and records it on the package. testTo sends a copy to the admin without recording it.
+function stSend(pkg,client,testTo){
+ var r=stRecipient(pkg,client);
+ if(testTo)return stPost(testTo,r.name,'[Test] '+stSubject(),stHtml(pkg,r));
+ if(!stEmailOk(r.email))return Promise.reject(new Error((r.name||'This client')+' has no email address on file.'));
+ return stPost(r.email,r.name,stSubject(),stHtml(pkg,r)).then(function(){
+  var key=stMonthKey(),upd={lastStatementMonth:key,lastStatementCompleted:Number(pkg.sessionsCompleted||0),lastStatementEmail:r.email};
+  if(pkg.lastStatementMonth!==key)upd.prevStatementCompleted=pkg.lastStatementCompleted!=null?pkg.lastStatementCompleted:null;
+  try{upd.lastStatementAt=firebase.firestore.FieldValue.serverTimestamp();}catch(e){}
+  Object.assign(pkg,upd,{lastStatementAt:new Date()});
+  try{return db.collection('packages').doc(pkg.id).update(upd).catch(function(e){console.warn('Statement sent, record not saved',e);});}catch(e){}
+ });
+}
+function stSentLabel(pkg){var d=pkg.lastStatementAt;try{d=d&&d.toDate?d.toDate():d?new Date(d):null;}catch(e){d=null;}
+ return 'Statement sent'+(d&&!isNaN(d)?' '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');}
+
+// Card button: Email statement, or the date it went out this month.
+function VF26StatementButton(p){
+ var s=React.useState('idle'),st=s[0],set=s[1],pkg=p.pkg,client=p.client;
+ var r=stRecipient(pkg,client),sent=stSentThisMonth(pkg),noMail=!stEmailOk(r.email);
+ function go(){
+  if(noMail){window.alert((r.name||'This client')+' has no email address on file. Add one to the client record first.');return;}
+  if(sent&&!window.confirm(r.name+' already received the '+stMonthLabel()+' statement. Send it again?'))return;
+  if(!sent&&!window.confirm('Email the '+stMonthLabel()+' statement to '+(r.name||r.email)+' at '+r.email+'?'))return;
+  set('sending');
+  stSend(pkg,client).then(function(){set('done');if(p.onSent)p.onSent();},function(e){set('idle');window.alert('Statement not sent: '+((e&&e.message)||e));});
+ }
+ var on=sent||st==='done';
+ return h('button',{type:'button',onClick:go,disabled:st==='sending',className:'vf26-pc-tool vf26-pc-stmt'+(on?' on':'')+(noMail?' is-off':''),title:noMail?'No email on file':r.email},
+  LIco(on?'mail-check':'mail',15),st==='sending'?'Sending statement...':on?stSentLabel(pkg):noMail?'No email on file':'Email statement');
+}
+window.VF26StatementButton=VF26StatementButton;
+
+// Bar above the package list: sends this month's statement to every client in the list who has not had it yet.
+function VF26StatementBar(p){
+ var list=p.list||[],clients=p.clients||[];
+ var s=React.useState({state:'idle',sent:0,failed:0,total:0,msg:''}),run=s[0],setRun=s[1],t=React.useState(0),bump=t[1];
+ var stopRef=React.useRef(false);
+ function clientOf(pkg){for(var i=0;i<clients.length;i++)if(clients[i].id===pkg.clientId)return clients[i];return null;}
+ var withMail=list.filter(function(pkg){return stEmailOk(stRecipient(pkg,clientOf(pkg)).email);});
+ var due=withMail.filter(function(pkg){return !stSentThisMonth(pkg);});
+ var noMail=list.length-withMail.length,busy=run.state!=='idle';
+ function test(){var me=(p.user&&p.user.email)||VF_EMAIL;var pkg=due[0]||withMail[0]||list[0];if(!pkg)return;
+  setRun({state:'test',sent:0,failed:0,total:0,msg:'Sending a sample statement to '+me+'...'});
+  stSend(pkg,clientOf(pkg),me).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample sent to '+me+' using '+(pkg.clientName||'a client')+'\'s package. Check it before sending to everyone.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample failed: '+((e&&e.message)||e)});});}
+ function sendAll(){
+  var q=due.slice();if(!q.length)return;
+  if(!window.confirm('Email the '+stMonthLabel()+' statement to '+q.length+' client'+(q.length===1?'':'s')+' now?'))return;
+  stopRef.current=false;var i=0,ok=0,bad=0,errs=[];
+  setRun({state:'sending',sent:0,failed:0,total:q.length,msg:''});
+  function step(){
+   if(stopRef.current||i>=q.length){setRun({state:'idle',sent:ok,failed:bad,total:q.length,msg:(stopRef.current?'Stopped. ':'Finished. ')+ok+' statement'+(ok===1?'':'s')+' sent'+(bad?', '+bad+' not sent ('+errs.slice(0,3).join('; ')+')':'')+'.'});if(p.onDone)p.onDone();return;}
+   var pkg=q[i++];
+   stSend(pkg,clientOf(pkg)).then(function(){ok++;},function(e){bad++;errs.push((pkg.clientName||'client')+': '+((e&&e.message)||e));
+     if(e&&(e.status===403||e.status===401)){stopRef.current=true;}})
+    .then(function(){bump(function(x){return x+1;});setRun({state:'sending',sent:ok,failed:bad,total:q.length,msg:''});setTimeout(step,700);});
+  }
+  step();
+ }
+ var b=function(label,on,cls,dis){return h('button',{type:'button',className:'vf26-btn '+(cls||'vf26-btn-outline'),onClick:on,disabled:!!dis},label);};
+ return h('div',{className:'vf26-bc-bar vf26-st-bar'},
+  h('div',null,h('b',null,'Monthly statements · '+stMonthLabel()),
+   h('span',null,run.state==='sending'?'Sending '+(run.sent+run.failed)+' of '+run.total+'. Keep this tab open.':
+    (withMail.length-due.length)+' of '+withMail.length+' sent this month'+(noMail?' · '+noMail+' without an email on file':'')),
+   run.msg?h('span',{className:'vf26-st-msg'},run.msg):null),
+  h('div',{className:'vf26-st-acts'},
+   b('Send sample to me',test,'vf26-btn-outline',busy||!list.length),
+   run.state==='sending'?b('Stop',function(){stopRef.current=true;},'vf26-btn-outline'):
+    b(due.length?'Send '+due.length+' statement'+(due.length===1?'':'s'):'All statements sent',sendAll,'vf26-btn-primary',busy||!due.length)));
+}
+window.VF26StatementBar=VF26StatementBar;
+
 function VF26AdminHead(p){
  var u=p.user||{},now=useNow(30000);
  return h('section',{className:'vf26-today vf26-today-admin'},

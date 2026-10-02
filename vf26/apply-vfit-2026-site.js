@@ -132,13 +132,14 @@ return RC("article",{key:pkg.id,className:"vf26-pc"+(paused?" is-paused":"")},
   RC("button",{type:"button",onClick:()=>togglePackagePause(pkg),className:"vf26-pc-tool"+(paused?" on":"")},RC(Ico,{name:paused?'play':'pause',size:15}),paused?'Resume':'Pause'),
   RC("button",{type:"button",onClick:()=>toggleAutoRenewal(pkg),className:"vf26-pc-tool"+(pkg.autoRenewalEnabled?" on":"")},RC(Ico,{name:pkg.autoRenewalEnabled?"refresh-cw":"repeat",size:15}),pkg.autoRenewalEnabled?'Auto renew on':'Auto renew'),
   RC("button",{type:"button",onClick:()=>downloadPackageInvoice(pkg,client),className:"vf26-pc-tool"},RC(Ico,{name:"file-text",size:15}),"Invoice")),
+ RC(VF26StatementButton,{pkg:pkg,client:client,onSent:()=>{try{loadPackages();}catch(e){}}}),
  RC("footer",{className:"vf26-pc-foot"},"Created ",created));`;
   html=html.slice(0,a)+card+html.slice(b);
   once(`className:"flex items-center gap-2 mb-5 px-4 py-2 rounded-xl font-semibold",style:{background:'var(--mu-surface)',border:'1px solid var(--mu-border)',color:'var(--mu-text-dim)'}},/*#__PURE__*/React.createElement(Ico,{name:"arrow-left",size:16})," All trainers")`,
        `className:"vf26-pc-back"},/*#__PURE__*/React.createElement(Ico,{name:"arrow-left",size:16}),"All trainers")`);
   once(`React.createElement("div",{className:"flex items-center gap-3 mb-5"},/*#__PURE__*/React.createElement(Ico3D,{name:"user",variant:"primary",tile:46,size:23}),/*#__PURE__*/React.createElement("div",null,/*#__PURE__*/React.createElement("h3",{className:"text-xl font-black text-white"},selectedTrainer)`,
        `React.createElement("div",{className:"vf26-pc-group"},React.createElement("span",{className:"vf26-pc-gavatar"},String(selectedTrainer||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase()),/*#__PURE__*/React.createElement("div",null,/*#__PURE__*/React.createElement("h3",null,selectedTrainer)`);
-  once(`className:"grid md:grid-cols-2 gap-4"},list.map(renderCard))`,`className:"vf26-pc-grid"},list.map(renderCard))`);
+  once(`/*#__PURE__*/React.createElement("div",{className:"grid md:grid-cols-2 gap-4"},list.map(renderCard))`,`React.createElement(VF26StatementBar,{list:list,clients:clients,user:typeof user!=='undefined'?user:null,onDone:()=>{try{loadPackages();}catch(e){}}}),React.createElement("div",{className:"vf26-pc-grid"},list.map(renderCard))`);
   once(`className:"text-left p-5 rounded-2xl transition-all hover:-translate-y-0.5",style:{background:'var(--mu-surface)',border:'1px solid var(--mu-border)'}}`,`className:"vf26-pc-trainer"}`);
   once(`(name||'?').charAt(0).toUpperCase())`,`String(name||'?').trim().split(/\\s+/).map(w=>w.charAt(0)).join('').slice(0,2).toUpperCase())`);
 }
@@ -282,7 +283,7 @@ for(const f of fs.readdirSync(here)){
 const scripts=[...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((code,i)=>{try{new vm.Script(code,{filename:'inline-'+i+'.js'});}catch(e){throw new Error('Inline script '+i+' failed to parse: '+e.message);}});
 new vm.Script(fs.readFileSync(path.join(outDir,'vfit-2026.js'),'utf8'),{filename:'vfit-2026.js'});
-for(const needle of ["{id:'kevin_mackey',name:'Kevin Mackey'}",'className:"vf26-pc"','React.createElement(VF26Tabs,{kind:\'admin\'','React.createElement(VF26MemberHead,',...PAGE_NAMES.map(n=>'function VFLegacy'+n+'('),'function VFLegacyHomePage(','function VFLegacyNavigation(','function VFLegacyFooter(','/vf26/vfit-2026.js','/vf26/vfit-2026.css'])
+for(const needle of ["{id:'kevin_mackey',name:'Kevin Mackey'}",'className:"vf26-pc"','RC(VF26StatementButton,','React.createElement(VF26StatementBar,','React.createElement(VF26Tabs,{kind:\'admin\'','React.createElement(VF26MemberHead,',...PAGE_NAMES.map(n=>'function VFLegacy'+n+'('),'function VFLegacyHomePage(','function VFLegacyNavigation(','function VFLegacyFooter(','/vf26/vfit-2026.js','/vf26/vfit-2026.css'])
   if(!html.includes(needle))throw new Error('Missing '+needle);
 for(const img of ['vfit-app-icon.webp','vfit-app-icon-180.png','welcome-glute-v1.webp','darvano-andrews.webp','strength-editorial-v1.webp','fuel-the-fire-v1.webp'])
   if(!fs.existsSync(path.join(outDir,img)))throw new Error('Missing image '+img);
