@@ -418,7 +418,7 @@ Object.assign(I,{
  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/>',
  expand:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>'
 });
-var VF_EMAIL='vfitnessbahamas@gmail.com';
+var VF_EMAIL='vfitnessbah@gmail.com';
 var VF_PHONE='242 454 9063',VF_TEL='tel:+12424549063';
 function waLink(){try{if(typeof VF_WA_LINK!=='undefined')return VF_WA_LINK;}catch(e){}return 'https://wa.me/12424549063';}
 function useTop(){React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);}
@@ -827,7 +827,7 @@ function VF26Checkout(p){
   h('ul',{className:'vf26-co-notes'},
    h('li',null,icon('check',14),'Sessions are added to your client portal once payment is confirmed'),
    h('li',null,icon('check',14),'An invoice is available under Invoices & Payments'),
-   h('li',null,icon('check',14),'Questions: vfitnessbahamas@gmail.com')));
+   h('li',null,icon('check',14),'Questions: vfitnessbah@gmail.com')));
  return h('div',{className:'vf26-co-overlay',role:'dialog','aria-modal':'true','aria-label':'Checkout',onClick:p.onClose},
   h('div',{className:'vf26-co',onClick:function(e){e.stopPropagation();}},
    h('header',{className:'vf26-co-head'},
@@ -944,7 +944,7 @@ function VF26Broadcast(p){
    return fetch('https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/clientBroadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok,to:r.email,name:r.name||'',subject:subject,html:toHtml(body.split('{name}').join(first(r.name)))})});
   }).then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.ok===false){var e=new Error((j&&j.error)||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
  }
- function sendTest(){var me=(p.user&&p.user.email)||'vfitnessbahamas@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
+ function sendTest(){var me='vfitnessbah@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
   sendOne({email:me,name:(p.user&&p.user.name)||'Darvano'}).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test sent to '+me+'. Check the inbox before sending to clients.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Test failed: '+((e&&(e.message||e.text))||e)});});}
  function isLimit(e){var m=String((e&&(e.message||e.text))||'').toLowerCase();return m.indexOf('limit')>=0||(e&&e.status===429);}
  function sendAll(auto){
