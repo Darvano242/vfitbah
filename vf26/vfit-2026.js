@@ -1099,42 +1099,64 @@ function VF26StatementButton(p){
 }
 window.VF26StatementButton=VF26StatementButton;
 
-// Bar above the package list: sends this month's statement to every client in the list who has not had it yet.
+// Bar above the package list. Nothing is sent until the admin ticks the clients who should receive
+// this month's statement and confirms. Clients already sent this month are shown and left unticked.
 function VF26StatementBar(p){
  var list=p.list||[],clients=p.clients||[];
  var s=React.useState({state:'idle',sent:0,failed:0,total:0,msg:''}),run=s[0],setRun=s[1],t=React.useState(0),bump=t[1];
+ var o=React.useState(false),open=o[0],setOpen=o[1],sel=React.useState({}),picked=sel[0],setPicked=sel[1];
+ var q2=React.useState(''),find=q2[0],setFind=q2[1];
  var stopRef=React.useRef(false);
  function clientOf(pkg){for(var i=0;i<clients.length;i++)if(clients[i].id===pkg.clientId)return clients[i];return null;}
- var withMail=list.filter(function(pkg){return stEmailOk(stRecipient(pkg,clientOf(pkg)).email);});
- var due=withMail.filter(function(pkg){return !stSentThisMonth(pkg);});
- var noMail=list.length-withMail.length,busy=run.state!=='idle';
- function test(){var me=(p.user&&p.user.email)||VF_EMAIL;var pkg=due[0]||withMail[0]||list[0];if(!pkg)return;
+ var rows=list.map(function(pkg){var r=stRecipient(pkg,clientOf(pkg));return {pkg:pkg,r:r,ok:stEmailOk(r.email),sent:stSentThisMonth(pkg)};});
+ var withMail=rows.filter(function(x){return x.ok;}),due=withMail.filter(function(x){return !x.sent;});
+ var noMail=rows.length-withMail.length,busy=run.state!=='idle';
+ var chosen=withMail.filter(function(x){return picked[x.pkg.id];});
+ var needle=find.trim().toLowerCase();
+ var shown=rows.filter(function(x){return !needle||(x.r.name+' '+x.r.email+' '+(x.pkg.packageName||'')).toLowerCase().indexOf(needle)>=0;});
+ function toggle(id){setPicked(function(m){var n=Object.assign({},m);if(n[id])delete n[id];else n[id]=true;return n;});}
+ function pickAll(listX){setPicked(function(m){var n=Object.assign({},m);listX.forEach(function(x){n[x.pkg.id]=true;});return n;});}
+ function test(){var me=(p.user&&p.user.email)||VF_EMAIL;var x=chosen[0]||due[0]||withMail[0]||rows[0];if(!x)return;
   setRun({state:'test',sent:0,failed:0,total:0,msg:'Sending a sample statement to '+me+'...'});
-  stSend(pkg,clientOf(pkg),me).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample sent to '+me+' using '+(pkg.clientName||'a client')+'\'s package. Check it before sending to everyone.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample failed: '+((e&&e.message)||e)});});}
- function sendAll(){
-  var q=due.slice();if(!q.length)return;
-  if(!window.confirm('Email the '+stMonthLabel()+' statement to '+q.length+' client'+(q.length===1?'':'s')+' now?'))return;
+  stSend(x.pkg,clientOf(x.pkg),me).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample sent to '+me+' using '+(x.r.name||'a client')+'\'s package. Nothing was sent to the client.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample failed: '+((e&&e.message)||e)});});}
+ function sendChosen(){
+  var q=chosen.slice();if(!q.length)return;
+  var resend=q.filter(function(x){return x.sent;}).length;
+  if(!window.confirm('Email the '+stMonthLabel()+' statement to '+q.length+' client'+(q.length===1?'':'s')+'?\n\n'+q.map(function(x){return x.r.name||x.r.email;}).slice(0,12).join('\n')+(q.length>12?'\nand '+(q.length-12)+' more':'')+(resend?'\n\n'+resend+' of them already received it this month.':'')))return;
   stopRef.current=false;var i=0,ok=0,bad=0,errs=[];
   setRun({state:'sending',sent:0,failed:0,total:q.length,msg:''});
   function step(){
-   if(stopRef.current||i>=q.length){setRun({state:'idle',sent:ok,failed:bad,total:q.length,msg:(stopRef.current?'Stopped. ':'Finished. ')+ok+' statement'+(ok===1?'':'s')+' sent'+(bad?', '+bad+' not sent ('+errs.slice(0,3).join('; ')+')':'')+'.'});if(p.onDone)p.onDone();return;}
-   var pkg=q[i++];
-   stSend(pkg,clientOf(pkg)).then(function(){ok++;},function(e){bad++;errs.push((pkg.clientName||'client')+': '+((e&&e.message)||e));
+   if(stopRef.current||i>=q.length){setRun({state:'idle',sent:ok,failed:bad,total:q.length,msg:(stopRef.current?'Stopped. ':'Finished. ')+ok+' statement'+(ok===1?'':'s')+' sent'+(bad?', '+bad+' not sent ('+errs.slice(0,3).join('; ')+')':'')+'.'});setPicked({});if(p.onDone)p.onDone();return;}
+   var x=q[i++];
+   stSend(x.pkg,clientOf(x.pkg)).then(function(){ok++;},function(e){bad++;errs.push((x.r.name||'client')+': '+((e&&e.message)||e));
      if(e&&(e.status===403||e.status===401)){stopRef.current=true;}})
-    .then(function(){bump(function(x){return x+1;});setRun({state:'sending',sent:ok,failed:bad,total:q.length,msg:''});setTimeout(step,700);});
+    .then(function(){bump(function(n){return n+1;});setRun({state:'sending',sent:ok,failed:bad,total:q.length,msg:''});setTimeout(step,700);});
   }
   step();
  }
  var b=function(label,on,cls,dis){return h('button',{type:'button',className:'vf26-btn '+(cls||'vf26-btn-outline'),onClick:on,disabled:!!dis},label);};
- return h('div',{className:'vf26-bc-bar vf26-st-bar'},
-  h('div',null,h('b',null,'Monthly statements · '+stMonthLabel()),
-   h('span',null,run.state==='sending'?'Sending '+(run.sent+run.failed)+' of '+run.total+'. Keep this tab open.':
-    (withMail.length-due.length)+' of '+withMail.length+' sent this month'+(noMail?' · '+noMail+' without an email on file':'')),
-   run.msg?h('span',{className:'vf26-st-msg'},run.msg):null),
-  h('div',{className:'vf26-st-acts'},
-   b('Send sample to me',test,'vf26-btn-outline',busy||!list.length),
-   run.state==='sending'?b('Stop',function(){stopRef.current=true;},'vf26-btn-outline'):
-    b(due.length?'Send '+due.length+' statement'+(due.length===1?'':'s'):'All statements sent',sendAll,'vf26-btn-primary',busy||!due.length)));
+ var summary=run.state==='sending'?'Sending '+(run.sent+run.failed)+' of '+run.total+'. Keep this tab open.':
+  (withMail.length-due.length)+' of '+withMail.length+' sent this month'+(noMail?' · '+noMail+' without an email on file':'');
+ return h('div',{className:'vf26-bc-bar vf26-st-bar'+(open?' is-open':'')},
+  h('div',{className:'vf26-st-top'},
+   h('div',null,h('b',null,'Monthly statements · '+stMonthLabel()),h('span',null,summary),run.msg?h('span',{className:'vf26-st-msg'},run.msg):null),
+   h('div',{className:'vf26-st-acts'},
+    b('Send sample to me',test,'vf26-btn-outline',busy||!rows.length),
+    open?null:b('Choose clients',function(){setOpen(true);},'vf26-btn-primary',busy||!rows.length))),
+  open?h('div',{className:'vf26-st-pick'},
+   h('div',{className:'vf26-st-tools'},
+    h('input',{type:'search',placeholder:'Search clients',value:find,onChange:function(e){setFind(e.target.value);},disabled:busy}),
+    b('Select not yet sent',function(){pickAll(due);},'vf26-btn-ghost',busy||!due.length),
+    b('Clear',function(){setPicked({});},'vf26-btn-ghost',busy||!chosen.length)),
+   h('ul',{className:'vf26-st-list'},shown.map(function(x){var on=!!picked[x.pkg.id];
+    return h('li',{key:x.pkg.id},h('label',{className:'vf26-st-row'+(x.ok?'':' is-off')+(on?' on':'')},
+     h('input',{type:'checkbox',checked:on,disabled:!x.ok||busy,onChange:function(){toggle(x.pkg.id);}}),
+     h('span',{className:'vf26-st-who'},h('b',null,x.r.name||'Unnamed client'),h('small',null,x.ok?x.r.email:'No email on file')),
+     h('span',{className:'vf26-st-tag'+(x.sent?' sent':'')},x.sent?stSentLabel(x.pkg).replace('Statement sent','Sent'):x.ok?'Not sent':'')));})),
+   h('div',{className:'vf26-st-foot'},
+    b('Close',function(){if(!busy){setOpen(false);setPicked({});setFind('');}},'vf26-btn-ghost',busy),
+    run.state==='sending'?b('Stop',function(){stopRef.current=true;},'vf26-btn-outline'):
+     b(chosen.length?'Send to '+chosen.length+' selected':'Select clients to send',sendChosen,'vf26-btn-primary',busy||!chosen.length))):null);
 }
 window.VF26StatementBar=VF26StatementBar;
 
