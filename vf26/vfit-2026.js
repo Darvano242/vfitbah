@@ -1006,6 +1006,7 @@ window.VF26Broadcast=VF26Broadcast;
    statement for the month. Sent through the same verified admin function as the client broadcast.
    Each package remembers the month it was last sent, so nobody receives the same month twice by accident,
    and the sessions completed at that point, so the next statement can show the sessions used since. */
+var ST_EMAIL='vfitnessbah@gmail.com';
 var ST_MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function stMonthKey(d){d=d||new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function stMonthLabel(d){d=d||new Date();return ST_MONTHS[d.getMonth()]+' '+d.getFullYear();}
@@ -1038,8 +1039,8 @@ function stHtml(pkg,r){
   (f.since!=null?row('Sessions since last statement',f.since):'')+row('Sessions remaining',f.remaining,true)+
   (f.paused?row('Status','Paused'):'');
  var bill=row('Package price',stMoney(f.base))+(f.disc>0?row('Discount','-'+stMoney(f.disc)):'')+row('Package total',stMoney(f.charge),true)+(f.paid?row('Payment','Paid'):'');
- var note=f.remaining<=0?'Your package has no sessions remaining. Speak with your trainer or email '+VF_EMAIL+' to start your next package.':
-  f.remaining<=3?'You have '+f.remaining+' session'+(f.remaining===1?'':'s')+' left. Speak with your trainer or email '+VF_EMAIL+' to renew so there is no gap in your training.':
+ var note=f.remaining<=0?'Your package has no sessions remaining. Speak with your trainer or email '+ST_EMAIL+' to start your next package.':
+  f.remaining<=3?'You have '+f.remaining+' session'+(f.remaining===1?'':'s')+' left. Speak with your trainer or email '+ST_EMAIL+' to renew so there is no gap in your training.':
   'Thank you for training with VFitness. Keep the momentum going this month.';
  return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0">'+
   '<div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span><span style="float:right;color:#8a93a3;font-size:12px;letter-spacing:.12em;line-height:22px">STATEMENT</span></div>'+
@@ -1056,7 +1057,7 @@ function stHtml(pkg,r){
   '<p style="margin:0 0 16px">'+stEsc(note)+'</p>'+
   '<p style="margin:0 0 16px">You can view your sessions and download your invoice any time in your client portal at <a href="https://www.vfitbah.com" style="color:#4296f0;font-weight:700">vfitbah.com</a>.</p>'+
   '<p style="margin:0 0 20px">Kind regards,<br>VFitness Training Services</p></div>'+
-  '<div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px;line-height:1.5">Questions about this statement? Email '+VF_EMAIL+'.<br>You are receiving this because you have an active VFitness package. Nassau, The Bahamas.</div></div></div>';
+  '<div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px;line-height:1.5">Questions about this statement? Email '+ST_EMAIL+'.<br>You are receiving this because you have an active VFitness package. Nassau, The Bahamas.</div></div></div>';
 }
 function stPost(to,name,subject,html){
  var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||null;
@@ -1116,7 +1117,7 @@ function VF26StatementBar(p){
  var shown=rows.filter(function(x){return !needle||(x.r.name+' '+x.r.email+' '+(x.pkg.packageName||'')).toLowerCase().indexOf(needle)>=0;});
  function toggle(id){setPicked(function(m){var n=Object.assign({},m);if(n[id])delete n[id];else n[id]=true;return n;});}
  function pickAll(listX){setPicked(function(m){var n=Object.assign({},m);listX.forEach(function(x){n[x.pkg.id]=true;});return n;});}
- function test(){var me=(p.user&&p.user.email)||VF_EMAIL;var x=chosen[0]||due[0]||withMail[0]||rows[0];if(!x)return;
+ function test(){var me=ST_EMAIL;var x=chosen[0]||due[0]||withMail[0]||rows[0];if(!x)return;
   setRun({state:'test',sent:0,failed:0,total:0,msg:'Sending a sample statement to '+me+'...'});
   stSend(x.pkg,clientOf(x.pkg),me).then(function(){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample sent to '+me+' using '+(x.r.name||'a client')+'\'s package. Nothing was sent to the client.'});},function(e){setRun({state:'idle',sent:0,failed:0,total:0,msg:'Sample failed: '+((e&&e.message)||e)});});}
  function sendChosen(){
