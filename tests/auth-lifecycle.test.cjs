@@ -44,6 +44,12 @@ test('profile timeout clears loading state without granting staff access',async(
   assert.equal(app.state.Loading,false);assert.equal(app.state.IsAdmin,false);assert.equal(app.state.User,null);assert.equal(app.timers.size,0);
 });
 test('guided intake requires explicit API acceptance and removes direct email path',()=>{
-  const start=html.indexOf('function StartHereFlow(');const end=html.indexOf('setSubmitting(false);',start);const block=html.slice(start,end);
+  const start=html.indexOf('function StartHereFlow(');const end=html.indexOf('if(saved){',start);const block=html.slice(start,end);
   assert.ok(block.includes('result.ok===true'));assert.ok(block.includes('signal:controller.signal'));assert.ok(!block.includes('emailjs.send'));
+});
+test('guided intake creates the client account and never stores the password in the application',()=>{
+  const start=html.indexOf('function StartHereFlow(');const block=html.slice(start,html.indexOf('if(saved){',start));
+  assert.ok(block.includes('createUserWithEmailAndPassword'));assert.ok(block.includes("auth/email-already-in-use"));
+  assert.ok(block.includes('const{password:_pw,waiver:_wv,...safeData}=data;'));assert.ok(block.includes('liabilityWaiverAccepted:true'));
+  assert.ok(!/payload=\{\.\.\.data/.test(block));
 });
