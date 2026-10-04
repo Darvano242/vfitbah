@@ -1263,3 +1263,17 @@ html[data-vf26] body .vf26-st-who b{font-size:14px;font-weight:700;color:var(--v
 html[data-vf26] body .vf26-st-tag{font-size:12px;color:var(--vf-mute);white-space:nowrap;}
 html[data-vf26] body .vf26-st-tag.sent{color:var(--vf-teal);}
 .vf26-st-foot{display:flex;justify-content:flex-end;gap:.5rem;margin-top:.9rem;flex-wrap:wrap;}
+
+/* ---------- Accessible dialogs (sign-in prompt) ---------- */
+.vf26-modal-back{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center;padding:1rem;padding-bottom:max(1rem,env(safe-area-inset-bottom,0px));background:rgba(5,6,10,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+@media (min-width:640px){.vf26-modal-back{align-items:center;}}
+.vf26-modal{position:relative;width:100%;max-width:28rem;border-radius:1.5rem;padding:1.75rem 1.5rem 1.5rem;background:var(--vf-card);border:1px solid var(--vf-border);box-shadow:var(--vf-shadow-float);color:var(--vf-text);outline:none;animation:vf26-modal-in .22s var(--vf-ease) both;}
+.vf26-modal .vf26-h3{margin-top:.35rem;font-size:1.5rem !important;}
+.vf26-modal-text{color:var(--vf-dim);line-height:1.6;margin:.75rem 0 0;}
+.vf26-modal-acts{display:grid;gap:.6rem;margin-top:1.4rem;}
+.vf26-modal-acts .vf26-btn{width:100%;margin:0;min-height:2.9rem;}
+.vf26-modal-x{position:absolute;top:.9rem;right:.9rem;width:2.75rem;height:2.75rem;}
+@keyframes vf26-modal-in{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+@media (prefers-reduced-motion:reduce){.vf26-modal{animation:none;}}
+/* Visible keyboard focus everywhere in the new layer */
+.vf26 :focus-visible{outline:2px solid var(--vf-primary);outline-offset:2px;}
