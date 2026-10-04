@@ -5,6 +5,7 @@ const LIMITS = { applicationId: 100, name: 120, email: 254, phone: 40, goal: 300
   package: 160, packageSize: 160, notes: 2000, submittedAt: 50, website: 200 };
 const REQUIRED = ['applicationId', 'name', 'phone', 'goal'];
 const WINDOW_MS = 60000;
+const SAVE_URL = 'https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/submitApplication';
 const MAX_ENTRIES = 1000;
 
 function validate(body) {
@@ -75,6 +76,19 @@ function createHandler({ fetchImpl = (...args) => fetch(...args), now = Date.now
           days: data.days || 'Not provided', package: data.package || data.packageSize || 'Not provided',
           notes: data.notes || 'None', submittedAt: data.submittedAt || new Date(clock).toISOString(),
           source: 'vfitbah.com Start Here' };
+        // 1) Save the application in the VFIT backend (Base44), which also emails the team.
+        //    Only a confirmed save counts; an email alone is a fallback, never the record.
+        const secret = process.env.VFIT_RELAY_SECRET;
+        try {
+          const headers = { 'Content-Type': 'application/json', Accept: 'application/json' };
+          if (secret) headers['x-vfit-relay'] = secret;
+          const saved = await fetchImpl(SAVE_URL, {
+            method: 'POST', headers,
+            body: JSON.stringify({ ...payload, source: 'vfitbah.com Start Here' }), signal: AbortSignal.timeout(12000) });
+          const result = await saved.json();
+          if (saved.ok && result.ok === true) return;
+        } catch (_) { /* fall through to the email fallback */ }
+        // 2) Fallback: email the application so the lead is not lost while the backend is down.
         const response = await fetchImpl('https://formsubmit.co/ajax/vfitnessbahamas@gmail.com', {
           method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify(payload), signal: AbortSignal.timeout(10000) });

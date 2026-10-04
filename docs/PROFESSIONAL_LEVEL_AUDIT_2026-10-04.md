@@ -94,3 +94,15 @@ Account guards are browser correctness fixes, not backend authorization. Payment
 - **Phase 3 — growth:** clarify the vfitnow relationship, instrument the service loop, establish retention cohorts and improve coach efficiency using measured bottlenecks.
 
 Release gate for calling VFIT professional-grade: the ranked P0 items are demonstrated in tests and staging; critical core journeys pass on mobile; monitoring and restore procedures are exercised; a purchase, booking, completed session, cancellation/refund and renewal reconcile to the same authoritative records.
+
+## Production incident and fix, 4 October 2026
+
+Live finding: every Start Here application from a visitor who was not signed in failed with "Your application could not be saved". Cause, reproduced against the live Firebase project: anonymous sign-in is disabled (`ADMIN_ONLY_OPERATION`) and Firestore rules deny unauthenticated writes to `coachingApplications`, `publicCoachingApplications` and `applications`. The browser EmailJS send did not count as saved.
+
+Fix (store first, then notify):
+- New Base44 entity `websiteApplications` (admin read/update only; written only by the server function) and function `submitApplication`: validates fields, saves the record, de-duplicates retries by applicationId, then emails vfitnessbah@gmail.com and vfitnessbahamas@gmail.com. Public calls are rate limited from the saved records (3 per phone per hour, 60 per hour overall) with a honeypot. An optional `VFIT_RELAY_SECRET` marks trusted relay calls.
+- `/api/application` (from PR #24) saves through that function first and acknowledges only a confirmed save; FormSubmit email remains as a fallback.
+- Admin Applications view merges Firestore applications with website applications (`websiteApplicationsAdmin`, Firebase ID token + owner/admin check) and updates their status.
+- Verified live: no-secret, honeypot, invalid-field, retry and save+email paths.
+
+To do by the owner: optionally add `VFIT_RELAY_SECRET` to the Vercel project (same value as the Base44 secret) to mark relay calls as trusted; decide whether to re-enable Firebase anonymous sign-in (no longer required for intake).
