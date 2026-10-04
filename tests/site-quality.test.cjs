@@ -76,3 +76,12 @@ test('tabs, carousels and menu are keyboard and screen reader friendly', () => {
   assert.ok(!html.includes('gallery.slice(0,8)'), 'every result is reachable');
   assert.ok(vf26.includes("id:'vf26-menu-sheet'") && vf26.includes("e.key==='Escape'"));
 });
+
+test('package savings below 5% are not advertised, and there is no floating Ask Coach button', () => {
+  assert.ok(vf26.includes('var MIN_SAVE_PCT=5;'));
+  const fn = Function(vf26.slice(vf26.indexOf('var MIN_SAVE_PCT'), vf26.indexOf('window.vfPkgSavings')) + ';return pkgSavings;')();
+  assert.equal(fn({ sessions: 4, price: 87 }, 22).amount, 0);   // $1 off $88 is not a saving worth claiming
+  assert.equal(fn({ sessions: 12, price: 195 }, 22).pctLabel, '26%');
+  assert.ok(html.includes('p.discount=pct>=5?pct:0'));
+  assert.ok(!html.includes("b.textContent='Ask Coach'"));
+});

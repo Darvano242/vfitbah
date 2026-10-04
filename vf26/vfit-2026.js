@@ -644,7 +644,9 @@ function ChatWidget(){
 /* ================= PRICING ================= */
 /* Savings are always computed from the package price against buying the same number of single sessions. */
 function money(n){var r=Math.round(n*100)/100;return r%1?r.toFixed(2):String(r);}
-function pkgSavings(pkg,single){var full=single*pkg.sessions;var amount=Math.round((full-pkg.price)*100)/100;var pct=amount>0?Math.round(amount/full*1000)/10:0;
+// Savings are shown only when they are meaningful (5% or more). A $1 difference on a package is rounding, not a deal.
+var MIN_SAVE_PCT=5;
+function pkgSavings(pkg,single){var full=single*pkg.sessions;var amount=Math.round((full-pkg.price)*100)/100;var pct=amount>0?Math.round(amount/full*1000)/10:0;if(pct<MIN_SAVE_PCT){amount=0;pct=0;}
  return {per:Math.round(pkg.price/pkg.sessions*100)/100,amount:amount>0?amount:0,pct:pct,pctLabel:(pct>=10?Math.round(pct):pct)+'%'};}
 window.vfPkgSavings=pkgSavings;
 var PKG={
@@ -684,11 +686,11 @@ function PricingPage(props){
    h(SectionHead,{row:true,kicker:'Session packages',title:'Buy sessions. Track every one.',right:h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'one',label:'1 on 1'},{value:'semi',label:'Semi private'}]})}),
    h('div',tabPanel('vf26-pkgtabs',tab,{className:'vf26-pkg-grid',key:tab}),list.map(function(pkg,i){var s=pkgSavings(pkg,base);var per=s.per;var save=s.amount;var best=pkg===bestPkg;
     return h('div',{key:pkg.sessions,className:'vf26-pkg vf26-enter'+(best?' best':''),style:{'--d':(i*60)+'ms'}},
-     best?h('span',{className:'tag'},'Best value'+(s.pct?' · save '+s.pctLabel:'')):(s.pct>=1?h('span',{className:'tag soft'},'Save '+s.pctLabel):null),
+     best?h('span',{className:'tag'},'Best value'+(s.pct?' · save '+s.pctLabel:'')):(s.pct>0?h('span',{className:'tag soft'},'Save '+s.pctLabel):null),
      h('div',{className:'ses'},h('b',{className:'vf26-condensed'},pkg.sessions),h('span',null,pkg.sessions===1?'session':'sessions')),
      h('div',{className:'amt'},'$'+pkg.price),
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
-     save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Same rate as single sessions'),
+     save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Book sessions any time.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),
 
