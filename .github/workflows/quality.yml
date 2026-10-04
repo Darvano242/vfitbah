@@ -1,11 +1,12 @@
-name: Verify checked-in VFitness upgrade
-# Legacy mutable downloads and pull_request_target writes to main are retired.
+name: Application quality
 on:
-  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
 permissions:
   contents: read
 jobs:
-  verify-upgrade:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
