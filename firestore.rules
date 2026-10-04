@@ -1,0 +1,153 @@
+rules_version = '2';
+// VFITNESS (vfitness-bbdb4) Firestore rules. Paste into Firebase console > Firestore Database > Rules > Publish.
+//
+// What this closes (all reproduced on the live project on 4 October 2026 with a brand-new account):
+//   * any signed-in account could set its own role to "admin"
+//   * any signed-in account could write or delete other people's profiles
+//   * any signed-in account could read every application (health details) and every package
+//   * clients could raise their own session balances or change package prices
+// Every other collection the site uses keeps today's behaviour (any signed-in user), so nothing else breaks.
+// A collection that is not listed at all is denied; add it here if a new feature needs one.
+// Next step (needs a code change): stop reading the whole users collection from client screens
+// (Community, trainer picker) so profiles can become owner/staff only.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function me() { return request.auth.uid; }
+    function myProfile() { return get(/databases/$(database)/documents/users/$(me())); }
+    function isStaff() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(me()))
+        && myProfile().data.get('role', '') in ['admin', 'trainer'];
+    }
+    function ownsExisting(field) { return signedIn() && resource.data[field] == me(); }
+    function ownsNew(field) { return signedIn() && request.resource.data[field] == me(); }
+    function unchanged(fields) { return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields); }
+
+    // ---------- Profiles ----------
+    match /users/{uid} {
+      allow read: if signedIn();                       // Community and trainer picker read profiles today
+      allow create: if signedIn() && (
+        (uid == me() && request.resource.data.get('role', 'client') == 'client')
+        || isStaff());
+      allow update: if isStaff()
+        || (uid == me() && unchanged(['role', 'isAdmin', 'is_admin']));
+      allow delete: if isStaff() || uid == me();
+    }
+
+    // ---------- Applications (contain health details) ----------
+    match /coachingApplications/{id} {
+      allow create: if signedIn();
+      allow read, update, delete: if isStaff();
+    }
+    match /publicCoachingApplications/{id} {
+      allow create: if signedIn();
+      allow read, update, delete: if isStaff();
+    }
+    match /applications/{id} {
+      allow create: if signedIn();
+      allow read, update, delete: if isStaff();
+    }
+
+    // ---------- Packages and money ----------
+    match /packages/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      // Clients still create their package after a PayPal purchase in the browser (to be moved server-side).
+      allow create: if isStaff() || ownsNew('clientId');
+      // Clients may record their own check-ins (balance can only go down) and invoice downloads,
+      // never change prices, totals, ownership or add sessions.
+      allow update: if isStaff() || (
+        ownsExisting('clientId')
+        && unchanged(['clientId', 'totalSessions', 'sessions', 'sessionCount', 'price', 'basePrice', 'finalPrice',
+                      'amount', 'amountPaid', 'discountPercentage', 'paymentStatus', 'paymentId', 'paypalOrderId',
+                      'assignedBy', 'assignedById', 'expiresAt', 'expiryDate'])
+        && request.resource.data.get('sessionsRemaining', 0) <= resource.data.get('sessionsRemaining', 0));
+      allow delete: if isStaff();
+    }
+    match /packagePurchases/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if isStaff() || ownsNew('clientId');
+      allow update, delete: if isStaff();
+    }
+    match /invoices/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create, update: if isStaff() || ownsNew('clientId');
+      allow delete: if isStaff();
+    }
+    match /packageAuditLog/{id} {
+      allow read, update, delete: if isStaff();
+      allow create: if signedIn();
+    }
+    match /packageReminders/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if signedIn();
+      allow update, delete: if isStaff();
+    }
+    match /sessionLogs/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if isStaff() || ownsNew('clientId');
+      allow update, delete: if isStaff();
+    }
+    match /clientSessionLogs/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow write: if isStaff();
+    }
+
+    // ---------- Private client records ----------
+    match /progressPhotos/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if isStaff() || ownsNew('clientId');
+      allow update, delete: if isStaff() || ownsExisting('clientId');
+    }
+    match /checkIns/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if isStaff() || ownsNew('clientId');
+      allow update: if isStaff();
+      allow delete: if isStaff();
+    }
+    match /clientAssessments/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow write: if isStaff();
+    }
+    match /appointments/{id} {
+      allow read: if isStaff() || ownsExisting('clientId');
+      allow create: if isStaff() || ownsNew('clientId');
+      allow update, delete: if isStaff();
+    }
+
+    // ---------- Site content: public to read, staff to change ----------
+    match /siteSettings/{id}     { allow read: if true; allow write: if isStaff(); }
+    match /gallery/{id}          { allow read: if true; allow write: if isStaff(); }
+    match /testimonials/{id}     { allow read: if true; allow write: if isStaff(); }
+    match /exerciseLibrary/{id}  { allow read: if true; allow write: if isStaff(); }
+    match /broadcasts/{id}       { allow read, write: if isStaff(); }
+
+    // ---------- Everything else the site uses: unchanged from today (any signed-in user) ----------
+    // Listed one by one on purpose: a catch-all match would also apply to the collections above and undo them.
+    match /users/{uid}/favorites/{id} { allow read, write: if isStaff() || uid == me(); }
+    match /chats/{id} { allow read, write: if signedIn(); }
+    match /chats/{id}/messages/{m} { allow read, write: if signedIn(); }
+    match /messages/{id} { allow read, write: if signedIn(); }
+    match /communityPosts/{id} { allow read, write: if signedIn(); }
+    match /communityPosts/{id}/replies/{r} { allow read, write: if signedIn(); }
+    match /replies/{id} { allow read, write: if signedIn(); }
+    match /favorites/{id} { allow read, write: if signedIn(); }
+    match /notifications/{id} { allow read, write: if signedIn(); }
+    match /workoutProgramEnrollments/{id} { allow read, write: if signedIn(); }
+    match /workoutPrograms/{id} { allow read, write: if signedIn(); }
+    match /workoutPackages/{id} { allow read, write: if signedIn(); }
+    match /workoutTemplates/{id} { allow read, write: if signedIn(); }
+    match /workoutLogs/{id} { allow read, write: if signedIn(); }
+    match /workouts/{id} { allow read, write: if signedIn(); }
+    match /customPrograms/{id} { allow read, write: if signedIn(); }
+    match /clientPrograms/{id} { allow read, write: if signedIn(); }
+    match /mealPlans/{id} { allow read, write: if signedIn(); }
+    match /mealLogs/{id} { allow read, write: if signedIn(); }
+    match /meals/{id} { allow read, write: if signedIn(); }
+    match /sleepLogs/{id} { allow read, write: if signedIn(); }
+    match /user1RMs/{id} { allow read, write: if signedIn(); }
+    match /userCustomWeights/{id} { allow read, write: if signedIn(); }
+  }
+}
