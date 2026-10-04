@@ -45,3 +45,6 @@ test('failed delivery can be retried; warm-instance quota expires', async () => 
   const limited=response(); await handler(request(), limited); assert.equal(limited.code,429); assert.equal(limited.headers['Retry-After'],'60');
   clock=60001; const later=response(); await handler(request(),later); assert.equal(later.code,200);
 });
+test('Vercel build command fits its platform schema limit',()=>{
+  const config=require('../vercel.json');assert.ok(config.buildCommand.length<=256);
+});

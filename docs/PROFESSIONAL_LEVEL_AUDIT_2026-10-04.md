@@ -72,7 +72,7 @@ Effort is relative engineering size: S (focused change), M (several coordinated 
 3. **Older application page:** Adds a request timeout and explicit API acknowledgement. Its existing legacy fallback remains and must be consolidated in the canonical-intake work.
 4. **Account lifecycle:** Guards asynchronous profile responses by current auth identity and generation; bounds profile loading; handles missing profiles; gives Auth UID/email precedence; cancels prompts/timers on signout, account change and unmount; preserves post-signup program navigation.
 5. **Worker:** Caches four explicit public offline assets only, bypasses APIs and other resources, serves offline HTML only to navigation, and deletes only obsolete VFIT-owned caches. Cache-write failure does not discard a successful network response.
-6. **Release quality:** 25 automated checks plus a full production build in an isolated temporary directory, inline-script parsing and repeat-patch verification. Adds PR/main quality workflow and changes the legacy upgrade workflow to read-only manual verification of checked-in code.
+6. **Release quality:** 26 automated checks plus a full production build in an isolated temporary directory, inline-script parsing and repeat-patch verification. Adds PR/main quality workflow and changes the legacy upgrade workflow to read-only manual verification of checked-in code.
 7. **Log hygiene:** Removes the replaced auth profile logs and exact payment-success/appointment-data debug calls. This is a targeted reduction, not a complete logging audit.
 
 The hardening transformer deliberately fails when expected application blocks disappear. It is an interim compatibility measure; replacing the patch architecture remains a priority.
@@ -81,7 +81,7 @@ The hardening transformer deliberately fails when expected application blocks di
 
 Commands: `node --test tests/*.test.cjs`, `node scripts/verify-professional-build.js`, and `git diff --check`.
 
-All 25 tests passed locally. Coverage includes rejected relay fields/origins/body sizes, false provider acknowledgement, timeouts, concurrent retries, quota expiry, logout/account-switch races, missing profiles, anonymous visitors, guided-intake acceptance, offline response types, API bypass and cache ownership. The production build parsed 15 inline scripts and repeated the hardening step without changes. Tests mock the notification provider; no external email or payment was sent.
+All 26 tests passed locally. Coverage includes rejected relay fields/origins/body sizes, false provider acknowledgement, timeouts, concurrent retries, quota expiry, logout/account-switch races, missing profiles, anonymous visitors, guided-intake acceptance, offline response types, API bypass and cache ownership. The initial preview exposed Vercel's 256-character build-command limit; the build sequence now runs through `scripts/build.js`, with a regression check for the platform limit. The production build parsed 15 inline scripts and repeated the hardening step without changes. Tests mock the notification provider; no external email or payment was sent.
 
 Rate limiting and deduplication are process-local, not durable across Vercel instances or restarts. Origin checking does not authenticate requests and cannot replace bot protection. A timed-out provider may still have delivered an email. Durable intake should store first, queue delivery and acknowledge a saved application independently of email.
 
