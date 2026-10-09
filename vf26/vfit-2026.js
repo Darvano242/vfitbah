@@ -314,35 +314,38 @@ function Faq(){
 
 /* ================= ONLINE TRAINING (VFIT app plans) ================= */
 var VF_APP_URL='https://vfitnow.app/';window.VF_APP_URL=VF_APP_URL;
+var VF_START_URL='https://vfitnow.app/start';window.VF_START_URL=VF_START_URL;
+var VF_SHRED_URL='https://vfitnow.app/shred';
 var APP_PLANS=[
- {name:'Standard',mo:'14.99',yr:'164.99',tag:'Stop guessing. Follow the plan.',points:['Full VFitness training library','Workout tracking and weight memory','Automatic rest timer','Nutrition logging','Progress tools']},
- {name:'Premium',mo:'24.99',yr:'274.99',tag:'Your data guides the next decision.',featured:true,points:['Everything in Standard','Adaptive weight recommendations','Barcode nutrition scanning','Readiness and progress scans','Deeper analytics and Coach Assist']},
- {name:'Elite',mo:'30',yr:'330',tag:'The complete system plus human oversight.',points:['Everything in Premium','Priority VFitness coach review','Plan and progress questions answered','Unlimited training programs']}
+ {name:'VFIT App',mo:'19.99',yr:'199.99',tag:'Train and eat with a plan.',points:['Full training library and workout player','Weight and rep memory with adaptive loads','Food logging, barcode scanner and macro targets','Readiness, recovery and progress scans','Analytics, challenges and community']},
+ {name:'VFIT Autopilot',mo:'49.99',yr:'499.99',tag:'Your plan adjusts itself every morning.',featured:true,badge:'7 days free',points:['Calories, steps, cardio and today\'s workout adjusted every morning','Reads your weigh-ins, food, training and photos before it changes anything','Show Prep Coach with countdown and a weekly read','Ask the coach chat anything, any time','Unlimited training programs','Everything in VFIT App']},
+ {name:'The 8-Week VFIT Shred',fixed:'297',per:' / 8 weeks',tag:'Coaching, a group and a guarantee.',cta:'See the Shred',href:VF_SHRED_URL,points:['8 weeks of VFIT Autopilot','Kickoff call with a VFitness coach','4 Saturday group sessions with Darvano at Empire Fitness (gym entry not included)','Weekly progress photo review','Eat Bahamian and still lose: grocery list and fish fry guide','Lose 5% of your bodyweight or your next 8 weeks are free*']}
 ];
 function openApp(){try{window.open(VF_APP_URL,'_blank','noopener');}catch(e){location.href=VF_APP_URL;}}
 function toOnlinePlans(setCurrentPage){return function(){go(setCurrentPage,'pricing')();setTimeout(scrollToId('vf26-remote'),400);};}
 function OnlinePlans(){
  var cs=React.useState('mo'),cyc=cs[0],setCyc=cs[1];
  return h('section',{className:'vf26-section tight',id:'vf26-remote'},h('div',{className:'vf26-wrap'},
-  h(SectionHead,{row:true,kicker:'Online training',title:'Train anywhere with the VFIT app.',lead:'Online training runs through the VFIT app: your program, tracking, nutrition and coaching in one place.',right:h(TabList,{id:'vf26-billing',label:'Billing period',value:cyc,onChange:setCyc,options:[{value:'mo',label:'Monthly'},{value:'yr',label:'Annual'}]})}),
+  h(SectionHead,{row:true,kicker:'Online training',title:'Train anywhere with the VFIT app.',lead:'VFIT App gives you every tool. VFIT Autopilot changes your plan for you every morning. The Shred and Elite Online Coaching add a VFitness coach.',right:h(TabList,{id:'vf26-billing',label:'Billing period',value:cyc,onChange:setCyc,options:[{value:'mo',label:'Monthly'},{value:'yr',label:'Annual'}]})}),
   h('div',tabPanel('vf26-billing',cyc,{className:'vf26-app-grid'}),APP_PLANS.map(function(pl,i){
-   var save=Math.round((Number(pl.mo)*12-Number(pl.yr))*100)/100;
+   var save=pl.fixed?0:Math.round((Number(pl.mo)*12-Number(pl.yr))*100)/100;
    return h(Reveal,{key:pl.name,className:'vf26-app-plan'+(pl.featured?' featured':''),delay:i*80},
-    pl.featured?h('span',{className:'tag'},'Most popular'):null,
+    pl.featured?h('span',{className:'tag'},pl.badge||'Most popular'):null,
     h('div',{className:'nm'},pl.name),h('p',{className:'tg'},pl.tag),
-    h('div',{className:'pr'},h('b',null,'$'+(cyc==='mo'?pl.mo:pl.yr)),h('small',null,cyc==='mo'?' / month':' / year')),
-    h('div',{className:'sv'},cyc==='yr'&&save>0?'You save $'+save.toFixed(2).replace(/\.00$/,'')+' a year ('+Math.round(save/(Number(pl.mo)*12)*100)+'% vs monthly)':'Cancel any time'),
+    pl.fixed?h('div',{className:'pr'},h('b',null,'$'+pl.fixed),h('small',null,pl.per)):h('div',{className:'pr'},h('b',null,'$'+(cyc==='mo'?pl.mo:pl.yr)),h('small',null,cyc==='mo'?' / month':' / year')),
+    h('div',{className:'sv'},pl.fixed?'One payment. 30 seats per group':cyc==='yr'&&save>0?'You save $'+save.toFixed(2).replace(/\.00$/,'')+' a year ('+Math.round(save/(Number(pl.mo)*12)*100)+'% vs monthly)':'Cancel any time'),
     h('ul',{className:'vf26-ticks'},pl.points.map(function(t){return h('li',{key:t},icon('check',15),t);})),
-    h('a',{className:'vf26-btn '+(pl.featured?'vf26-btn-blend':'vf26-btn-outline'),href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Start '+pl.name,icon('arrow',16,{className:'vf26-arrow'})));})),
+    h('a',{className:'vf26-btn '+(pl.featured?'vf26-btn-blend':'vf26-btn-outline'),href:pl.href||VF_START_URL,target:'_blank',rel:'noopener noreferrer'},pl.cta||(pl.featured?'Start 7 days free':'Build my plan'),icon('arrow',16,{className:'vf26-arrow'})));})),
+  h('p',{className:'vf26-note'},'Every new VFIT account gets 7 days of VFIT Autopilot free. Cancel any time in the app. *Shred guarantee: log food 6 days and weigh in 5 mornings every week for all 8 weeks.'),
   h(Reveal,{className:'vf26-command vf26-remote vf26-coach-plan'},
    h('div',{style:{position:'relative',zIndex:1}},
     h('p',{className:'vf26-kicker'},'Elite Online Coaching'),
     h('h2',{className:'vf26-h2'},'A dedicated VFitness coach, online.'),
-    h('p',{className:'vf26-lead'},'Premium online coaching inside the VFIT app, capped at 20 clients per coach.'),
-    h('ul',{className:'vf26-ticks'},['Custom program rebuilt every 4 weeks','One 20 minute video call per week','Written weekly review every Monday','Unlimited form checks, 48 hour turnaround','Messaging with 24 hour weekday reply'].map(function(t){return h('li',{key:t},icon('check',15),t);}))),
+    h('p',{className:'vf26-lead'},'Our coaching promise, in writing. Each coach takes 20 clients at most, so every client gets the time below.'),
+    h('ul',{className:'vf26-ticks'},['Custom program rebuilt every 4 weeks','Written weekly review every Monday','One 20 minute video call every week','Unlimited form checks, reviewed within 48 hours','Messages answered within 24 hours on weekdays','Another VFitness coach covers you when yours is away','VFIT Autopilot makes the daily changes. Your coach makes the calls'].map(function(t){return h('li',{key:t},icon('check',15),t);}))),
    h('div',{className:'vf26-remote-price'},
     h('div',{className:'v'},'$197',h('small',null,' / month')),
-    h('a',{className:'vf26-btn vf26-btn-blend',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Start Elite Coaching',icon('arrow',16,{className:'vf26-arrow'})),
+    h('a',{className:'vf26-btn vf26-btn-blend',href:'https://vfitnow.app/services/elite-online-coaching',target:'_blank',rel:'noopener noreferrer'},'Start Elite Coaching',icon('arrow',16,{className:'vf26-arrow'})),
     h('button',{className:'vf26-btn vf26-btn-outline',onClick:function(){var sp=window.__vf26SetPage;if(sp)sp('apply');try{window.scrollTo(0,0);}catch(e){}}},'Ask a coach first')))));
 }
 
@@ -372,6 +375,50 @@ function AppAnnounce(){
    h('a',{className:'vf26-btn vf26-btn-blend',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer',style:{width:'100%',marginTop:'1rem'}},'Use the VFIT app on the web now',icon('arrow',16,{className:'vf26-arrow'}))));
 }
 
+/* ================= VOLT (the VFIT app character) ================= */
+var VOLT_SVG='<defs><linearGradient id="vf26vt" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3B9BFF"/><stop offset="55%" stop-color="#2D86E6"/><stop offset="100%" stop-color="#7C3AED"/></linearGradient><linearGradient id="vf26vs" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity=".55"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>'+
+ '<g class="vt-enter"><ellipse cx="236" cy="478" rx="70" ry="9" fill="#0B1220" opacity=".18"/><g class="vt-body">'+
+ '<path d="M226 408 L212 456" stroke="#1E3A8A" stroke-width="13" stroke-linecap="round"/><path d="M254 380 L262 456" stroke="#1E3A8A" stroke-width="13" stroke-linecap="round"/>'+
+ '<ellipse cx="204" cy="462" rx="17" ry="8" fill="#1E3A8A"/><ellipse cx="270" cy="462" rx="17" ry="8" fill="#1E3A8A"/>'+
+ '<g class="vt-arm-l"><path d="M170 262 Q132 268 112 300" stroke="#1E3A8A" stroke-width="13" stroke-linecap="round" fill="none"/><circle cx="110" cy="306" r="13" fill="#2D86E6" stroke="#1E3A8A" stroke-width="5"/></g>'+
+ '<path d="M292 72 L132 292 H244 L214 440 L380 214 H268 L292 72 Z" fill="url(#vf26vt)" stroke="#1E3A8A" stroke-width="9" stroke-linejoin="round"/><path d="M286 92 L162 262 H200 L276 150 Z" fill="url(#vf26vs)"/>'+
+ '<ellipse cx="232" cy="242" rx="19" ry="22" fill="#fff"/><ellipse cx="294" cy="242" rx="19" ry="22" fill="#fff"/><circle cx="236" cy="246" r="10" fill="#0B1220"/><circle cx="298" cy="246" r="10" fill="#0B1220"/><circle cx="232" cy="242" r="3.2" fill="#fff"/><circle cx="294" cy="242" r="3.2" fill="#fff"/>'+
+ '<path d="M244 278 q19 16 38 0" stroke="#0B1220" stroke-width="7" stroke-linecap="round" fill="none"/><circle cx="214" cy="266" r="7" fill="#F472B6" opacity=".45"/><circle cx="312" cy="262" r="7" fill="#F472B6" opacity=".45"/>'+
+ '<g class="vt-arm-r"><path d="M350 236 Q384 206 396 170" stroke="#1E3A8A" stroke-width="13" stroke-linecap="round" fill="none"/><circle cx="398" cy="162" r="13" fill="#2D86E6" stroke="#1E3A8A" stroke-width="5"/></g>'+
+ '</g></g>';
+function Volt(p){var size=(p&&p.size)||96;return h('svg',{className:'vf26-volt'+(p&&p.className?' '+p.className:''),viewBox:'70 40 400 460',width:size,height:Math.round(size*1.15),role:'img','aria-label':'Volt, the VFIT app character, waving hello',dangerouslySetInnerHTML:{__html:VOLT_SVG}});}
+window.VF26Volt=Volt;
+
+/* ================= APP WALKTHROUGH (real VFIT screens) ================= */
+var WALKTHROUGH=[
+ {src:'/vf26/wt-1-checkin.webp',step:'Check in',title:'30 seconds every morning',text:'Sleep, soreness, energy and stress. Your readiness score sets how hard today should be.'},
+ {src:'/vf26/wt-2-plan.webp',step:'Plan',title:'Your coach explains the change',text:'Food, steps, cardio and training for today, with the reason in plain words.'},
+ {src:'/vf26/wt-3-train.webp',step:'Train',title:'Every set guided and logged',text:'Target weight and reps from your last session, rest timer, form video and a swap if the machine is taken.'},
+ {src:'/vf26/wt-4-eat.webp',step:'Eat',title:'Every meal read in seconds',text:'Log a meal and see what is left today and what to do next.'},
+ {src:'/vf26/wt-5-progress.webp',step:'Progress',title:'The trend, not one weigh-in',text:'Daily weigh-ins become a 7 day average next to your plan line, so you know it is working.'}
+];
+function AppWalkthrough(){
+ var as=React.useState(0),active=as[0],setActive=as[1];
+ var ref=React.useRef(null);
+ function goTo(i){var el=ref.current;var n=Math.max(0,Math.min(WALKTHROUGH.length-1,i));var c=el&&el.children[n];if(c)el.scrollTo({left:c.offsetLeft-el.offsetLeft,behavior:reduceMotion?'auto':'smooth'});setActive(n);}
+ function onScroll(){var el=ref.current;if(!el||!el.children[0])return;var w=el.children[0].getBoundingClientRect().width||1;setActive(Math.max(0,Math.min(WALKTHROUGH.length-1,Math.round(el.scrollLeft/(w+16)))));}
+ return h('div',{className:'vf26-walk vf26-enter',style:{'--d':'120ms'}},
+  h('div',{className:'vf26-walk-top'},
+   h(Volt,{size:64}),
+   h('div',null,h('p',{className:'vf26-kicker'},'See the app'),h('h3',null,'Check in. Train. See progress.'),h('small',null,'Real VFIT screens with a sample member\'s data.'))),
+  h('div',{className:'vf26-walk-tabs',role:'tablist','aria-label':'App walkthrough steps'},WALKTHROUGH.map(function(w,i){return h('button',{key:w.step,type:'button',role:'tab','aria-selected':active===i,className:active===i?'on':'',onClick:function(){goTo(i);}},h('span',null,i+1),w.step);})),
+  h('div',{className:'vf26-walk-track',ref:ref,onScroll:onScroll},WALKTHROUGH.map(function(w,i){return h('figure',{key:w.src,className:'vf26-walk-slide'},
+   h('div',{className:'vf26-phone'},h('img',{src:w.src,alt:'VFIT app screen: '+w.step,width:420,height:840,loading:i?'lazy':'eager'})),
+   h('figcaption',null,h('b',null,w.title),h('span',null,w.text)));})),
+  h('div',{className:'vf26-walk-ctrl'},
+   h('button',{type:'button',className:'vf26-round',onClick:function(){goTo(active-1);},disabled:active===0,'aria-label':'Previous screen'},icon('left',18)),
+   h('span',{className:'vf26-tabular'},(active+1)+' / '+WALKTHROUGH.length),
+   h('button',{type:'button',className:'vf26-round',onClick:function(){goTo(active+1);},disabled:active===WALKTHROUGH.length-1,'aria-label':'Next screen'},icon('right',18))),
+  h('div',{className:'vf26-walk-stores'},
+   h(StoreBadge,{svg:APPLE_SVG,top:'Download on the',store:'App Store'}),
+   h(StoreBadge,{svg:PLAY_SVG,top:'Get it on',store:'Google Play'})));
+}
+
 
 var TEAM_ACC=['#4296f0','#5fddcc','#8869ec','#f97066'];
 function TeamRow(p){
@@ -381,15 +428,17 @@ function TeamRow(p){
    h('b',null,c.name),h('small',null,c.role)));}));
 }
 function AppShowcase(p){
- var feats=[['history','Weight and rep memory','Every set is saved, so your next session starts where the last one ended.'],['timer','Guided workouts','Your program with rest timing, built by a VFitness coach.'],['scan','Nutrition tracking','Log meals and hit calorie and protein targets.'],['trend','Progress you can see','Photos, body metrics and strength trends week to week.']];
+ var feats=[['history','Adjusted every morning','On Autopilot your calories, steps, cardio and training change when the numbers say so.'],['timer','Guided workouts','Rest timers, form videos and every set remembered for next time.'],['scan','Eat with a plan','Log meals or scan a barcode and see exactly what is left today.'],['trend','Proof it is working','Weight trend, waist, photos and strength in one place.']];
  return h('section',{className:'vf26-section tight vf26-appshow',id:'vfit-app'},h('div',{className:'vf26-wrap vf26-appshow-grid'},
   h(Reveal,{className:'vf26-appshow-copy'},
    h('p',{className:'vf26-kicker'},'The VFIT app'),
-   h('h2',{className:'vf26-h2'},'Your program, in your pocket.'),
-   h('p',{className:'vf26-lead'},'Train with structure anywhere. The VFIT app keeps your program, workout history, nutrition and progress in one place, with plans from $14.99 a month.'),
+   h('h2',{className:'vf26-h2 vf26-h2-sub'},'Your next stronger starts here.'),
+   h('p',{className:'vf26-lead'},'Tell the VFIT app your goal and date and it builds your plan in five quick steps: calories, macros, a training week and a program. Plans from $19.99 a month, with 7 days of VFIT Autopilot free.'),
    h('ul',{className:'vf26-appshow-feats'},feats.map(function(f){return h('li',{key:f[1]},h('span',{className:'ic'},icon(f[0],18)),h('div',null,h('b',null,f[1]),h('p',null,f[2])));})),
-   h('div',{className:'vf26-cta-row'},h('button',{className:'vf26-btn vf26-btn-outline',onClick:toOnlinePlans(p.setCurrentPage)},'Compare app plans',icon('arrow',16,{className:'vf26-arrow'})))),
-  h(AppAnnounce,null)));
+   h('div',{className:'vf26-cta-row'},
+    h('a',{className:'vf26-btn vf26-btn-blend',href:VF_START_URL,target:'_blank',rel:'noopener noreferrer'},'Build my plan',icon('arrow',16,{className:'vf26-arrow'})),
+    h('button',{className:'vf26-btn vf26-btn-outline',onClick:toOnlinePlans(p.setCurrentPage)},'Compare app plans',icon('arrow',16,{className:'vf26-arrow'})))),
+  h(AppWalkthrough,null)));
 }
 
 /* ================= TRANSFORMATION REEL (home) ================= */
@@ -447,7 +496,7 @@ function HomePage(props){
  var SERVICES=[
   {k:'In person',t:'Personal training',p:'$30',u:'per session',d:'One on one coaching at three Nassau training locations with a written program and every session tracked.',a:svc('vf26-packages'),cta:'Session packages'},
   {k:'In person',t:'Semi private training',p:'$22',u:'per person, per session',d:'Train with a partner or friend under the same coaching standard, at a lower cost per session.',a:svc('vf26-packages'),cta:'Session packages'},
-  {k:'Online',t:'Online training',p:'$14.99',u:'per month',d:'Programs, tracking and nutrition in the VFIT app, with Elite Online Coaching for a dedicated coach.',a:svc('vf26-remote'),cta:'Online plans'}
+  {k:'Online',t:'Online training',p:'$19.99',u:'per month',d:'The VFIT app builds your plan and VFIT Autopilot adjusts it every morning. Elite Online Coaching adds a dedicated coach.',a:svc('vf26-remote'),cta:'Online plans'}
  ];
  var HOW3=[['Get started','Create your account and tell us your goal, schedule and preferred location.'],['Consultation','A free consultation and body assessment set your starting point and targets.'],['Train and track','Train with your coach. Sessions, payments and invoices are managed in your client portal.']];
  return h('main',{className:'vf26'},
@@ -1333,7 +1382,7 @@ function VF26ClientOverview(p){
       return h('button',{key:r[1],type:'button',className:'vf26-action',onClick:r[3]},Ico3D({name:r[0],tile:40,size:18}),h('span',{className:'t'},h('b',null,r[1]),h('small',null,r[2])),icon('arrow',16));})))),
   h('section',{className:'vf26-wpanel vf26-appband'},
    h('img',{src:'/vf26/vfit-app-icon.webp',alt:'VFIT app',width:56,height:56}),
-   h('div',{className:'t'},h('p',{className:'vf26-kicker'},'VFIT app'),h('h3',null,'Training, nutrition and progress live in the VFIT app.'),h('p',null,'Use the same email to follow your program, log meals and track progress. App Store and Google Play releases are coming soon.')),
+   h('div',{className:'t'},h('p',{className:'vf26-kicker'},'VFIT app'),h('h3',null,'Training, nutrition and progress live in the VFIT app.'),h('p',null,'Use the same email to follow your program, log meals and track progress. New accounts get 7 days of VFIT Autopilot free.')),
    h('a',{className:'vf26-btn vf26-btn-primary',href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'Open the VFIT app',icon('arrow',16,{className:'vf26-arrow'}))));
 }
 window.VF26ClientOverview=VF26ClientOverview;

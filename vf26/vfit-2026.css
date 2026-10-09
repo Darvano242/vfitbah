@@ -1277,3 +1277,40 @@ html[data-vf26] body .vf26-st-tag.sent{color:var(--vf-teal);}
 @media (prefers-reduced-motion:reduce){.vf26-modal{animation:none;}}
 /* Visible keyboard focus everywhere in the new layer */
 .vf26 :focus-visible{outline:2px solid var(--vf-primary);outline-offset:2px;}
+
+/* ===== App sync (Oct 2026): real-screen walkthrough, Volt, new plans ===== */
+.vf26-h2-sub{margin-top:.35rem !important;}
+.vf26-walk{position:relative;margin:0 auto;width:100%;max-width:480px;min-width:0;border-radius:28px;border:1px solid rgba(66,150,240,.25);background:var(--vf-marine);color:#fff;box-shadow:var(--vf-shadow-float);padding:1.25rem;overflow:hidden;}
+.vf26-walk::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(26rem 14rem at 100% 0%,rgba(66,150,240,.26),transparent 60%),radial-gradient(20rem 14rem at 0% 100%,rgba(136,105,236,.2),transparent 60%);}
+.vf26-walk>*{position:relative;z-index:1;}
+@media(min-width:640px){.vf26-walk{padding:1.6rem}}
+.vf26-walk-top{display:flex;align-items:center;gap:.9rem;}
+.vf26-walk-top h3{margin:.15rem 0 0;font-size:1.3rem;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:#fff;}
+.vf26-walk-top small{display:block;margin-top:.25rem;font-size:.78rem;color:rgba(255,255,255,.68);}
+.vf26-walk .vf26-kicker{color:#7dd3fc;}
+.vf26-volt{flex:none;overflow:visible;}
+.vf26-volt *{transform-box:fill-box;}
+.vf26-volt .vt-body{transform-origin:50% 100%;animation:vf26-vt-bob 1.2s ease-in-out .5s 2;}
+.vf26-volt .vt-arm-r{transform-origin:0% 100%;animation:vf26-vt-wave .9s ease-in-out .55s 3;}
+.vf26-volt .vt-enter{animation:vf26-vt-in .55s var(--vf-ease) both;}
+@keyframes vf26-vt-wave{0%,100%{transform:rotate(0)}25%{transform:rotate(-22deg)}75%{transform:rotate(14deg)}}
+@keyframes vf26-vt-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes vf26-vt-in{from{opacity:0;transform:translateY(18px) scale(.92)}to{opacity:1;transform:none}}
+.vf26-walk-tabs{margin-top:1rem;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.vf26-walk-tabs::-webkit-scrollbar{display:none;}
+.vf26-walk-tabs button{flex:none;display:inline-flex;align-items:center;gap:.4rem;white-space:nowrap;padding:.42rem .7rem;border-radius:999px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);color:rgba(255,255,255,.78);font-size:.78rem;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s,color .2s;}
+.vf26-walk-tabs button span{display:inline-flex;width:1.15rem;height:1.15rem;border-radius:999px;align-items:center;justify-content:center;font-size:.66rem;background:rgba(255,255,255,.12);}
+.vf26-walk-tabs button.on{background:linear-gradient(125deg,var(--vf-primary),var(--vf-violet));border-color:transparent;color:#fff;}
+.vf26-walk-tabs button:focus-visible{outline:2px solid #7dd3fc;outline-offset:2px;}
+.vf26-walk-track{margin-top:1rem;display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.vf26-walk-track::-webkit-scrollbar{display:none;}
+.vf26-walk-slide{flex:0 0 100%;scroll-snap-align:start;margin:0;display:grid;justify-items:center;gap:.8rem;text-align:center;}
+.vf26-phone{width:min(230px,62vw);aspect-ratio:1/2;border-radius:34px;padding:7px;background:linear-gradient(160deg,#2a2f3a,#0d0f13);border:1px solid rgba(255,255,255,.14);box-shadow:0 24px 50px -20px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.04);}
+.vf26-phone img{display:block;width:100%;height:100%;object-fit:cover;border-radius:28px;background:#0f1115;}
+.vf26-walk-slide figcaption b{display:block;font-size:1rem;font-weight:700;color:#fff;}
+.vf26-walk-slide figcaption span{display:block;margin-top:.2rem;font-size:.84rem;line-height:1.45;color:rgba(255,255,255,.72);max-width:34ch;}
+.vf26-walk-ctrl{margin-top:.9rem;display:flex;align-items:center;justify-content:center;gap:.9rem;font-size:.8rem;color:rgba(255,255,255,.7);}
+.vf26-walk-ctrl .vf26-round{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);color:#fff;}
+.vf26-walk-ctrl .vf26-round:disabled{opacity:.35;cursor:default;}
+.vf26-walk-stores{margin-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+@media(prefers-reduced-motion:reduce){.vf26-volt *{animation:none !important;}}
