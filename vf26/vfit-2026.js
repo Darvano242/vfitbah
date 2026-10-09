@@ -32,6 +32,10 @@ var I={
  camera:'<rect x="3" y="6.5" width="18" height="13" rx="2.5"/><path d="M8 6.5 9 4h6l1 2.5"/><circle cx="12" cy="13" r="3.4"/>',
  users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
  pin:'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+ cal:'<rect x="3" y="4.5" width="18" height="16.5" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4M12 13v5M9.5 15.5h5"/>',
+ left:'<path d="m15 6-6 6 6 6"/>',
+ right:'<path d="m9 6 6 6-6 6"/>',
+ expand:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
  plus:'<path d="M12 5v14M5 12h14"/>',
  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
@@ -489,6 +493,88 @@ function TransformReel(p){
 }
 function TransformationShowcaseSafe(){return typeof TransformationShowcase==='function'?h(TransformationShowcase,null):null;}
 
+
+/* ================= HEADLINE SLIDER =================
+   Events and offers published in the VFIT app (Admin > Announcements, "Website home slider").
+   Falls back to the slides below if the app cannot be reached. */
+var PROMO_API='https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/promoSlides';
+var PROMO_FALLBACK=[{id:'pink-beach-burn-2026',eyebrow:'Free community bootcamp',title:'PINK Beach Burn',
+ body:'A free VFitness beach bootcamp for Breast Cancer Awareness Month. Warm up, beach circuit, challenge, core finisher and cooldown. Every fitness level welcome. Wear pink and bring your people.',
+ imageUrl:'/vf26/pink-beach-burn-oct31.webp',imageAlt:'PINK Beach Burn flyer: Saturday October 31, 7:00 AM, Goodman\'s Bay, Nassau. Free to all.',
+ eventStart:'2026-10-31T11:00:00.000Z',eventEnd:'2026-10-31T12:15:00.000Z',location:"Goodman's Bay, Nassau",
+ mapsUrl:'https://www.google.com/maps/search/?api=1&query=Goodman%27s+Bay+Nassau+Bahamas',accent:'#E11D74',
+ highlights:['Free to all','Drinks provided','DJ','Giveaways and prizes','Photos and video']}];
+var PROMO_TZ='America/Nassau';
+function promoFmt(iso,o){try{return new Intl.DateTimeFormat('en-US',Object.assign({timeZone:PROMO_TZ},o)).format(new Date(iso));}catch(e){return '';}}
+function promoYmd(t){return new Intl.DateTimeFormat('en-CA',{timeZone:PROMO_TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(t));}
+function promoWhen(s,now){now=now||Date.now();var st=Date.parse(s.eventStart||'');if(!isFinite(st))return null;var en=Date.parse(s.eventEnd||'')||st+90*60000;
+ if(now>=st&&now<=en)return 'Happening now';if(now>en)return null;var d=Math.round((Date.parse(promoYmd(st))-Date.parse(promoYmd(now)))/86400000);
+ return d<=0?'Today':d===1?'Tomorrow':'In '+d+' days';}
+function promoLive(s){if(!s.eventStart)return true;var en=Date.parse(s.eventEnd||s.eventStart);return !isFinite(en)||en+86400000>Date.now();}
+function promoIcs(s){var st=s.eventStart,en=s.eventEnd||new Date(Date.parse(st)+75*60000).toISOString();
+ function d(x){return new Date(x).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');}function t(x){return String(x||'').replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\n/g,'\\n');}
+ var g='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(s.title)+'&dates='+d(st)+'/'+d(en)+'&details='+encodeURIComponent(s.body||'')+'&location='+encodeURIComponent(s.location||'');
+ if(!/iPhone|iPad|Macintosh/.test(navigator.userAgent||'')){window.open(g,'_blank','noopener');return;}
+ var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//VFitness//Events//EN','BEGIN:VEVENT','UID:'+s.id+'@vfitbah.com','DTSTAMP:'+d(new Date().toISOString()),'DTSTART:'+d(st),'DTEND:'+d(en),'SUMMARY:'+t(s.title),s.location?'LOCATION:'+t(s.location):null,s.body?'DESCRIPTION:'+t(s.body):null,'BEGIN:VALARM','TRIGGER:-PT12H','ACTION:DISPLAY','DESCRIPTION:'+t(s.title),'END:VALARM','END:VEVENT','END:VCALENDAR'].filter(Boolean).join('\r\n');
+ var u=URL.createObjectURL(new Blob([ics],{type:'text/calendar;charset=utf-8'}));var a=document.createElement('a');a.href=u;a.download=(s.title||'event').replace(/[^\w]+/g,'-').toLowerCase()+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},4000);}
+var promoCache=null;
+function usePromoSlides(){
+ var st=React.useState(promoCache||PROMO_FALLBACK.filter(promoLive)),slides=st[0],setSlides=st[1];
+ React.useEffect(function(){if(promoCache)return;var alive=true;
+  fetch(PROMO_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({placement:'home'})})
+   .then(function(r){return r.ok?r.json():null;}).then(function(j){if(!alive||!j||!Array.isArray(j.slides))return;promoCache=j.slides.filter(promoLive);setSlides(promoCache);}).catch(function(){});
+  return function(){alive=false;};},[]);
+ return slides;
+}
+function promoTrack(id,type){try{fetch(PROMO_API.replace('promoSlides','trackAnnouncement'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({announcementId:id,type:type}),keepalive:true}).catch(function(){});}catch(e){}}
+function PromoHeadliner(){
+ var slides=usePromoSlides(),s=slides[0];if(!s)return null;
+ var w=promoWhen(s),date=s.eventStart?promoFmt(s.eventStart,{weekday:'short',month:'short',day:'numeric'}):null;
+ return h('a',{href:'#whats-on',className:'vf26-headliner vf26-enter',style:{'--promo':s.accent||'#4296f0'},onClick:function(e){var el=document.getElementById('whats-on');if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'center'});}}},
+  h('span',{className:'dot'}),h('span',{className:'t'},[w&&w!=='Today'&&w!=='Tomorrow'?date:w,s.title,s.highlights&&s.highlights[0]].filter(Boolean).join(' · ')),icon('arrow',14));
+}
+function PromoSlider(){
+ var slides=usePromoSlides();
+ var a=React.useState(0),i=a[0],setI=a[1];var b=React.useState(false),paused=b[0],setPaused=b[1];var c=React.useState(null),box=c[0],setBox=c[1];
+ var ref=React.useRef(null),drag=React.useRef(null),seen=React.useRef({});
+ var n=slides.length,idx=n?((i%n)+n)%n:0,s=slides[idx];
+ var reduce=typeof window!=='undefined'&&window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ React.useEffect(function(){if(n<2||paused||reduce||box)return;var t=setTimeout(function(){setI(function(v){return v+1;});},7000);return function(){clearTimeout(t);};},[i,n,paused,box]);
+ React.useEffect(function(){if(!s||!ref.current||seen.current[s.id]||typeof IntersectionObserver==='undefined'||/^pink-beach-burn-2026$/.test(s.id))return;
+  var io=new IntersectionObserver(function(en){if(en[0].isIntersecting&&!seen.current[s.id]){seen.current[s.id]=1;promoTrack(s.id,'impression');}},{threshold:.5});io.observe(ref.current);return function(){io.disconnect();};},[s&&s.id]);
+ React.useEffect(function(){if(!box)return;function k(e){if(e.key==='Escape')setBox(null);}var o=document.body.style.overflow;document.body.style.overflow='hidden';window.addEventListener('keydown',k);return function(){document.body.style.overflow=o;window.removeEventListener('keydown',k);};},[box]);
+ if(!s)return null;
+ var w=promoWhen(s),maps=s.mapsUrl||(s.location?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(s.location):'');
+ var hasCta=s.ctaLabel&&s.ctaUrl;
+ function clk(){promoTrack(s.id,'click');}
+ return h('section',{className:'vf26-section tight vf26-promo-sec',id:'whats-on'},h('div',{className:'vf26-wrap'},
+  h('div',{ref:ref,className:'vf26-promo','aria-roledescription':'carousel','aria-label':"What's on at VFitness",style:{'--promo':s.accent||'#4296f0'},
+    onMouseEnter:function(){setPaused(true);},onMouseLeave:function(){setPaused(false);},onFocus:function(){setPaused(true);},onBlur:function(){setPaused(false);},
+    onPointerDown:function(e){drag.current={x:e.clientX,y:e.clientY};},onPointerUp:function(e){var d=drag.current;drag.current=null;if(!d||n<2)return;var dx=e.clientX-d.x,dy=e.clientY-d.y;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.4)setI(function(v){return v+(dx<0?1:-1);});}},
+   s.imageUrl?h('div',{className:'vf26-promo-blur','aria-hidden':'true',style:{backgroundImage:'url("'+s.imageUrl+'")'}}):null,
+   h('div',{className:'vf26-promo-body',key:s.id},
+    s.imageUrl?h('button',{type:'button',className:'vf26-promo-poster',onClick:function(){setBox(s);},'aria-label':'View the full '+s.title+' flyer'},
+     h('img',{src:s.imageUrl,alt:s.imageAlt||s.title,loading:'lazy',decoding:'async'}),h('span',null,icon('expand',14))):null,
+    h('div',{className:'vf26-promo-copy'},
+     h('div',{className:'vf26-promo-top'},s.eyebrow?h('span',{className:'eb'},s.eyebrow):null,w?h('span',{className:'when'},w):null),
+     h('h2',null,s.title),
+     s.body?h('p',{className:'bd'},s.body):null,
+     (s.eventStart||s.location)?h('ul',{className:'facts'},
+      s.eventStart?h('li',null,icon('timer',16),h('span',null,h('b',null,promoFmt(s.eventStart,{weekday:'short',month:'short',day:'numeric'})),' · '+promoFmt(s.eventStart,{hour:'numeric',minute:'2-digit'}))):null,
+      s.location?h('li',null,icon('pin',16),h('span',null,s.location)):null):null,
+     s.highlights&&s.highlights.length?h('div',{className:'chips'},s.highlights.map(function(x){return h('span',{key:x},x);})):null,
+     h('div',{className:'acts'},
+      hasCta?h('a',{href:s.ctaUrl,target:'_blank',rel:'noopener noreferrer',className:'vf26-promo-btn solid',onClick:clk},s.ctaLabel,icon('arrow',15)):null,
+      s.eventStart&&w?h('button',{type:'button',className:'vf26-promo-btn '+(hasCta?'ghost':'solid'),onClick:function(){clk();promoIcs(s);}},icon('cal',15),'Add to calendar'):null,
+      maps?h('a',{href:maps,target:'_blank',rel:'noopener noreferrer',className:'vf26-promo-btn ghost',onClick:clk},icon('pin',15),'Directions'):null))),
+   n>1?h('div',{className:'vf26-promo-nav'},
+    h('div',{className:'dots',role:'tablist'},slides.map(function(x,k){return h('button',{key:x.id,type:'button',role:'tab','aria-selected':k===idx,'aria-label':'Slide '+(k+1)+': '+x.title,onClick:function(){setI(k);}},h('i',{className:k===idx?'on':''}));})),
+    h('div',{className:'arr'},h('button',{type:'button','aria-label':'Previous',onClick:function(){setI(function(v){return v-1;});}},icon('left',16)),h('button',{type:'button','aria-label':'Next',onClick:function(){setI(function(v){return v+1;});}},icon('right',16)))):null),
+  box?h('div',{className:'vf26-promo-box',role:'dialog','aria-modal':'true','aria-label':box.title,onClick:function(){setBox(null);}},
+   h('img',{src:box.imageUrl,alt:box.imageAlt||box.title,onClick:function(e){e.stopPropagation();}}),
+   h('button',{type:'button','aria-label':'Close',onClick:function(){setBox(null);}},icon('close',20))):null));
+}
+
 function HomePage(props){
  var setCurrentPage=props.setCurrentPage;
  React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);
@@ -503,6 +589,7 @@ function HomePage(props){
   h('section',{className:'vf26-hero vf26-hero-corp'},
    h('div',{className:'vf26-wrap vf26-hero-grid'},
     h('div',{className:'vf26-hero-copy'},
+     h(PromoHeadliner,null),
      h('div',{className:'vf26-eyebrow vf26-enter'},h('i'),'Personal training company, Nassau, The Bahamas'),
      h('h1',{className:'vf26-h1 vf26-enter',style:{'--d':'40ms'}},'Train Smart.',h('span',null,'Train Elite.')),
      h('p',{className:'vf26-lead vf26-enter',style:{'--d':'100ms'}},'VFitness delivers structured personal training across Nassau and online coaching through the VFIT app. Clear pricing, certified coaches and every session accounted for.'),
@@ -517,6 +604,8 @@ function HomePage(props){
     h('figure',{className:'vf26-hero-media vf26-enter',style:{'--d':'120ms'}},
      h('img',{src:'/vf26/strength-editorial-v1.webp',alt:'Client training with dumbbells in a Nassau gym overlooking the water',fetchpriority:'high'}),
      h('figcaption',{className:'vf26-hero-badge'},h('span',{className:'dot'}),h('div',null,h('b',null,'Now booking'),h('span',null,'Free consultation and body assessment')))))),
+
+  h(PromoSlider,null),
 
   h('section',{className:'vf26-section tight',id:'services'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'Services',title:'Coaching built around your schedule.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'pricing')},'All services and pricing',icon('arrow',16))}),
@@ -1074,10 +1163,10 @@ function VF26MemberHead(p){
 
 /* Client broadcast email. Sends one personal email per client through the site's EmailJS account,
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
-var BC_ID='pink-beach-burn-2026-10-17';
-var BC_SUBJECT="You're invited: PINK Beach Burn, Saturday Oct 17 at Goodman's Bay";
-var BC_IMAGE='https://www.vfitbah.com/vf26/pink-beach-burn-2026.jpg';
-var BC_BODY='Hi {name},\n\nIn support of Breast Cancer Awareness Month, VFitness and Empire Fitness are hosting the PINK Beach Burn Bootcamp, and you are invited.\n\nSaturday, October 17\n7:00 AM, about 60 to 75 minutes\nGoodman\'s Bay, Nassau\n\nThe morning runs through a check in and warm up, a beach circuit, a beach challenge, a core finisher, and a cooldown and stretch. Every fitness level is welcome.\n\nDrinks are provided, a DJ keeps the energy up all morning, and there will be giveaways and prizes, plus professional photos and video.\n\nIt is free to all. Bring your friends and family, and wear pink.\n\nMove. Sweat. Support. Together.\n\nSee you on the beach,\nDarvano Andrews\nVFitness Training Services';
+var BC_ID='pink-beach-burn-2026-10-31';
+var BC_SUBJECT="New date: PINK Beach Burn is Saturday Oct 31 at Goodman's Bay";
+var BC_IMAGE='https://www.vfitbah.com/vf26/pink-beach-burn-oct31.jpg';
+var BC_BODY='Hi {name},\n\nThe PINK Beach Burn Bootcamp has a new date: Saturday, October 31. In support of Breast Cancer Awareness Month, VFitness is hosting this free beach bootcamp, sponsored by Empire Fitness, and you are invited.\n\nSaturday, October 31\n7:00 AM, about 60 to 75 minutes\nGoodman\'s Bay, Nassau\n\nThe morning runs through a check in and warm up, a beach circuit, a beach challenge, a core finisher, and a cooldown and stretch. Every fitness level is welcome.\n\nDrinks are provided, a DJ keeps the energy up all morning, and there will be giveaways and prizes, plus professional photos and video.\n\nIt is free to all. Bring your friends and family, and wear pink.\n\nMove. Sweat. Support. Together.\n\nSee you on the beach,\nDarvano Andrews\nVFitness Training Services';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
 function bcSkipLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-skip-'+BC_ID)||'[]');}catch(e){return [];}}
