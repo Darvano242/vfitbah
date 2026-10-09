@@ -432,7 +432,7 @@ function AppShowcase(p){
  return h('section',{className:'vf26-section tight vf26-appshow',id:'vfit-app'},h('div',{className:'vf26-wrap vf26-appshow-grid'},
   h(Reveal,{className:'vf26-appshow-copy'},
    h('p',{className:'vf26-kicker'},'The VFIT app'),
-   h('h2',{className:'vf26-h2 vf26-h2-sub'},'Your next stronger starts here.'),
+   h('h2',{className:'vf26-h2 vf26-h2-sub'},'Never guess what to eat or do again.'),
    h('p',{className:'vf26-lead'},'Tell the VFIT app your goal and date and it builds your plan in five quick steps: calories, macros, a training week and a program. Plans from $19.99 a month, with 7 days of VFIT Autopilot free.'),
    h('ul',{className:'vf26-appshow-feats'},feats.map(function(f){return h('li',{key:f[1]},h('span',{className:'ic'},icon(f[0],18)),h('div',null,h('b',null,f[1]),h('p',null,f[2])));})),
    h('div',{className:'vf26-cta-row'},
