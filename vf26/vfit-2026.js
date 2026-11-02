@@ -947,8 +947,20 @@ function EventLightbox(p){
 function VFEventStoryPage(props){
  var setCurrentPage=props.setCurrentPage;useTop();
  var st=React.useState(null),open=st[0],setOpen=st[1];var n=PBB.photos.length;
- var FORMAT=['Warm up','Beach circuit','Team challenge','Core finisher','Cooldown'];
- var WORDS=['Hope','Courage','Strength','Together','Fight'];
+ var WORDS=['Love','Strength','Hope','Courage','Unity','Purpose'];
+ var LETTER=[
+  'The rain tried to stop the show, but when God has a purpose, no obstacle can stand in the way!',
+  'Today was about so much more than fitness. It was about LOVE, STRENGTH, HOPE, COURAGE, UNITY, and PURPOSE.',
+  'From the bottom of my heart, THANK YOU to every single person who showed up for our Pink Beach Burn Breast Cancer Awareness Bootcamp. Despite the weather, you came out, showed love, broke a sweat, and stood together for something greater than ourselves.',
+  'This event was deeply personal to me. I lost my mother to breast cancer on February 10, 2010. I witnessed firsthand the challenges, pain, and battles that come with this disease. So when I tell you that this event meant everything to me, I mean that from the deepest part of my heart.',
+  'Seeing everyone come together reminded me that even though we may lose the people we love, their stories, their strength, and their legacy can continue to inspire others.',
+  'To Empire Fitness, our supporters, volunteers, and everyone who contributed in any way, thank you for standing behind this cause.',
+  'And to every participant who showed up, whether you came to exercise, support someone you love, honor someone you\u2019ve lost, or celebrate your own journey, YOU ARE THE REASON THIS EVENT WAS SPECIAL.',
+  'Today reminded me of something powerful:',
+  {q:1,t:'The weather may change our plans, but it can never change God\u2019s purpose.'},
+  {q:1,t:'Mom, this one was for you.'},
+  'This wasn\u2019t just a bootcamp. It was a movement. It was a community. It was a purpose fulfilled.'
+ ];
  return h('main',{className:'vf26 vf26-page vf26-ev-page'},
   h(PageHero,{eyebrow:'Community event · '+PBB.date,title:'PINK Beach Burn.',accent:'Move. Sweat. Support.',
    lead:"On Saturday morning, October 31, the VFitness community filled Goodman's Bay in pink for a free beach bootcamp for Breast Cancer Awareness Month.",
@@ -956,14 +968,12 @@ function VFEventStoryPage(props){
     h('button',{key:'s',className:'vf26-btn vf26-btn-outline',onClick:lead(setCurrentPage,{})},'Train with VFitness')],
    media:h('button',{type:'button',className:'vf26-ev-hero',onClick:function(){setOpen(0);},'aria-label':'View the group photo full size'},h('img',{src:pbbSrc(0),alt:PBB.photos[0][1],fetchpriority:'high'}))}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-ev-story'},
-   h(Reveal,{className:'vf26-ev-text'},
-    h('p',{className:'vf26-kicker'},'The morning'),
-    h('h2',{className:'vf26-h2'},'Stronger together.'),
-    h('p',null,'Every fitness level was welcome and it was free to all. Our coaches led the group through five rounds, at a pace everyone could keep, with dumbbells, kettlebells and plenty of encouragement.'),
-    h('ol',{className:'vf26-ev-format'},FORMAT.map(function(f,i){return h('li',{key:f},h('span',null,String(i+1).padStart(2,'0')),f);})),
-    h('p',null,'Between rounds, people held up the words that brought everyone out that morning.'),
+   h(Reveal,{className:'vf26-ev-text vf26-ev-letter'},
+    h('p',{className:'vf26-kicker'},'PINK BEACH BURN 2026'),
+    h('h2',{className:'vf26-h2'},'GOD’S PURPOSE WILL ALWAYS PREVAIL!'),
+    LETTER.map(function(t,i){return h('p',{key:i,className:t.q?'q':''},t.t||t);}),
+    h('div',{className:'vf26-ev-sign'},h('p',null,'With love and gratitude,'),h('b',null,'Mr. VFITNESS'),h('span',null,'PINK BEACH BURN 2026'),h('span',null,'MOVE. SWEAT. SUPPORT. TOGETHER.')),
     h('div',{className:'vf26-ev-words'},WORDS.map(function(w){return h('span',{key:w},w);})),
-    h('p',null,"Thank you to everyone who came out in pink, to the VFitness coaches who ran every round, and to Empire Fitness for sponsoring the morning. Breast cancer touches so many families in The Bahamas. Mornings like this are how we show up for them."),
     h('p',{className:'vf26-ev-place'},icon('pin',15),PBB.place,' · ',PBB.date)))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'Photos',title:'The morning in pictures.',lead:'Tap any photo to see it full size.'}),

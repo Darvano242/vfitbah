@@ -1439,3 +1439,8 @@ html[data-vf-theme="light"] .vf26-ev-page .vf26-ph1 span{color:#db2777;}
 @media (min-width:821px){.vf26 .vf26-ev-hero{aspect-ratio:16/9;max-height:560px;}}
 @media (min-width:641px){.vf26 .vf26-ev-grid li:last-child{grid-column:span 2;}.vf26 .vf26-ev-grid li:last-child button{aspect-ratio:8/3;}}
 @media (max-width:640px){.vf26 .vf26-ev-grid li.wide{grid-column:auto;}}
+.vf26 .vf26-ev-letter>p.q{color:var(--vf-text);font-size:1.25rem;font-weight:600;line-height:1.5;border-left:3px solid #E11D74;padding-left:16px;margin:18px 0;}
+.vf26 .vf26-ev-sign{margin:26px 0 22px;}
+.vf26 .vf26-ev-sign p{margin:0 0 4px;color:var(--vf-dim);}
+.vf26 .vf26-ev-sign b{display:block;font-size:1.25rem;color:var(--vf-text);}
+.vf26 .vf26-ev-sign span{display:block;font-size:.8rem;letter-spacing:.08em;color:#f472b6;font-weight:700;margin-top:4px;}
