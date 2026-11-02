@@ -4,7 +4,7 @@
 
 html[data-vf26]{
   --vf-bg:#0f1115; --vf-bg-2:#13161a; --vf-card:#191b1f; --vf-surface-2:#21252b;
-  --vf-border:#2c2f35; --vf-text:#f3f4f6; --vf-dim:#9ea2ae; --vf-mute:#747987;
+  --vf-border:#2c2f35; --vf-text:#f3f4f6; --vf-dim:#a4a8b3; --vf-mute:#959aa7;
   --vf-primary:#4296f0; --vf-primary-soft:#7bb6f4; --vf-violet:#8869ec; --vf-teal:#5fddcc;
   --vf-marine:#1c1f27; --vf-secondary:#1f2a38;
   --vf-shadow-card:0 2px 4px rgba(3,6,12,.18),0 10px 24px -14px rgba(3,6,12,.45);
@@ -23,8 +23,8 @@ html[data-vf26]{
 }
 html[data-vf26][data-vf-theme="light"]{
   --vf-bg:#f5f5f9; --vf-bg-2:#eeeff4; --vf-card:#ffffff; --vf-surface-2:#eeeff3;
-  --vf-border:#dcdfe4; --vf-text:#1a1d24; --vf-dim:#5d6173; --vf-mute:#80859a;
-  --vf-primary:#1572d5; --vf-primary-soft:#1d4f99; --vf-violet:#6a3ed4; --vf-teal:#127a70;
+  --vf-border:#dcdfe4; --vf-text:#1a1d24; --vf-dim:#555a6b; --vf-mute:#5f6477;
+  --vf-primary:#1266c2; --vf-primary-soft:#1d4f99; --vf-violet:#6a3ed4; --vf-teal:#127a70;
   --vf-marine:#1c1f27; --vf-secondary:#ecf0fb;
   --vf-shadow-card:0 2px 4px rgba(35,55,90,.03),0 8px 24px -12px rgba(35,55,90,.14);
   --vf-shadow-panel:0 4px 8px -4px rgba(35,55,90,.07),0 20px 48px -24px rgba(35,55,90,.2);
@@ -395,7 +395,7 @@ html[data-vf26] .vfx-card{background:var(--vf-card) !important;border:1px solid 
 .vf26-footer{border-top:1px solid var(--vf-border);background:var(--vf-card);padding:4rem 0 calc(2rem + env(safe-area-inset-bottom,0px));}
 .vf26-foot-grid{display:grid;gap:2.5rem;}
 @media(min-width:768px){.vf26-foot-grid{grid-template-columns:1.4fr 1fr 1fr 1fr}}
-.vf26-foot-grid h5{margin:0 0 .9rem;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--vf-mute);}
+.vf26-foot-grid h5,.vf26-foot-grid .vf26-foot-h{margin:0 0 .9rem;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--vf-mute);}
 .vf26-foot-grid button,.vf26-foot-grid a{display:block;background:none;border:0;padding:.3rem 0;color:var(--vf-dim);font-size:.9rem;text-align:left;cursor:pointer;text-decoration:none;font-family:'Geist',sans-serif;}
 .vf26-foot-grid button:hover,.vf26-foot-grid a:hover{color:var(--vf-text);}
 .vf26-foot-grid .vf26-brand{display:flex !important;padding:0;}
@@ -1557,3 +1557,20 @@ html[data-vf-theme="light"] .vf26-ev-page .vf26-ph1 span{color:#db2777;}
 .vf26-adm-card .wait li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;}
 .vf26-btn.sm{min-height:44px;padding:0 14px;font-size:.85rem;}
 @media (max-width:520px){.vf26 .vf26-group dl{grid-template-columns:1fr;}}
+
+/* Accessibility pass (Nov 2026): contrast, light theme legacy text, root background */
+html[data-vf26],html[data-vf26] #root{background:var(--vf-bg) !important;}
+.vf26-btn-primary,[data-vf-theme="dark"] [role=tab][aria-selected=true]{color:#0b0d10 !important;}
+.vf26-btn-primary svg{color:currentColor;}
+[data-vf-theme="light"] .vf26-btn-primary{color:#fff !important;}
+[data-vf-theme="dark"] .vf26-trainer-body .rl,[data-vf-theme="dark"] .vf26-contact .v{color:color-mix(in srgb,var(--acc) 72%,#fff);}
+[data-vf-theme="light"] .vf26-trainer-body .rl,[data-vf-theme="light"] .vf26-contact .v{color:color-mix(in srgb,var(--acc) 55%,#000);}
+[data-vf-theme="dark"] .vf26-kicker[style*="e11d74"],[data-vf-theme="dark"] .vf26-evcard-copy .vf26-kicker,[data-vf-theme="dark"] .vf26-ev-text .vf26-kicker{color:#f2679f !important;}
+[data-vf-theme="light"] .vf26-ev-page .vf26-ph1 span,[data-vf-theme="light"] .vf26-ev-page .vf26-eyebrow,[data-vf-theme="light"] .vf26 .vf26-ev-sign span,[data-vf-theme="light"] .vf26 .vf26-ev-words span,[data-vf-theme="light"] .vf26-ev-text .vf26-kicker,[data-vf-theme="light"] .vf26-evcard-copy .vf26-kicker{color:#b0165e !important;}
+[data-vf-theme="light"] .vf26-shell :is(h1,h2,h3,h4,p,label,span,div).text-white{color:var(--vf-text) !important;}
+[data-vf-theme="light"] .vf26-shell [style*="color: rgb(123, 182, 244)"],[data-vf-theme="light"] .vf26-shell .text-cyan-400{color:var(--vf-primary) !important;}
+[data-vf-theme="light"] .vf26-shell button[aria-pressed].text-white{color:var(--vf-text) !important;}
+[data-vf-theme="light"] .vf26-shell button[aria-pressed="false"].text-white{border-color:var(--vf-border) !important;background:var(--vf-card) !important;}
+.vf26-skip{position:fixed;left:12px;top:-60px;z-index:100000;padding:12px 18px;border-radius:10px;background:var(--vf-card);color:var(--vf-text) !important;border:2px solid var(--vf-primary);font-weight:700;text-decoration:none;}
+.vf26-skip:focus{top:12px;}
+main:focus{outline:none;}

@@ -258,6 +258,7 @@ function Navigation(props){
      h('button',{key:'s',className:'vf26-btn vf26-btn-primary',onClick:function(){setOpen(false);lead(setCurrentPage,{})();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{key:'l',className:'vf26-btn vf26-btn-outline',onClick:nav('login')},'Client login')])):null;
  return h(React.Fragment,null,
+  h('a',{className:'vf26-skip',href:'#main',onClick:function(e){var m=document.querySelector('main');if(!m)return;e.preventDefault();m.setAttribute('tabindex','-1');m.focus();try{m.scrollIntoView();}catch(x){}}},'Skip to main content'),
   h(AuthPrompt,{setCurrentPage:setCurrentPage}),
   h('header',{className:'vf26 vf26-header'},h('div',{className:'vf26-wrap vf26-header-in'},
    navA('home',nav('home'),{className:'vf26-brand','aria-label':'VFitness home'},[h('span',{key:'t',className:'vf26-brand-tile'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'',width:40,height:40})),h('span',{key:'w',className:'vf26-brand-word'},'VFITNESS')]),
@@ -450,7 +451,7 @@ function AppWalkthrough(){
    h(Volt,{size:64}),
    h('div',null,h('p',{className:'vf26-kicker'},'See the app'),h('h3',null,'Check in. Train. See progress.'),h('small',null,'Real VFIT screens with a sample member\'s data.'))),
   h('div',{className:'vf26-walk-tabs',role:'tablist','aria-label':'App walkthrough steps'},WALKTHROUGH.map(function(w,i){return h('button',{key:w.step,type:'button',role:'tab','aria-selected':active===i,className:active===i?'on':'',onClick:function(){goTo(i);}},h('span',null,i+1),w.step);})),
-  h('div',{className:'vf26-walk-track',ref:ref,onScroll:onScroll},WALKTHROUGH.map(function(w,i){return h('figure',{key:w.src,className:'vf26-walk-slide'},
+  h('div',{className:'vf26-walk-track',ref:ref,onScroll:onScroll,tabIndex:0,role:'region','aria-label':'App walkthrough, scroll sideways for more'},WALKTHROUGH.map(function(w,i){return h('figure',{key:w.src,className:'vf26-walk-slide'},
    h('div',{className:'vf26-phone'},h('img',{src:w.src,alt:'VFIT app screen: '+w.step,width:420,height:840,loading:i?'lazy':'eager'})),
    h('figcaption',null,h('b',null,w.title),h('span',null,w.text)));})),
   h('div',{className:'vf26-walk-ctrl'},
@@ -674,7 +675,7 @@ function HomePage(props){
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-how3-wrap'},
    h(SectionHead,{kicker:'How it works',title:'Three steps to your first session.'}),
-   h('ol',{className:'vf26-how3'},HOW3.map(function(s,i){return h(Reveal,{key:s[0],className:'vf26-how3-item',delay:i*80},h('span',{className:'n'},String(i+1).padStart(2,'0')),h('b',null,s[0]),h('p',null,s[1]));})))),
+   h('ol',{className:'vf26-how3'},HOW3.map(function(s,i){return h(Reveal,{key:s[0],as:'li',className:'vf26-how3-item',delay:i*80},h('span',{className:'n'},String(i+1).padStart(2,'0')),h('b',null,s[0]),h('p',null,s[1]));})))),
 
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'The team',title:'Four coaches. One standard.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'trainers')},'Meet the team',icon('arrow',16))}),
@@ -704,9 +705,9 @@ function Footer(props){
      h('a',{href:'https://www.instagram.com/xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'Instagram'},icon('instagram',17)),
      h('a',{href:'https://www.facebook.com/xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'Facebook'},icon('facebook',17)),
      h('a',{href:'https://www.tiktok.com/@xvfitnessx',target:'_blank',rel:'noopener noreferrer','aria-label':'TikTok'},icon('tiktok',17)))),
-   h('div',null,h('h5',null,'Company'),b('About','about'),b('Team','trainers'),b('Results','results'),b('Contact','contact')),
-   h('div',null,h('h5',null,'Clients'),b('Get started','starthere'),b('Services and pricing','pricing'),b('Client portal','login'),h('a',{href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'VFIT app')),
-   h('div',null,h('h5',null,'Legal'),b('Privacy Policy','privacy'),b('Terms of Service','terms'),b('Refunds and Cancellations','refund'))),
+   h('div',null,h('h2',{className:'vf26-foot-h'},'Company'),b('About','about'),b('Team','trainers'),b('Results','results'),b('Contact','contact')),
+   h('div',null,h('h2',{className:'vf26-foot-h'},'Clients'),b('Get started','starthere'),b('Services and pricing','pricing'),b('Client portal','login'),h('a',{href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'VFIT app')),
+   h('div',null,h('h2',{className:'vf26-foot-h'},'Legal'),b('Privacy Policy','privacy'),b('Terms of Service','terms'),b('Refunds and Cancellations','refund'))),
   h('p',{className:'vf26-foot-licence'},icon('shield',15),'Licensed business in The Bahamas. Business Licence No. '+VF_LICENCE.no+', issued under the '+VF_LICENCE.act+', valid through '+VF_LICENCE.until+'.'),
   h('div',{className:'vf26-foot-base'},h('span',null,'© '+new Date().getFullYear()+' VFITNESS Training Services. Nassau, The Bahamas.'),h('span',null,h('a',{href:'mailto:'+VF_EMAIL},VF_EMAIL),' · ',h('a',{href:VF_TEL},VF_PHONE)))));
 }
@@ -868,6 +869,17 @@ function SemiTerms(){
  return h('div',{className:'vf26-semi'},h('h3',null,'How semi private works'),
   h('dl',null,t.map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})));
 }
+/* Legacy forms place a <label> next to its field without linking them. Link them so screen readers announce
+   the field name and tapping the label focuses the field. Only fields with no accessible name are touched. */
+(function(){var n=0,queued=false;
+ function named(f){if(f.getAttribute('aria-label')||f.getAttribute('aria-labelledby')||f.closest('label'))return true;if(f.id){try{if(document.querySelector('label[for="'+CSS.escape(f.id)+'"]'))return true;}catch(e){}}return false;}
+ function near(f){var el=f.previousElementSibling;if(el&&el.tagName==='LABEL')return el;var p=f.parentElement;if(p&&p.children.length<=3){el=p.previousElementSibling;if(el&&el.tagName==='LABEL')return el;var l=p.querySelector(':scope > label');if(l)return l;}return null;}
+ function link(){queued=false;if(!document.getElementById('main')){var mn=document.querySelector('main');if(mn&&!mn.id)mn.id='main';}document.querySelectorAll('input:not([type=hidden]):not([type=submit]):not([type=button]),select,textarea').forEach(function(f){
+  if(named(f))return;var l=near(f);if(l&&!l.htmlFor){if(!f.id)f.id='vf-f'+(++n);l.htmlFor=f.id;}else if(!l&&f.placeholder){f.setAttribute('aria-label',f.placeholder);}});}
+ function q(){if(queued)return;queued=true;setTimeout(link,120);}
+ try{new MutationObserver(q).observe(document.documentElement,{childList:true,subtree:true});}catch(e){}q();
+})();
+
 /* ================= SEMI PRIVATE GROUPS ================= */
 /* Real group times from the VFIT backend (/api/groups). Each group has at most 4 places; the server hands out places
    one at a time, so two people can never take the last one. A held place is confirmed by the coach before payment. */
@@ -1140,13 +1152,13 @@ function EventStoryCard(p){
 }
 function EventLightbox(p){
  var i=p.index,n=PBB.photos.length,ref=React.useRef(null);
- React.useEffect(function(){var o=document.body.style.overflow;document.body.style.overflow='hidden';var prev=document.activeElement;try{ref.current&&ref.current.focus();}catch(e){}
-  function k(e){if(e.key==='Escape')p.onClose();else if(e.key==='ArrowRight')p.onGo(1);else if(e.key==='ArrowLeft')p.onGo(-1);}
-  window.addEventListener('keydown',k);return function(){document.body.style.overflow=o;window.removeEventListener('keydown',k);try{prev&&prev.focus();}catch(e){}};},[]);
- return h('div',{className:'vf26-evbox',role:'dialog','aria-modal':'true','aria-label':'Photo '+(i+1)+' of '+n,onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
-  h('button',{ref:ref,type:'button',className:'vf26-evbox-x',onClick:p.onClose,'aria-label':'Close photo'},icon('close',20)),
+ useDialog(true,p.onClose,ref);
+ React.useEffect(function(){function k(e){if(e.key==='ArrowRight')p.onGo(1);else if(e.key==='ArrowLeft')p.onGo(-1);}
+  window.addEventListener('keydown',k);return function(){window.removeEventListener('keydown',k);};},[]);
+ return h('div',{ref:ref,className:'vf26-evbox',role:'dialog','aria-modal':'true','aria-label':'Photo '+(i+1)+' of '+n,onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
+  h('button',{type:'button',className:'vf26-evbox-x',onClick:p.onClose,'aria-label':'Close photo'},icon('close',20)),
   h('button',{type:'button',className:'vf26-evbox-nav prev',onClick:function(){p.onGo(-1);},'aria-label':'Previous photo'},icon('arrow',20)),
-  h('figure',null,h('img',{src:pbbSrc(i),alt:PBB.photos[i][1]}),h('figcaption',null,PBB.photos[i][1],h('span',null,(i+1)+' / '+n))),
+  h('figure',null,h('img',{src:pbbSrc(i),alt:PBB.photos[i][1]}),h('figcaption',{'aria-live':'polite'},PBB.photos[i][1],h('span',null,(i+1)+' / '+n))),
   h('button',{type:'button',className:'vf26-evbox-nav next',onClick:function(){p.onGo(1);},'aria-label':'Next photo'},icon('arrow',20)));
 }
 function VFEventStoryPage(props){
@@ -1204,7 +1216,7 @@ function VFContactPage(props){
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Contact',title:'Contact',accent:'VFitness.',lead:'Questions about services, packages, payments or locations. Our team responds within one business day.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h('div',{className:'vf26-contact-grid'},cards.map(function(c,i){return h(Reveal,{key:c.t,delay:i*80},
+   h('h2',{className:'sr-only'},'Ways to reach us'),h('div',{className:'vf26-contact-grid'},cards.map(function(c,i){return h(Reveal,{key:c.t,delay:i*80},
     h('a',{className:'vf26-contact',href:c.href,target:c.ext?'_blank':undefined,rel:c.ext?'noopener noreferrer':undefined,style:{'--acc':c.acc}},
      h('span',{className:'ic'},icon(c.ic,22)),h('h3',null,c.t),h('p',null,c.d),h('span',{className:'v'},c.v,icon('arrow',15))));})),
    h('div',{className:'vf26-contact-split'},
@@ -1304,7 +1316,7 @@ function hideLegacyHero(root){
 function StoreShell(p){
  var ref=React.useRef(null);
  React.useEffect(function(){var t=[0,250,900,2000].map(function(ms){return setTimeout(function(){hideLegacyHero(ref.current);},ms);});return function(){t.forEach(clearTimeout);};},[]);
- return h('div',{className:'vf26-shell vf26-shell-store vf26-shell-'+p.name},
+ return h('main',{className:'vf26-shell vf26-shell-store vf26-shell-'+p.name},
   h(PageHero,p.hero),
   h('div',{ref:ref,className:'vf26-shell-inner'},p.children));
 }
@@ -1314,11 +1326,12 @@ function shell(name,kind,extra){
   if(!L)return null;
   var inner=h(L,props);
   if(kind==='auth'){
-   return h('div',{className:'vf26 vf26-shell vf26-shell-auth vf26-shell-'+name},
+   return h('main',{className:'vf26 vf26-shell vf26-shell-auth vf26-shell-'+name},
+    (name==='LoginPage'||name==='SignupPage')?h('h1',{className:'sr-only'},extra.title+' '+extra.accent):null,
     h('div',{className:'vf26-auth-grid'},h(AuthAside,extra),h('div',{className:'vf26-auth-main'},inner)));
   }
   if(kind==='store'&&extra){return h(StoreShell,{name:name,hero:extra},inner);}
-  return h('div',{className:'vf26-shell vf26-shell-'+name+(kind?' vf26-shell-'+kind:'')},inner);
+  return h(kind==='member'?'div':'main',{className:'vf26-shell vf26-shell-'+name+(kind?' vf26-shell-'+kind:'')},inner);
  };
 }
 function membersOnly(name){

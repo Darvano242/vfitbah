@@ -27,11 +27,11 @@ NEEDS DARVANO (waiting on content or a decision), LATER (its own project).
 | 15 | Submission and confirmation | DONE (existing + wording) | Success only after the request is saved. Title now "Request received." Not tested with a live submission. |
 | 16 | Client portal | NOT CHANGED | No portal code touched. Permission audit is its own task. |
 | 17 | Checkout | NOT CHANGED | Payment flow untouched. Needs an approved test purchase before paid traffic. |
-| 18 | Scheduling capacity | LATER | Group records, 4 client limit in booking logic, waitlist. |
-| 19 | Analytics | DONE (code) | window.vfTrack: coaching_path_selected, consultation_request_started, inquiry_step_completed, consultation_request_accepted. No personal data, no vendor, no reporting yet. |
+| 18 | Scheduling capacity | DONE (code) | Group times on Services (/api/groups to the VFIT backend). One place row per seat, claimed atomically, so a group never exceeds 4. Waitlist with automatic hand over. Admin Groups tab. A held place is confirmed by the coach before payment. |
+| 19 | Analytics | DONE | Events go to /api/track and the VFIT backend (siteEvents): page_view, coaching_path_selected, consultation_request_started, inquiry_step_completed, consultation_request_accepted, package_checkout_started, group_place_reserved, group_waitlist_joined. Tab session id only, no cookies, no personal data, portal and admin never tracked. Report: VFIT app, Admin, Growth, Website section. |
 | 20 | 80% target | NEEDS DARVANO | Only as an internal attendance target once consultations are logged. |
-| 21 | Speed | PARTLY | Hero preloaded with 900/1600 px WebP. Event photos compressed. Legacy 1 MB index.html is the main remaining cost. |
-| 22 | Accessibility | PARTLY | Header, menu, brand and footer are real links. Reduced motion shows all content. Full WCAG 2.2 AA review not done. |
+| 21 | Speed | IMPROVED | Built page 1,041 KB to 759 KB (gzip 241 to 182 KB): 47 unreachable legacy declarations removed from the source, 21 replaced legacy pages stripped at build (scripts/strip-unused-legacy.js, fail safe). Next step: move the app script to a cached file. |
+| 22 | Accessibility | DONE (automated + keyboard) | docs/ACCESSIBILITY_REVIEW.md. axe 0 violations on 14 public pages x 2 themes x 2 widths. Screen reader pass by hand still to do. |
 | 23 | Search | DONE (code) | Canonical and sitemap on www, real routes in sitemap, truthful structured data (no ratings, no street address), no-JavaScript summary. Search Console inspection still to do. |
 | 24 | Locations and contact | DONE | No "our gyms". Map labelled "Illustration, not to scale". |
 | 25 | Policies | DONE | Refund policy states 45 day expiry with pause credit. |
