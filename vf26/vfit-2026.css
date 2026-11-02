@@ -1444,3 +1444,16 @@ html[data-vf-theme="light"] .vf26-ev-page .vf26-ph1 span{color:#db2777;}
 .vf26 .vf26-ev-sign p{margin:0 0 4px;color:var(--vf-dim);}
 .vf26 .vf26-ev-sign b{display:block;font-size:1.25rem;color:var(--vf-text);}
 .vf26 .vf26-ev-sign span{display:block;font-size:.8rem;letter-spacing:.08em;color:#f472b6;font-weight:700;margin-top:4px;}
+
+/* Team photo in the home hero (landscape, all four coaches in frame) */
+.vf26-hero-media.team{aspect-ratio:4/3;}
+@media(min-width:1024px){.vf26-hero-media.team{aspect-ratio:4/3.6;align-self:center;}}
+.vf26-hero-media.team img{object-position:50% 40%;}
+
+/* Business licence */
+.vf26 .vf26-licence{display:flex;gap:16px;align-items:flex-start;background:var(--vf-card);border:1px solid var(--vf-border);border-radius:20px;padding:20px;box-shadow:var(--vf-shadow-card);}
+.vf26 .vf26-licence-ic{flex-shrink:0;width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(52,199,122,.14);color:#34c77a;}
+.vf26 .vf26-licence h3{margin:4px 0 6px;font-size:1.15rem;color:var(--vf-text);}
+.vf26 .vf26-licence p:not(.vf26-kicker){margin:0;color:var(--vf-dim);line-height:1.6;}
+.vf26-footer .vf26-foot-licence{display:flex;gap:8px;align-items:flex-start;margin:28px 0 0;padding-top:20px;border-top:1px solid var(--vf-border);font-size:.82rem;line-height:1.5;color:var(--vf-mute);}
+.vf26-footer .vf26-foot-licence svg{flex-shrink:0;margin-top:1px;color:#34c77a;}

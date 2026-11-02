@@ -602,8 +602,8 @@ function HomePage(props){
       h('div',null,h('dt',null,'Established'),h('dd',null,'2018')),
       h('div',null,h('dt',null,'Nassau locations'),h('dd',null,'3')),
       h('div',null,h('dt',null,'Certified coaches'),h('dd',null,'4')))),
-    h('figure',{className:'vf26-hero-media vf26-enter',style:{'--d':'120ms'}},
-     h('img',{src:'/vf26/strength-editorial-v1.webp',alt:'Client training with dumbbells in a Nassau gym overlooking the water',fetchpriority:'high'}),
+    h('figure',{className:'vf26-hero-media team vf26-enter',style:{'--d':'120ms'}},
+     h('img',{src:'/vf26/team-four-2026.webp',srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 1024px) 50vw, 100vw',alt:'The four VFitness coaches in PINK Beach Burn shirts in front of the VFitness tent at Goodman\'s Bay',fetchpriority:'high'}),
      h('figcaption',{className:'vf26-hero-badge'},h('span',{className:'dot'}),h('div',null,h('b',null,'Now booking'),h('span',null,'Free consultation and body assessment')))))),
 
   h(PromoSlider,null),
@@ -648,6 +648,7 @@ function Footer(props){
    h('div',null,h('h5',null,'Company'),b('About','about'),b('Team','trainers'),b('Results','results'),b('Contact','contact')),
    h('div',null,h('h5',null,'Clients'),b('Get started','starthere'),b('Services and pricing','pricing'),b('Client portal','login'),h('a',{href:VF_APP_URL,target:'_blank',rel:'noopener noreferrer'},'VFIT app')),
    h('div',null,h('h5',null,'Legal'),b('Privacy Policy','privacy'),b('Terms of Service','terms'),b('Refunds and Cancellations','refund'))),
+  h('p',{className:'vf26-foot-licence'},icon('shield',15),'Licensed business in The Bahamas. Business Licence No. '+VF_LICENCE.no+', issued under the '+VF_LICENCE.act+', valid through '+VF_LICENCE.until+'.'),
   h('div',{className:'vf26-foot-base'},h('span',null,'© '+new Date().getFullYear()+' VFITNESS Training Services. Nassau, The Bahamas.'),h('span',null,h('a',{href:'mailto:'+VF_EMAIL},VF_EMAIL),' · ',h('a',{href:VF_TEL},VF_PHONE)))));
 }
 
@@ -669,6 +670,7 @@ Object.assign(I,{
  expand:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>'
 });
 var VF_EMAIL='vfitnessbah@gmail.com';
+var VF_LICENCE={no:'20121990',act:'Business Licence Act, 2023',by:'Ministry of Finance, Department of Inland Revenue',until:'December 31, 2026'};
 var VF_PHONE='242 454 9063',VF_TEL='tel:+12424549063';
 function waLink(ctx){try{if(typeof window.vfWa==='function')return window.vfWa(ctx||'contact');}catch(e){}return 'https://wa.me/12424549063';}
 function useTop(){React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);}
@@ -1048,7 +1050,7 @@ function AboutPage(props){
   ['Accountability','Sessions, packages and payments are recorded, so clients always know where they stand.'],
   ['Transparency','Published pricing, no lock in contracts and invoices for every package.'],
   ['Local expertise','A Nassau team that knows the gyms, the schedules and the way people live here.']];
- var facts=[['Founded','2018'],['Coaching team','4 certified coaches'],['Clients served','2,000+'],['Locations','3 in Nassau, plus online']];
+ var facts=[['Founded','2018'],['Coaching team','4 certified coaches'],['Clients served','2,000+'],['Locations','3 in Nassau, plus online'],['Business licence','Licensed in The Bahamas']];
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau coaching team delivering personal training across three locations and online coaching through the VFIT app.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-about2'},
@@ -1062,6 +1064,13 @@ function AboutPage(props){
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'The team',title:'The coaches behind VFitness.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'trainers')},'Full profiles',icon('arrow',16))}),
    h(TeamRow,{setCurrentPage:setCurrentPage}))),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+   h(Reveal,{className:'vf26-licence'},
+    h('span',{className:'vf26-licence-ic'},icon('shield',22)),
+    h('div',null,
+     h('p',{className:'vf26-kicker'},'Licensed business'),
+     h('h3',null,'VFITNESS is a licensed business in The Bahamas.'),
+     h('p',null,'Business Licence No. '+VF_LICENCE.no+', issued by the '+VF_LICENCE.by+' under the '+VF_LICENCE.act+'. Licensed for personal training and exercise services, valid through '+VF_LICENCE.until+'.'))))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'Our standards',title:'What clients can expect.'}),
    h('div',{className:'vf26-values'},values.map(function(v,i){return h(Reveal,{key:v[0],className:'vf26-value',delay:i*60},h('span',{className:'n'},String(i+1).padStart(2,'0')),h('b',null,v[0]),h('p',null,v[1]));})))),
