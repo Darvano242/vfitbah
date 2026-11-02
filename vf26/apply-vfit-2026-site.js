@@ -35,9 +35,14 @@ once("const vfT={home:\"VFITNESS Bahamas | Nassau's Premium Body Transformation 
 
 // 1c. Start Here: step 1 is the goal only. Delivery choices (online, group) live in step 2, semi private first.
 once('const GOALS=withChoice(["Flat stomach + glutes","Flat stomach + chest and arms","Weight loss","Body recomposition","Muscle gain","Athletic performance","Online coaching","Group training","Not sure yet"],data.goal);',
-  'const GOALS=withChoice(["Weight loss","Muscle gain","Body recomposition","Flat stomach + glutes","Flat stomach + chest and arms","Athletic performance","Not sure yet"],data.goal);');
+  'const GOALS=withChoice(["Weight loss","Muscle gain","Body recomposition","Strength or performance","Not sure yet"],data.goal);');
 once('const TYPES=withChoice(["1 on 1","Semi private","Group training","Online coaching","Not sure yet"],data.trainingType);',
-  'const TYPES=withChoice(["Semi private (small group, up to 4)","Online coaching","Group training","1 on 1 (by request)","Not sure yet"],data.trainingType);');
+  'const TYPES=withChoice(["Semi private in Nassau (up to 4)","Online coaching","Group training","1 on 1 (by request)","Help me choose"],data.trainingType);');
+// Prefilled training types from site buttons map onto the listed choices.
+once("if(pre.trainingType==='Group')pre.trainingType='Group training';",
+  "if(pre.trainingType==='Group')pre.trainingType='Group training';if(/^semi/i.test(pre.trainingType||''))pre.trainingType='Semi private in Nassau (up to 4)';if(/^1 on 1/i.test(pre.trainingType||''))pre.trainingType='1 on 1 (by request)';if(/^online|^elite/i.test(pre.trainingType||''))pre.trainingType='Online coaching';");
+once("\"A VFITNESS coach will contact you on WhatsApp to book your consultation. Want to move faster? Message us now and mention your reference.\"",
+  "\"Your request has been received. A coach will contact you to discuss your goal and confirm a consultation. Want to move faster? Message us on WhatsApp and mention your reference.\"");
 once('{title:"What is your main goal?",body:choiceStep(GOALS,\'goal\',\'Main goal\')},','{title:"What is your main goal? Pick one.",body:choiceStep(GOALS,\'goal\',\'Main goal\')},');
 once('{title:"How do you want to train?",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},','{title:"How do you want to train? Pick one.",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},');
 // 1d. Anonymous funnel hooks (no answers, no contact details) and a confirmation that says request, not booking.

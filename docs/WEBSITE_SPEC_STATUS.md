@@ -43,3 +43,17 @@ NEEDS DARVANO (waiting on content or a decision), LATER (its own project).
 
 Still open from Darvano: Shred next start date and guarantee rules, coach headshots, case study details, a test
 inquiry and an approved test purchase.
+
+## Redesign brief (Nov 2, 2026, round 2)
+
+| Brief section | Status | Notes |
+|---|---|---|
+| 4 Design system | DONE | Public-page tokens (spacing, radii, motion, sand surface, brief palette) in vfit-2026.css. Portal keeps its own look (data-vf-area="portal"). |
+| 6 Desktop split | DONE | Sticky introduction panel (32vw) with location, portal link, headline, actions, facts, navigation and policy links, beside a staggered six-panel gallery. Headline kept as Darvano chose: "Build strength. See your progress." |
+| 7 Gallery panels | DONE | Team (dialog with full photo), semi private on sand (dialog with terms), VFIT app (dialog: app tools, automated guidance, human coaching; sample data labelled), Pink Beach Burn (story page), founder (team page), client results (uses the first published gallery photo). |
+| 9 Interactions | DONE | Dialogs: focus moves in and stays in, Escape closes, focus returns, background locked. Restrained hover, none under reduced motion. |
+| 10 Mobile | DONE | Introduction, then the two ways to train, then the gallery in one column (two on tablets). |
+| 12 Services | DONE | Train in Nassau / Train online choice at the top; gym fee beside the semi private offer. |
+| 15 Inquiry | DONE | Goals and delivery lists match the brief; confirmation wording from the brief. |
+| 16 Contact | DONE | "VFITNESS coaching hours" separated from gym opening hours. |
+| Session length | 60 minutes | Brief mentions 45; Darvano confirmed 60 on Nov 2. |
