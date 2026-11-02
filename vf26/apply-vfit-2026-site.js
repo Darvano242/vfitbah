@@ -37,7 +37,7 @@ once("const vfT={home:","const vfT={pinkbeachburn:'PINK Beach Burn 2026 | VFitne
 once('const GOALS=withChoice(["Flat stomach + glutes","Flat stomach + chest and arms","Weight loss","Body recomposition","Muscle gain","Athletic performance","Online coaching","Group training","Not sure yet"],data.goal);',
   'const GOALS=withChoice(["Weight loss","Muscle gain","Body recomposition","Flat stomach + glutes","Flat stomach + chest and arms","Athletic performance","Not sure yet"],data.goal);');
 once('const TYPES=withChoice(["1 on 1","Semi private","Group training","Online coaching","Not sure yet"],data.trainingType);',
-  'const TYPES=withChoice(["Semi private (small group, up to 4)","1 on 1","Group training","Online coaching","Not sure yet"],data.trainingType);');
+  'const TYPES=withChoice(["Semi private","Group training","Online coaching","Not sure yet"],data.trainingType);');
 once('{title:"What is your main goal?",body:choiceStep(GOALS,\'goal\',\'Main goal\')},','{title:"What is your main goal? Pick one.",body:choiceStep(GOALS,\'goal\',\'Main goal\')},');
 once('{title:"How do you want to train?",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},','{title:"How do you want to train? Pick one.",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},');
 
