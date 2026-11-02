@@ -78,6 +78,11 @@ function Reveal(p){var ref=React.useRef(null);useInView(ref,function(el){el.clas
    in window.vfEvents and dispatched as 'vf:track' for a future, separately configured collector. */
 function vfTrack(name,props){try{var e={event:name,at:Date.now(),props:props||{}};(window.vfEvents=window.vfEvents||[]).push(e);window.dispatchEvent(new CustomEvent('vf:track',{detail:e}));}catch(x){}}
 window.vfTrack=vfTrack;
+/* Real links for navigation: crawlable, open-in-new-tab works, keyboard users get link semantics.
+   A plain click keeps the app's own routing. */
+function navA(page,run,props,children){
+ return h('a',Object.assign({href:ROUTES[page]||'/',onClick:function(e){if(e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();run();}},props||{}),children);
+}
 function go(setCurrentPage,page){return function(){try{setCurrentPage(page);}catch(e){}try{window.scrollTo({top:0,behavior:'auto'});}catch(e){}};}
 function lead(setCurrentPage,kv){return function(){vfTrack('consultation_request_started',{path:(kv&&kv.vf_lead_type)||'general'});if(typeof vfLeadPrefill==='function'){vfLeadPrefill(kv||{},setCurrentPage);}else{go(setCurrentPage,'starthere')();}};}
 
@@ -109,7 +114,7 @@ window.vfPageFromPath=pageFromPath;
 /* After sign-in, stay on a page the person opened directly instead of jumping to the dashboard. */
 window.vfKeepRoute=function(){var p=(location.pathname||'/').replace(/\/+$/,'')||'/';return !(p==='/'||p==='/login'||p==='/signup');};
 function setMeta(page){
- var desc=META[page]||META.home;var url='https://vfitbah.com'+(ROUTES[page]||'/');
+ var desc=META[page]||META.home;var url='https://www.vfitbah.com'+(ROUTES[page]||'/');
  function upd(sel,attr,val){var el=document.querySelector(sel);if(el)el.setAttribute(attr,val);}
  upd('meta[name="description"]','content',desc);upd('meta[property="og:description"]','content',desc);
  upd('meta[property="og:url"]','content',url);upd('link[rel="canonical"]','href',url);
@@ -212,7 +217,7 @@ function Navigation(props){
  useDialog(open,function(){setOpen(false);},sheetRef,function(){return menuBtnRef.current;});
  function nav(page){return function(){setOpen(false);go(setCurrentPage,page)();};}
  function logout(){setOpen(false);try{auth.signOut().then(function(){setCurrentPage('home');});}catch(e){setCurrentPage('home');}}
- var seg=h('nav',{className:'vf26-seg','aria-label':'Primary'},PUBLIC_LINKS.map(function(l){return h('button',{key:l[0],className:currentPage===l[0]?'on':'',onClick:nav(l[0]),'aria-current':currentPage===l[0]?'page':undefined},l[1]);}));
+ var seg=h('nav',{className:'vf26-seg','aria-label':'Primary'},PUBLIC_LINKS.map(function(l){return navA(l[0],nav(l[0]),{key:l[0],className:currentPage===l[0]?'on':'','aria-current':currentPage===l[0]?'page':undefined},l[1]);}));
  var themeBtn=h('button',{className:'vf26-round',onClick:toggleTheme,'aria-label':theme==='dark'?'Switch to light mode':'Switch to dark mode',title:theme==='dark'?'Light mode':'Dark mode'},icon(theme==='dark'?'sun':'moon',18));
  var right;
  if(user){
@@ -231,14 +236,14 @@ function Navigation(props){
  var more=[];
  var memberLinks=user?(isAdmin?[['admin','Admin Dashboard'],['dashboard','My Client Portal']]:[['dashboard','Client Portal']]):[];
  var sheet=open?h('div',{ref:sheetRef,id:'vf26-menu-sheet',className:'vf26 vf26-sheet',role:'dialog','aria-modal':'true','aria-label':'Site menu'},
-   h('div',{className:'vf26-sheet-grid'},memberLinks.concat([['home','Home']]).concat(PUBLIC_LINKS).map(function(l,i){return h('button',{key:l[0]+i,className:currentPage===l[0]?'on':'',onClick:nav(l[0])},l[1],icon('arrow',16));})),
+   h('div',{className:'vf26-sheet-grid'},memberLinks.concat([['home','Home']]).concat(PUBLIC_LINKS).map(function(l,i){return ROUTES[l[0]]?navA(l[0],nav(l[0]),{key:l[0]+i,className:currentPage===l[0]?'on':'','aria-current':currentPage===l[0]?'page':undefined},[l[1],icon('arrow',16,{key:'i'})]):h('button',{key:l[0]+i,className:currentPage===l[0]?'on':'',onClick:nav(l[0])},l[1],icon('arrow',16));})),
    h('div',{className:'vf26-sheet-cta'},user?h('button',{className:'vf26-btn vf26-btn-outline',onClick:logout},'Sign out'):[
      h('button',{key:'s',className:'vf26-btn vf26-btn-primary',onClick:function(){setOpen(false);lead(setCurrentPage,{})();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{key:'l',className:'vf26-btn vf26-btn-outline',onClick:nav('login')},'Client login')])):null;
  return h(React.Fragment,null,
   h(AuthPrompt,{setCurrentPage:setCurrentPage}),
   h('header',{className:'vf26 vf26-header'},h('div',{className:'vf26-wrap vf26-header-in'},
-   h('button',{className:'vf26-brand',onClick:nav('home'),'aria-label':'VFitness home'},h('span',{className:'vf26-brand-tile'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'',width:40,height:40})),h('span',{className:'vf26-brand-word'},'VFITNESS')),
+   navA('home',nav('home'),{className:'vf26-brand','aria-label':'VFitness home'},[h('span',{key:'t',className:'vf26-brand-tile'},h('img',{src:'/vf26/vfit-app-icon.webp',alt:'',width:40,height:40})),h('span',{key:'w',className:'vf26-brand-word'},'VFITNESS')]),
    seg,right)),
   sheet);
 }
@@ -672,7 +677,7 @@ function HomePage(props){
 /* ================= FOOTER ================= */
 function Footer(props){
  var setCurrentPage=props.setCurrentPage||function(){};
- function b(label,page){return h('button',{key:label,onClick:go(setCurrentPage,page)},label);}
+ function b(label,page){return ROUTES[page]?navA(page,go(setCurrentPage,page),{key:label},label):h('button',{key:label,onClick:go(setCurrentPage,page)},label);}
  return h('footer',{className:'vf26 vf26-footer'},h('div',{className:'vf26-wrap'},
   h('div',{className:'vf26-foot-grid'},
    h('div',null,
@@ -807,7 +812,7 @@ function ProgressWidget(){
 }
 function MapWidget(){
  var pins=[{n:'Empire Fitness',x:62,y:58},{n:'Fanta C Fitness',x:38,y:44},{n:'Police College',x:74,y:36}];
- return h('div',{className:'vf26-widget'},h(WidgetTop,{l:'Nassau, New Providence',r:'3 locations'}),
+ return h('div',{className:'vf26-widget'},h(WidgetTop,{l:'Nassau, New Providence',r:'Illustration, not to scale'}),
   h('div',{className:'vf26-wcard vf26-mapw'},
    h('div',{className:'map','aria-hidden':'true'},h('div',{className:'land'}),pins.map(function(p,i){return h('span',{key:p.n,className:'pin',style:{left:p.x+'%',top:p.y+'%','--d':(i*400)+'ms'}},h('i'),h('b',null,p.n));})),
    h('div',{className:'vf26-wrows'},LOCS.map(function(l){return h('div',{key:l.name},h('span',{className:'vf26-icon-tile'},icon('pin',18)),h('div',null,h('b',null,l.name),h('span',null,l.area)));}))));
@@ -927,6 +932,7 @@ function TrainersPage(props){
       h('div',{className:'acts'},
        h('button',{className:'vf26-btn vf26-btn-primary',onClick:lead(setCurrentPage,{vf_lead_trainer:t.name})},'Train with '+t.first),
        h('a',{className:'vf26-btn vf26-btn-outline',href:'tel:+1'+t.phone.replace(/\D/g,''),'aria-label':'Call '+t.first},icon('phone',16),'Call'))));})))),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},h('p',{className:'vf26-note'},'Choosing a coach is a preference, not a booking. We confirm availability with you, and if your first choice is full we offer another coach or time.'))),
   h(FinalCTA,{setCurrentPage:setCurrentPage,kicker:'Not sure who to pick?',title:'We will match you with the right coach.',lead:'Tell us your goal, schedule and location. We will pair you with the coach and program that fit.'}));
 }
 

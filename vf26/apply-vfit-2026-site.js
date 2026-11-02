@@ -40,6 +40,15 @@ once('const TYPES=withChoice(["1 on 1","Semi private","Group training","Online c
   'const TYPES=withChoice(["Semi private (small group, up to 4)","Online coaching","Group training","1 on 1 (by request)","Not sure yet"],data.trainingType);');
 once('{title:"What is your main goal?",body:choiceStep(GOALS,\'goal\',\'Main goal\')},','{title:"What is your main goal? Pick one.",body:choiceStep(GOALS,\'goal\',\'Main goal\')},');
 once('{title:"How do you want to train?",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},','{title:"How do you want to train? Pick one.",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},');
+// 1d. Anonymous funnel hooks (no answers, no contact details) and a confirmation that says request, not booking.
+once("const pickNext=(k,v)=>{set(k,v);setErr('');setStep(s=>s+1);",
+  "const pickNext=(k,v)=>{set(k,v);setErr('');try{window.vfTrack&&window.vfTrack('inquiry_step_completed',{step:step+1});}catch(_){}setStep(s=>s+1);");
+once('if(saved){setAppId(applicationId);setDone(true);}',
+  "if(saved){try{window.vfTrack&&window.vfTrack('consultation_request_accepted',{});}catch(_){}setAppId(applicationId);setDone(true);}");
+once('style:{outline:\'none\'}},"Application Received."),','style:{outline:\'none\'}},"Request received."),');
+// 1e. Refund and cancellation policy states the package expiry the system applies.
+once("['Session Packages','Unused in person training sessions may be eligible for credit. Sessions cancelled with less than 24 hours notice may be forfeited.']",
+  "['Session Packages','Session packages expire 45 days after purchase. Time a package is paused by your coach is added back. Unused in person training sessions may be eligible for credit. Sessions cancelled with less than 24 hours notice may be forfeited.']");
 
 // 2. App palette: move legacy hard coded colours onto the VFIT app colours.
 const colorMap=[
@@ -99,12 +108,43 @@ html=html.slice(0,ai)+`<script src="/vf26/vfit-2026.js?v=${VERSION}"></script>\n
 
 // 5a. Site title
 const OLD_TITLE="VFITNESS Bahamas | Nassau's Premium Body Transformation System";
-const NEW_TITLE="VFITNESS | Train Smart. Train Elite.";
+const NEW_TITLE="VFITNESS | Semi Private Coaching in Nassau, The Bahamas";
 html=html.split('<title>'+OLD_TITLE+'</title>').join('<title>'+NEW_TITLE+'</title>');
 html=html.split('content="'+OLD_TITLE+'"').join('content="'+NEW_TITLE+'"');
 html=html.split('home:"'+OLD_TITLE+'"').join('home:"'+NEW_TITLE+'"');
 if(!html.includes('<title>'+NEW_TITLE+'</title>'))throw new Error('Title not updated');
 
+
+// 5a2. Search: accurate description, truthful structured data, and readable content for crawlers that do not run scripts.
+{
+  const desc='Structured semi private coaching in Nassau, The Bahamas: a clear training plan, personal attention and progress tracking in groups of up to 4. Online training through the VFIT app.';
+  html=html.replace('<link rel="canonical" href="https://vfitbah.com/">','<link rel="canonical" href="https://www.vfitbah.com/">').replace('<meta property="og:url" content="https://vfitbah.com/">','<meta property="og:url" content="https://www.vfitbah.com/">');
+  html=html.replace(/<meta name="description" content="[^"]*">/,'<meta name="description" content="'+desc+'">');
+  html=html.replace(/<meta property="og:description" content="[^"]*">/,'<meta property="og:description" content="'+desc+'">');
+  const ldStart=html.indexOf('<script type="application/ld+json">');
+  if(ldStart<0)throw new Error('Structured data block not found');
+  const ldEnd=html.indexOf('</script>',ldStart)+'</script>'.length;
+  const ld={"@context":"https://schema.org","@type":"HealthAndBeautyBusiness","name":"VFITNESS Training Services","alternateName":"VFitness Bahamas","url":"https://www.vfitbah.com/","logo":"https://www.vfitbah.com/icon-512.png","image":"https://www.vfitbah.com/vf26/team-four-2026.webp",
+    "description":desc,"telephone":"+1-242-454-9063","email":"vfitnessbah@gmail.com","foundingDate":"2018",
+    "address":{"@type":"PostalAddress","addressLocality":"Nassau","addressRegion":"New Providence","addressCountry":"BS"},
+    "areaServed":{"@type":"City","name":"Nassau"},
+    "sameAs":["https://www.instagram.com/xvfitnessx","https://www.facebook.com/xvfitnessx","https://www.tiktok.com/@xvfitnessx"]};
+  html=html.slice(0,ldStart)+'<script type="application/ld+json">'+JSON.stringify(ld)+'</script>'+html.slice(ldEnd);
+  const ns=`<noscript><main style="max-width:44rem;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;line-height:1.6;color:#f3f4f6;background:#0f1115">
+<h1>VFITNESS: semi private coaching in Nassau, The Bahamas</h1>
+<p>Structured semi private coaching with a clear training plan, personal attention and progress tracking. Groups of up to 4, 60 minute sessions, and you can join on your own. 12 sessions for $195 per person. Gym membership is separate. Packages expire 45 days after purchase.</p>
+<p>Training locations: Empire Fitness (Seagrape Plaza, Prince Charles Drive), Fanta C Fitness and the Royal Bahamas Police College. Online training through the VFIT app at vfitnow.app.</p>
+<p>Request a free consultation: WhatsApp or call <a href="tel:+12424549063">242 454 9063</a> or email <a href="mailto:vfitnessbah@gmail.com">vfitnessbah@gmail.com</a>.</p>
+<ul><li><a href="/services">Services and pricing</a></li><li><a href="/team">Coaching team</a></li><li><a href="/results">Client results</a></li><li><a href="/company">Company</a></li><li><a href="/contact">Contact</a></li><li><a href="/events/pink-beach-burn">PINK Beach Burn 2026</a></li></ul>
+<p>Licensed business in The Bahamas. Business Licence No. 20121990.</p>
+</main></noscript>`;
+  // Hero image starts loading with the page (largest image on the homepage).
+  html=html.replace('</head>','<link rel="preload" as="image" href="/vf26/team-four-2026.webp" imagesrcset="/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w" imagesizes="(min-width: 1024px) 50vw, 100vw">\n</head>');
+  const bodyOpen=html.search(/<body[^>]*>/);
+  if(bodyOpen<0)throw new Error('body tag not found');
+  const bodyTagEnd=html.indexOf('>',bodyOpen)+1;
+  html=html.slice(0,bodyTagEnd)+'\n'+ns+html.slice(bodyTagEnd);
+}
 
 // 5b. Kevin Mackey joins the trainer lists (package assignment, booking and trainer filtering).
 once("const PACKAGE_ASSIGN_TRAINERS=[{id:'darvano',name:'DARVANO'},{id:'chavese_moss',name:'Chavese Moss'},{id:'lanardo_mackey',name:'Lanardo Mackey'}];",
