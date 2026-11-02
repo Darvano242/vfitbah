@@ -840,7 +840,7 @@ function SemiTerms(){
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
   ['Packages','Prices are per person: 1 session $22, 4 for $87, 6 for $130, 8 for $173 or 12 for $195 ($16.25 a session). A package is a block of sessions, not a monthly membership.'],
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
-  ['Expiry and make ups','Confirm package expiry and make up session rules with your coach before you pay.'],
+  ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
   ['Cancellations','Sessions cancelled with less than 24 hours notice may be forfeited.'],
   ['Gym access','A gym membership is not included. Your package covers your coaching only, and we walk you through training location options at your consultation.']];
  return h('div',{className:'vf26-semi'},h('h3',null,'How semi private works'),
@@ -883,7 +883,7 @@ function PricingPage(props){
      h('div',{className:'ses'},h('b',{className:'vf26-condensed'},pkg.sessions),h('span',null,pkg.sessions===1?'session':'sessions')),
      h('div',{className:'amt'},'$'+pkg.price),
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
-     save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Book sessions any time.'),
+     save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
    tab==='semi'?h(SemiTerms,null):null,
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),
