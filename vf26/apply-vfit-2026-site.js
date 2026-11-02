@@ -238,6 +238,10 @@ function range(marker,from,until,to){
 }
 
 
+// 5e2. Semi private groups tab for admins (groups of up to 4, places and waitlist). Component lives in vfit-2026.js.
+once("{id:'appointments',label:'Appointments',icon:'calendar-check'}","{id:'appointments',label:'Appointments',icon:'calendar-check'},{id:'groups',label:'Groups',icon:'users'}");
+once("activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"","activeTab==='groups'&&React.createElement(window.VF26AdminGroups||'div',null),activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"");
+
 // 5f. Image uploads: Firebase Storage for this project rejects the site origin (CORS), which left uploads spinning.
 //     Images now go to the VFitness file host first, with the old inline fallback kept.
 once("async function uploadImageToStorage(file,folder='gallery'){const compressedDataUrl=await compressImage(file);if(storage){",

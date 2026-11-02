@@ -74,9 +74,25 @@ function useInView(ref,cb){React.useEffect(function(){var el=ref.current;if(!el)
 function Reveal(p){var ref=React.useRef(null);useInView(ref,function(el){el.classList.add('is-in');});
  return h(p.as||'div',Object.assign({ref:ref,className:'vf26-reveal '+(p.className||''),style:Object.assign({'--d':(p.delay||0)+'ms'},p.style||{})},p.id?{id:p.id}:{}),p.children);}
 
-/* Anonymous browser event hook. No names, contact or health details. Nothing is sent anywhere yet: events are kept
-   in window.vfEvents and dispatched as 'vf:track' for a future, separately configured collector. */
-function vfTrack(name,props){try{var e={event:name,at:Date.now(),props:props||{}};(window.vfEvents=window.vfEvents||[]).push(e);window.dispatchEvent(new CustomEvent('vf:track',{detail:e}));}catch(x){}}
+/* Anonymous funnel events. Only a fixed event name, a random tab session id, a coaching path label, a step
+   number and the traffic source are sent (to /api/track, stored in the VFIT backend). No names, contact or health
+   details, no cookies. Events are batched and sent on page hide. Admin and portal pages are never tracked. */
+var VF_SID=(function(){try{var s=sessionStorage.getItem('vf_sid');if(!/^[a-z0-9]{8,32}$/.test(s||'')){s=Math.random().toString(36).slice(2,12)+Date.now().toString(36);sessionStorage.setItem('vf_sid',s);}return s;}catch(e){return Math.random().toString(36).slice(2,12)+Date.now().toString(36);}})();
+var VF_SRC=(function(){try{var k='vf_src',v=sessionStorage.getItem(k);if(v!==null)return v;var q=new URLSearchParams(location.search).get('utm_source')||'';
+ if(!q&&document.referrer){var r=new URL(document.referrer).hostname.replace(/^www\./,'');if(r&&!/vfitbah\.com$/.test(r))q=r;}
+ q=String(q).toLowerCase().replace(/[^a-z0-9.\-_]/g,'').slice(0,60);sessionStorage.setItem(k,q);return q;}catch(e){return '';}})();
+var vfQueue=[],vfTimer=null;
+function vfPrivatePage(){var p=location.pathname||'/';return /^\/(portal|admin|dashboard)/.test(p);}
+function vfFlush(){if(vfTimer){clearTimeout(vfTimer);vfTimer=null;}if(!vfQueue.length)return;var batch=vfQueue.splice(0,10);
+ var body=JSON.stringify({events:batch});
+ try{if(navigator.sendBeacon&&navigator.sendBeacon('/api/track',new Blob([body],{type:'text/plain'}))){if(vfQueue.length)vfFlush();return;}}catch(e){}
+ try{fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});}catch(e){}
+ if(vfQueue.length)vfFlush();}
+try{document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')vfFlush();});window.addEventListener('pagehide',vfFlush);}catch(e){}
+function vfTrack(name,props){try{props=props||{};var e={event:name,at:Date.now(),props:props};(window.vfEvents=window.vfEvents||[]).push(e);window.dispatchEvent(new CustomEvent('vf:track',{detail:e}));
+ if(vfPrivatePage()||/^(localhost|127\.)/.test(location.hostname)&&!window.vfTrackLocal)return;
+ vfQueue.push({event:name,session:VF_SID,path:props.path?String(props.path).slice(0,40):'',step:typeof props.step==='number'?props.step:undefined,source:VF_SRC});
+ if(vfQueue.length>=10)vfFlush();else if(!vfTimer)vfTimer=setTimeout(vfFlush,4000);}catch(x){}}
 window.vfTrack=vfTrack;
 /* Real links for navigation: crawlable, open-in-new-tab works, keyboard users get link semantics.
    A plain click keeps the app's own routing. */
@@ -134,6 +150,7 @@ function useRouter(currentPage,setCurrentPage){
   }
   first.current=false;popping.current=false;
   (window.requestAnimationFrame||setTimeout)(function(){setMeta(currentPage);});
+  if(currentPage!=='dashboard'&&currentPage!=='admin')vfTrack('page_view',{path:String(currentPage||'home')});
  },[currentPage]);
 }
 
@@ -851,13 +868,141 @@ function SemiTerms(){
  return h('div',{className:'vf26-semi'},h('h3',null,'How semi private works'),
   h('dl',null,t.map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})));
 }
+/* ================= SEMI PRIVATE GROUPS ================= */
+/* Real group times from the VFIT backend (/api/groups). Each group has at most 4 places; the server hands out places
+   one at a time, so two people can never take the last one. A held place is confirmed by the coach before payment. */
+function vfGroupsApi(action,extra,needToken){
+ function send(tok){var b=Object.assign({action:action},extra||{});if(tok)b.idToken=tok;
+  return fetch('/api/groups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){return r.json().catch(function(){return {ok:false,error:'The schedule is not available right now.'};}).then(function(j){if(!j||j.ok!==true)throw new Error((j&&j.error)||'The schedule is not available right now.');return j;});});}
+ if(!needToken)return send(null);
+ var u=null;try{u=window.firebase&&firebase.auth().currentUser;}catch(e){}
+ if(!u)return Promise.reject(new Error('Please sign in to your VFitness account first.'));
+ return u.getIdToken().then(send);
+}
+var DAY_NAMES={Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+function daysLabel(d){d=d||[];if(!d.length)return '';if(d.length===1)return DAY_NAMES[d[0]]||d[0];return d.join(', ').replace(/, ([^,]*)$/,' and $1');}
+function PlaceDots(p){var out=[];for(var i=0;i<p.cap;i++)out.push(h('span',{key:i,className:'dot'+(i<p.cap-p.left?' on':'')}));return h('span',{className:'vf26-dots','aria-hidden':'true'},out);}
+function SemiGroups(props){
+ var user=props.user,setCurrentPage=props.setCurrentPage;
+ var st=React.useState({loading:true,error:'',groups:[]}),data=st[0],setData=st[1];
+ var ms=React.useState({places:{},waiting:{}}),mine=ms[0],setMine=ms[1];
+ var bs=React.useState(''),busy=bs[0],setBusy=bs[1];
+ var ns=React.useState({id:'',text:'',bad:false}),note=ns[0],setNote=ns[1];
+ function load(){setData(function(d){return Object.assign({},d,{loading:true,error:''});});
+  return vfGroupsApi('list').then(function(j){setData({loading:false,error:'',groups:j.groups||[]});}).catch(function(e){setData({loading:false,error:e.message,groups:[]});});}
+ function loadMine(){if(!user)return Promise.resolve(setMine({places:{},waiting:{}}));
+  return vfGroupsApi('mine',null,true).then(function(j){var pl={},wt={};(j.places||[]).forEach(function(x){pl[x.groupId]=x.state;});(j.waiting||[]).forEach(function(g){wt[g]=true;});setMine({places:pl,waiting:wt});}).catch(function(){});}
+ function reserve(g){
+  if(!user){needAccount({title:'Sign in to hold a place',reason:'Places are held on your client account so your coach can confirm the time with you.',keep:'You come back to this group and we hold your place if one is still free.',intent:{page:'pricing',action:'group',groupId:g.id}});return;}
+  setBusy(g.id);setNote({id:'',text:'',bad:false});
+  vfGroupsApi('reserve',{groupId:g.id},true).then(function(j){
+   if(j.waitlisted){vfTrack('group_waitlist_joined',{path:'semi private'});setNote({id:g.id,text:'This group is full. You are number '+j.position+' on the waitlist. If a place opens, it is held for you and we contact you.',bad:false});}
+   else{vfTrack('group_place_reserved',{path:'semi private'});setNote({id:g.id,text:j.already?'You already hold a place in this group.':'Place held. Your coach contacts you to confirm the time before you pay for a package.',bad:false});}
+   return Promise.all([load(),loadMine()]);
+  }).catch(function(e){setNote({id:g.id,text:e.message,bad:true});}).then(function(){setBusy('');});
+ }
+ function leave(g,wasWaiting){
+  if(!window.confirm(wasWaiting?'Leave the waitlist for this group?':'Give up your place in this group? Someone on the waitlist may take it.'))return;
+  setBusy(g.id);vfGroupsApi('leave',{groupId:g.id},true).then(function(){setNote({id:g.id,text:wasWaiting?'You left the waitlist.':'Your place is free again.',bad:false});return Promise.all([load(),loadMine()]);})
+  .catch(function(e){setNote({id:g.id,text:e.message,bad:true});}).then(function(){setBusy('');});
+ }
+ React.useEffect(function(){load();},[]);
+ React.useEffect(function(){loadMine().then(function(){
+  if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='group')return;takeIntent();
+  vfGroupsApi('list').then(function(j){var g=(j.groups||[]).filter(function(x){return x.id===it.groupId;})[0];if(g){scrollToId('vf26-groups')();reserve(g);}});
+ });},[!!user]);
+ var body;
+ if(data.loading&&!data.groups.length)body=h('p',{className:'vf26-groups-msg',role:'status'},'Loading group times...');
+ else if(data.error)body=h('div',{className:'vf26-groups-msg bad',role:'alert'},h('p',null,'We could not load group times. '+data.error),h('button',{className:'vf26-btn vf26-btn-outline',onClick:load},'Try again'));
+ else if(!data.groups.length)body=h('div',{className:'vf26-groups-msg'},h('p',null,'No group times are listed right now. Request a consultation and we match you with a group that fits your goals and schedule.'),
+  h('button',{className:'vf26-btn vf26-btn-primary',onClick:lead(setCurrentPage,{vf_lead_type:'Semi private'})},'Request my free consultation'));
+ else body=h('ul',{className:'vf26-groups'},data.groups.map(function(g){
+  var state=mine.places[g.id],waiting=mine.waiting[g.id];var when=daysLabel(g.weekdays)+' at '+g.timeLabel;
+  var status=state==='confirmed'?'Your place is confirmed':state?'Place held for you':waiting?'You are on the waitlist':g.full?'Full, waitlist open':(g.placesLeft===1?'1 place left':g.placesLeft+' places left');
+  var act=state||waiting?h('button',{className:'vf26-btn vf26-btn-outline',disabled:busy===g.id,'aria-busy':busy===g.id?'true':undefined,onClick:function(){leave(g,!state);}},state?'Give up my place':'Leave the waitlist')
+   :h('button',{className:'vf26-btn '+(g.full?'vf26-btn-outline':'vf26-btn-primary'),disabled:busy===g.id,'aria-busy':busy===g.id?'true':undefined,onClick:function(){reserve(g);},'aria-label':(g.full?'Join the waitlist for ':'Hold a place in ')+(g.title||when)},busy===g.id?'One moment...':g.full?'Join the waitlist':'Hold a place');
+  return h('li',{key:g.id,className:'vf26-group'+(state||waiting?' mine':'')},
+   h('div',{className:'top'},h('h4',null,g.title||when),h('span',{className:'st'+(g.full&&!state?' full':'')},h(PlaceDots,{cap:g.capacity,left:g.placesLeft}),status)),
+   h('dl',null,g.title?h('div',null,h('dt',null,'When'),h('dd',null,when)):null,
+    h('div',null,h('dt',null,'Length'),h('dd',null,(g.durationMin||60)+' minutes')),
+    h('div',null,h('dt',null,'Coach'),h('dd',null,g.trainerName)),
+    h('div',null,h('dt',null,'Location'),h('dd',null,g.locationName)),
+    g.level?h('div',null,h('dt',null,'Level'),h('dd',null,g.level)):null,
+    h('div',null,h('dt',null,'Group size'),h('dd',null,'Up to '+g.capacity+' clients'))),
+   act,
+   h('p',{className:'vf26-group-note'+(note.id===g.id&&note.bad?' bad':''),'aria-live':'polite'},note.id===g.id?note.text:''));
+ }));
+ return h('div',{className:'vf26-groups-wrap',id:'vf26-groups'},
+  h('h3',null,'Group times with places'),
+  h('p',{className:'vf26-groups-lead'},'Each group has up to 4 clients. Holding a place is free. Your coach confirms the time with you, then you choose a package.'),
+  body);
+}
+window.VF26SemiGroups=SemiGroups;
+
+/* Admin: create groups and manage who holds each place. Same server rules as the public page. */
+var WEEK=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+var EMPTY_GROUP={id:'',title:'',trainerName:'',locationName:'',weekdays:[],startTime:'06:00',durationMin:60,capacity:4,level:'',status:'open',notes:''};
+function AdminGroups(){
+ var st=React.useState({loading:true,error:'',groups:[]}),data=st[0],setData=st[1];
+ var fs=React.useState(null),form=fs[0],setForm=fs[1];
+ var ms=React.useState({text:'',bad:false}),msg=ms[0],setMsg=ms[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ function load(){setData(function(d){return Object.assign({},d,{loading:true,error:''});});
+  return vfGroupsApi('adminList',null,true).then(function(j){setData({loading:false,error:'',groups:j.groups||[]});}).catch(function(e){setData({loading:false,error:e.message,groups:[]});});}
+ React.useEffect(function(){load();},[]);
+ function run(action,extra,done){setBusy(true);setMsg({text:'',bad:false});
+  return vfGroupsApi(action,extra,true).then(function(j){setMsg({text:j.note||done,bad:!!j.note});return load();}).catch(function(e){setMsg({text:e.message,bad:true});}).then(function(){setBusy(false);});}
+ function set(k,v){setForm(function(f){var n=Object.assign({},f);n[k]=v;return n;});}
+ function toggleDay(d){setForm(function(f){var w=f.weekdays.indexOf(d)>=0?f.weekdays.filter(function(x){return x!==d;}):f.weekdays.concat([d]);return Object.assign({},f,{weekdays:w});});}
+ function save(e){e.preventDefault();run('adminSave',{group:form},form.id?'Group updated.':'Group created.').then(function(){setForm(null);});}
+ function field(label,key,input){return h('label',{className:'vf26-adm-field'},h('span',null,label),input);}
+ var editor=form?h('form',{className:'vf26-adm-form',onSubmit:save,'aria-label':form.id?'Edit group':'New group'},
+  h('h3',null,form.id?'Edit group':'New group'),
+  h('div',{className:'grid'},
+   field('Name (optional)','title',h('input',{value:form.title,maxLength:60,placeholder:'Early strength',onChange:function(e){set('title',e.target.value);}})),
+   field('Coach','trainerName',h('input',{value:form.trainerName,maxLength:80,required:true,onChange:function(e){set('trainerName',e.target.value);}})),
+   field('Location','locationName',h('input',{value:form.locationName,maxLength:80,required:true,onChange:function(e){set('locationName',e.target.value);}})),
+   field('Start time','startTime',h('input',{type:'time',value:form.startTime,required:true,onChange:function(e){set('startTime',e.target.value);}})),
+   field('Length','durationMin',h('select',{value:form.durationMin,onChange:function(e){set('durationMin',Number(e.target.value));}},[45,60,75,90].map(function(m){return h('option',{key:m,value:m},m+' minutes');}))),
+   field('Places (max 4)','capacity',h('select',{value:form.capacity,onChange:function(e){set('capacity',Number(e.target.value));}},[1,2,3,4].map(function(n){return h('option',{key:n,value:n},n);}))),
+   field('Level (optional)','level',h('input',{value:form.level,maxLength:80,placeholder:'All levels',onChange:function(e){set('level',e.target.value);}})),
+   field('Status','status',h('select',{value:form.status,onChange:function(e){set('status',e.target.value);}},h('option',{value:'open'},'Open (on website)'),h('option',{value:'closed'},'Closed (hidden)'),h('option',{value:'archived'},'Archived')))),
+  h('fieldset',{className:'vf26-adm-days'},h('legend',null,'Days'),WEEK.map(function(d){var on=form.weekdays.indexOf(d)>=0;return h('label',{key:d,className:'vf26-chipbox'+(on?' on':'')},h('input',{type:'checkbox',checked:on,onChange:function(){toggleDay(d);}}),DAY_NAMES[d]);})),
+  field('Private notes (admins only)','notes',h('textarea',{value:form.notes,maxLength:500,rows:2,onChange:function(e){set('notes',e.target.value);}})),
+  h('div',{className:'acts'},h('button',{type:'submit',className:'vf26-btn vf26-btn-primary',disabled:busy,'aria-busy':busy?'true':undefined},busy?'Saving...':'Save group'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setForm(null);}},'Cancel'))):null;
+ return h('section',{className:'vf26-adm-groups','aria-labelledby':'vf26-adm-groups-h'},
+  h('div',{className:'head'},h('div',null,h('h2',{id:'vf26-adm-groups-h'},'Semi private groups'),h('p',null,'Up to 4 places per group. Open groups show on the Services page. People hold a place from the website; confirm them once the time is agreed.')),
+   form?null:h('button',{className:'vf26-btn vf26-btn-primary',onClick:function(){setForm(Object.assign({},EMPTY_GROUP));}},'New group')),
+  h('p',{className:'vf26-adm-msg'+(msg.bad?' bad':''),role:'status','aria-live':'polite'},msg.text),
+  editor,
+  data.loading&&!data.groups.length?h('p',{role:'status'},'Loading groups...'):
+  data.error?h('div',{role:'alert',className:'vf26-adm-msg bad'},h('p',null,'Could not load groups. '+data.error),h('button',{className:'vf26-btn vf26-btn-outline',onClick:load},'Try again')):
+  !data.groups.length?h('p',null,'No groups yet. Create the first one with New group.'):
+  h('div',{className:'vf26-adm-list'},data.groups.map(function(g){var when=daysLabel(g.weekdays)+' at '+g.timeLabel;
+   return h('article',{key:g.id,className:'vf26-adm-card'},
+    h('header',null,h('div',null,h('h3',null,g.title||when),h('p',null,(g.title?when+' · ':'')+g.durationMin+' min · '+g.trainerName+' · '+g.locationName+(g.level?' · '+g.level:''))),
+     h('span',{className:'pill '+g.status},g.status==='open'?'Open':'Closed'),
+     h('button',{className:'vf26-btn vf26-btn-outline',onClick:function(){setForm({id:g.id,title:g.title,trainerName:g.trainerName,locationName:g.locationName,weekdays:g.weekdays,startTime:g.startTime,durationMin:g.durationMin,capacity:g.capacity,level:g.level,status:g.status,notes:g.notes});try{window.scrollTo({top:0});}catch(e){}}},'Edit')),
+    g.notes?h('p',{className:'notes'},g.notes):null,
+    h('table',null,h('caption',{className:'sr-only'},'Places in '+(g.title||when)),
+     h('thead',null,h('tr',null,h('th',{scope:'col'},'Place'),h('th',{scope:'col'},'Client'),h('th',{scope:'col'},'Status'),h('th',{scope:'col'},h('span',{className:'sr-only'},'Actions')))),
+     h('tbody',null,g.seats.map(function(s){return h('tr',{key:s.id},h('td',null,s.seat),
+      h('td',null,s.state==='free'?h('span',{className:'mute'},'Free'):h('span',null,s.name||'No name',s.email?h('small',null,' ',s.email):null)),
+      h('td',null,s.state==='free'?'':s.state==='confirmed'?'Confirmed':'Held'),
+      h('td',{className:'acts'},h('div',null,s.state==='held'?h('button',{className:'vf26-btn vf26-btn-primary sm',disabled:busy,onClick:function(){run('adminConfirm',{seatId:s.id},'Place confirmed.');}},'Confirm'):null,
+       s.state!=='free'?h('button',{className:'vf26-btn vf26-btn-outline sm',disabled:busy,onClick:function(){if(window.confirm('Release place '+s.seat+' held by '+(s.name||'this client')+'? The next person on the waitlist gets it.'))run('adminRelease',{seatId:s.id},'Place released.');}},'Release'):null)));}))),
+    g.waitlist.length?h('div',{className:'wait'},h('h4',null,'Waitlist ('+g.waitlist.length+')'),h('ol',null,g.waitlist.map(function(w){return h('li',{key:w.id},h('span',null,w.name||'No name',w.email?h('small',null,' ',w.email):null),
+     h('button',{className:'vf26-btn vf26-btn-outline sm',disabled:busy,onClick:function(){run('adminRemoveWait',{waitId:w.id},'Removed from the waitlist.');}},'Remove'));}))):null);})));
+}
+window.VF26AdminGroups=AdminGroups;
+
 function PricingPage(props){
  var user=props.user,setCurrentPage=props.setCurrentPage,theme=props.theme||'dark';
  useTop();
  var ms=React.useState(false),showModal=ms[0],setShowModal=ms[1];
  var ps=React.useState(null),selected=ps[0],setSelected=ps[1];
  var ts=React.useState('semi'),tab=ts[0],setTab=ts[1];
- function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}setSelected(pkg);setShowModal(true);}
+ function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}vfTrack('package_checkout_started',{path:tab+' '+pkg.sessions});setSelected(pkg);setShowModal(true);}
  React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=PKG[it.tab]||PKG.one;var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setSelected(pkg);setShowModal(true);setTimeout(scrollToId('vf26-packages'),300);},[!!user]);
  var services=[
   {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$16.25',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
@@ -890,6 +1035,7 @@ function PricingPage(props){
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
      save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
+   tab==='semi'?h(SemiGroups,{user:user,setCurrentPage:setCurrentPage}):null,
    tab==='semi'?h(SemiTerms,null):null,
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),
 
