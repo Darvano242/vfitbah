@@ -33,6 +33,14 @@ once("currentPage==='results'&&/*#__PURE__*/React.createElement(VFResultsPage,{s
 once("'refund-policy':'refund'};return map[cand]","'refund-policy':'refund','pink-beach-burn':'pinkbeachburn',events:'pinkbeachburn'};return map[cand]");
 once("const vfT={home:","const vfT={pinkbeachburn:'PINK Beach Burn 2026 | VFitness Bahamas',home:");
 
+// 1c. Start Here: step 1 is the goal only. Delivery choices (online, group) live in step 2, semi private first.
+once('const GOALS=withChoice(["Flat stomach + glutes","Flat stomach + chest and arms","Weight loss","Body recomposition","Muscle gain","Athletic performance","Online coaching","Group training","Not sure yet"],data.goal);',
+  'const GOALS=withChoice(["Weight loss","Muscle gain","Body recomposition","Flat stomach + glutes","Flat stomach + chest and arms","Athletic performance","Not sure yet"],data.goal);');
+once('const TYPES=withChoice(["1 on 1","Semi private","Group training","Online coaching","Not sure yet"],data.trainingType);',
+  'const TYPES=withChoice(["Semi private (small group, up to 4)","1 on 1","Group training","Online coaching","Not sure yet"],data.trainingType);');
+once('{title:"What is your main goal?",body:choiceStep(GOALS,\'goal\',\'Main goal\')},','{title:"What is your main goal? Pick one.",body:choiceStep(GOALS,\'goal\',\'Main goal\')},');
+once('{title:"How do you want to train?",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},','{title:"How do you want to train? Pick one.",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},');
+
 // 2. App palette: move legacy hard coded colours onto the VFIT app colours.
 const colorMap=[
   [/#3d7dff/gi,'#4296f0'],[/#6f5bff/gi,'#8869ec'],[/#2dd4bf/gi,'#5fddcc'],[/#5eead4/gi,'#7fe6d8'],
