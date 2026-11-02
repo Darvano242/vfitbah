@@ -1,3 +1,16 @@
+/* Coaching choice cards: product clarity before the full catalogue. */
+.vf26-path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+.vf26-path-card{padding:clamp(24px,3.5vw,42px);border:1px solid var(--vf-border);border-radius:22px;background:var(--vf-card);min-width:0}
+.vf26-path-card.featured{border-color:var(--vf-primary);box-shadow:var(--vf-shadow-card)}
+.vf26-path-card h3{font-size:clamp(1.5rem,2.3vw,2rem);line-height:1.15;margin:12px 0 16px}
+.vf26-path-card p{color:var(--vf-dim);line-height:1.65}
+.vf26-path-card ul{list-style:disc;padding-left:22px;margin:22px 0;color:var(--vf-text);line-height:1.8}
+.vf26-path-card .vf26-path-price{font-size:2rem;font-weight:800;letter-spacing:-.04em;color:var(--vf-text);margin:24px 0 6px}
+.vf26-path-price small{font-size:.9rem;letter-spacing:0;font-weight:500;color:var(--vf-dim)}
+.vf26-path-card .vf26-btn{white-space:normal;text-align:center;min-height:48px;margin-top:12px}
+.vf26-path-card>.vf26-link{display:flex;margin-top:18px;min-height:44px;align-items:center}
+@media(max-width:720px){.vf26-path-grid{grid-template-columns:1fr;gap:18px}.vf26-path-card .vf26-btn{width:100%}}
+
 /* VFIT 2026 site layer: brings vfitbah.com in line with the VFIT app design system.
    Solid surfaces, blue action colour with a blue to violet brand blend, Geist type,
    condensed athletic stats, rounded panels and short purposeful motion. */
