@@ -31,13 +31,13 @@ for(const n of PAGE_NAMES)once('function '+n+'(','function VFLegacy'+n+'(');
 once("currentPage==='results'&&/*#__PURE__*/React.createElement(VFResultsPage,{setCurrentPage:setCurrentPage}),",
   "currentPage==='pinkbeachburn'&&React.createElement(VFEventStoryPage,{setCurrentPage:setCurrentPage}),currentPage==='results'&&/*#__PURE__*/React.createElement(VFResultsPage,{setCurrentPage:setCurrentPage}),");
 once("'refund-policy':'refund'};return map[cand]","'refund-policy':'refund','pink-beach-burn':'pinkbeachburn',events:'pinkbeachburn'};return map[cand]");
-once("const vfT={home:","const vfT={pinkbeachburn:'PINK Beach Burn 2026 | VFitness Bahamas',home:");
+once("const vfT={home:\"VFITNESS Bahamas | Nassau's Premium Body Transformation System\"","const vfT={pinkbeachburn:'PINK Beach Burn 2026 | VFitness Bahamas',home:\"VFITNESS | Semi Private Coaching in Nassau, The Bahamas\"");
 
 // 1c. Start Here: step 1 is the goal only. Delivery choices (online, group) live in step 2, semi private first.
 once('const GOALS=withChoice(["Flat stomach + glutes","Flat stomach + chest and arms","Weight loss","Body recomposition","Muscle gain","Athletic performance","Online coaching","Group training","Not sure yet"],data.goal);',
   'const GOALS=withChoice(["Weight loss","Muscle gain","Body recomposition","Flat stomach + glutes","Flat stomach + chest and arms","Athletic performance","Not sure yet"],data.goal);');
 once('const TYPES=withChoice(["1 on 1","Semi private","Group training","Online coaching","Not sure yet"],data.trainingType);',
-  'const TYPES=withChoice(["Semi private (small group, up to 4)","1 on 1","Group training","Online coaching","Not sure yet"],data.trainingType);');
+  'const TYPES=withChoice(["Semi private (small group, up to 4)","Online coaching","Group training","1 on 1 (by request)","Not sure yet"],data.trainingType);');
 once('{title:"What is your main goal?",body:choiceStep(GOALS,\'goal\',\'Main goal\')},','{title:"What is your main goal? Pick one.",body:choiceStep(GOALS,\'goal\',\'Main goal\')},');
 once('{title:"How do you want to train?",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},','{title:"How do you want to train? Pick one.",body:choiceStep(TYPES,\'trainingType\',\'Training type\')},');
 
