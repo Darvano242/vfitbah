@@ -87,8 +87,8 @@ function CountUp(p){var ref=React.useRef(null);var st=React.useState(reduceMotio
    this keeps the address bar, history, title and description in step with it. */
 var ROUTES={home:'/',pricing:'/services',trainers:'/team',results:'/results',about:'/company',contact:'/contact',starthere:'/start',
  login:'/login',signup:'/signup',book:'/consultation',apply:'/coaching-application',dashboard:'/portal',admin:'/admin',
- privacy:'/privacy',terms:'/terms',refund:'/refund-policy'};
-var PATH_ALIASES={'/pricing':'pricing','/trainers':'trainers','/about':'about','/locations':'contact','/apply':'starthere','/join':'starthere','/register':'starthere','/starthere':'starthere'};
+ privacy:'/privacy',terms:'/terms',refund:'/refund-policy',pinkbeachburn:'/events/pink-beach-burn'};
+var PATH_ALIASES={'/pricing':'pricing','/trainers':'trainers','/about':'about','/locations':'contact','/apply':'starthere','/join':'starthere','/register':'starthere','/starthere':'starthere','/pink-beach-burn':'pinkbeachburn','/events':'pinkbeachburn'};
 var META={
  home:"Nassau's premium body transformation system. Structured training, nutrition support, weekly check ins, progress tracking and online coaching across The Bahamas.",
  pricing:'Personal training, semi private and group sessions in Nassau, plus online coaching through the VFIT app. Clear package pricing with sessions tracked in your client portal.',
@@ -97,6 +97,7 @@ var META={
  about:'VFitness Training Services: Nassau personal training company since 2018, serving clients at three locations and online.',
  contact:'Contact VFitness by WhatsApp, email or phone. Training locations and hours in Nassau, The Bahamas.',
  starthere:'Tell us your goal, schedule and preferred coach. A VFitness coach reviews every application and contacts you.',
+ pinkbeachburn:"PINK Beach Burn 2026: the free VFitness beach bootcamp for Breast Cancer Awareness Month at Goodman's Bay, Nassau. The story and the photos.",
  login:'Sign in to your VFitness client portal.',signup:'Create your VFitness client account.',book:'Book a free VFitness consultation and body assessment in Nassau.'
 };
 function pageFromPath(path){path=(path||'/').replace(/\/+$/,'')||'/';for(var k in ROUTES){if(ROUTES[k]===path)return k;}return PATH_ALIASES[path.toLowerCase()]||null;}
@@ -582,7 +583,7 @@ function HomePage(props){
  var SERVICES=[
   {k:'In person',t:'Personal training',p:'$30',u:'per session',d:'One on one coaching at three Nassau training locations with a written program and every session tracked.',a:svc('vf26-packages'),cta:'Session packages'},
   {k:'In person',t:'Semi private training',p:'$22',u:'per person, per session',d:'Train with a partner or friend under the same coaching standard, at a lower cost per session.',a:svc('vf26-packages'),cta:'Session packages'},
-  {k:'Online',t:'Online training',p:'$19.99',u:'per month',d:'The VFIT app builds your plan and VFIT Autopilot adjusts it every morning. Elite Online Coaching adds a dedicated coach.',a:svc('vf26-remote'),cta:'Online plans'}
+  {k:'Online',t:'Online training',p:'$19.99',u:'per month',d:'The VFIT app builds your plan and VFIT Autopilot reviews it every morning, with changes you approve. Elite Online Coaching adds a dedicated coach.',a:svc('vf26-remote'),cta:'Online plans'}
  ];
  var HOW3=[['Get started','Create your account and tell us your goal, schedule and preferred location.'],['Consultation','A free consultation and body assessment set your starting point and targets.'],['Train and track','Train with your coach. Sessions, payments and invoices are managed in your client portal.']];
  return h('main',{className:'vf26'},
@@ -606,6 +607,8 @@ function HomePage(props){
      h('figcaption',{className:'vf26-hero-badge'},h('span',{className:'dot'}),h('div',null,h('b',null,'Now booking'),h('span',null,'Free consultation and body assessment')))))),
 
   h(PromoSlider,null),
+
+  h(EventStoryCard,{setCurrentPage:setCurrentPage}),
 
   h('section',{className:'vf26-section tight',id:'services'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'Services',title:'Coaching built around your schedule.',right:h('button',{className:'vf26-link',onClick:go(setCurrentPage,'pricing')},'All services and pricing',icon('arrow',16))}),
@@ -902,6 +905,75 @@ function VFResultsPage(props){
    h('p',{className:'vf26-note'},'Results vary with consistency, nutrition and individual differences.'))),
   h(FinalCTA,{setCurrentPage:setCurrentPage,kicker:'Your turn',title:'The next result could be yours.'}));
 }
+
+
+/* ================= EVENT STORY: PINK BEACH BURN 2026 ================= */
+var PBB={
+ title:'PINK Beach Burn 2026',date:'Saturday, October 31, 2026',place:"Goodman's Bay, Nassau",
+ photos:[
+  ['pbb26-1-group','The PINK Beach Burn crowd in pink under the VFitness tent at Goodman\'s Bay, holding Hope, Courage, Together and Fight signs'],
+  ['pbb26-2-coaches','Four VFitness coaches in PINK Beach Burn shirts in front of the VFitness tent'],
+  ['pbb26-3-leading','A VFitness coach with a microphone leading the group through a dumbbell and kettlebell circuit on the grass'],
+  ['pbb26-4-signs','Three participants in pink smiling and holding Courage and Strength signs by the beach'],
+  ['pbb26-5-circuit','Participants working through a dumbbell circuit between orange cones while a coach watches'],
+  ['pbb26-6-kettlebells','A line of participants doing kettlebell squats under the palm trees'],
+  ['pbb26-7-briefing','A coach in a Stronger Together shirt briefing a group before the next round'],
+  ['pbb26-8-tent','Participants in pink gathering at the VFitness Train Smart Train Elite tent before the start']
+ ]};
+function pbbSrc(i,sm){return '/vf26/'+PBB.photos[i][0]+(sm?'-sm':'')+'.webp';}
+function EventStoryCard(p){
+ return h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+  h(Reveal,{className:'vf26-evcard'},
+   h('button',{type:'button',className:'vf26-evcard-media',onClick:go(p.setCurrentPage,'pinkbeachburn'),'aria-label':'Read the PINK Beach Burn story'},
+    h('img',{src:pbbSrc(0,true),alt:PBB.photos[0][1],loading:'lazy',decoding:'async'})),
+   h('div',{className:'vf26-evcard-copy'},
+    h('p',{className:'vf26-kicker'},'From the community'),
+    h('h2',{className:'vf26-h2'},'Nassau showed up in pink.'),
+    h('p',{className:'vf26-lead'},"PINK Beach Burn filled Goodman's Bay on Saturday, October 31 for a free bootcamp for Breast Cancer Awareness Month. Here is how the morning went."),
+    h('div',{className:'vf26-evcard-thumbs','aria-hidden':'true'},[1,3,5].map(function(i){return h('img',{key:i,src:pbbSrc(i,true),alt:'',loading:'lazy',decoding:'async'});})),
+    h('button',{className:'vf26-btn vf26-btn-primary',onClick:go(p.setCurrentPage,'pinkbeachburn')},'Read the story and see the photos',icon('arrow',16,{className:'vf26-arrow'}))))));
+}
+function EventLightbox(p){
+ var i=p.index,n=PBB.photos.length,ref=React.useRef(null);
+ React.useEffect(function(){var o=document.body.style.overflow;document.body.style.overflow='hidden';var prev=document.activeElement;try{ref.current&&ref.current.focus();}catch(e){}
+  function k(e){if(e.key==='Escape')p.onClose();else if(e.key==='ArrowRight')p.onGo(1);else if(e.key==='ArrowLeft')p.onGo(-1);}
+  window.addEventListener('keydown',k);return function(){document.body.style.overflow=o;window.removeEventListener('keydown',k);try{prev&&prev.focus();}catch(e){}};},[]);
+ return h('div',{className:'vf26-evbox',role:'dialog','aria-modal':'true','aria-label':'Photo '+(i+1)+' of '+n,onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
+  h('button',{ref:ref,type:'button',className:'vf26-evbox-x',onClick:p.onClose,'aria-label':'Close photo'},icon('close',20)),
+  h('button',{type:'button',className:'vf26-evbox-nav prev',onClick:function(){p.onGo(-1);},'aria-label':'Previous photo'},icon('arrow',20)),
+  h('figure',null,h('img',{src:pbbSrc(i),alt:PBB.photos[i][1]}),h('figcaption',null,PBB.photos[i][1],h('span',null,(i+1)+' / '+n))),
+  h('button',{type:'button',className:'vf26-evbox-nav next',onClick:function(){p.onGo(1);},'aria-label':'Next photo'},icon('arrow',20)));
+}
+function VFEventStoryPage(props){
+ var setCurrentPage=props.setCurrentPage;useTop();
+ var st=React.useState(null),open=st[0],setOpen=st[1];var n=PBB.photos.length;
+ var FORMAT=['Warm up','Beach circuit','Team challenge','Core finisher','Cooldown'];
+ var WORDS=['Hope','Courage','Strength','Together','Fight'];
+ return h('main',{className:'vf26 vf26-page vf26-ev-page'},
+  h(PageHero,{eyebrow:'Community event · '+PBB.date,title:'PINK Beach Burn.',accent:'Move. Sweat. Support.',
+   lead:"On Saturday morning, October 31, the VFitness community filled Goodman's Bay in pink for a free beach bootcamp for Breast Cancer Awareness Month.",
+   actions:[h('a',{key:'ig',className:'vf26-btn vf26-btn-primary',href:'https://www.instagram.com/xvfitnessx/',target:'_blank',rel:'noopener'},icon('instagram',16),'Follow @xvfitnessx for the next one'),
+    h('button',{key:'s',className:'vf26-btn vf26-btn-outline',onClick:lead(setCurrentPage,{})},'Train with VFitness')],
+   media:h('button',{type:'button',className:'vf26-ev-hero',onClick:function(){setOpen(0);},'aria-label':'View the group photo full size'},h('img',{src:pbbSrc(0),alt:PBB.photos[0][1],fetchpriority:'high'}))}),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-ev-story'},
+   h(Reveal,{className:'vf26-ev-text'},
+    h('p',{className:'vf26-kicker'},'The morning'),
+    h('h2',{className:'vf26-h2'},'Stronger together.'),
+    h('p',null,'Every fitness level was welcome and it was free to all. Our coaches led the group through five rounds, at a pace everyone could keep, with dumbbells, kettlebells and plenty of encouragement.'),
+    h('ol',{className:'vf26-ev-format'},FORMAT.map(function(f,i){return h('li',{key:f},h('span',null,String(i+1).padStart(2,'0')),f);})),
+    h('p',null,'Between rounds, people held up the words that brought everyone out that morning.'),
+    h('div',{className:'vf26-ev-words'},WORDS.map(function(w){return h('span',{key:w},w);})),
+    h('p',null,"Thank you to everyone who came out in pink, to the VFitness coaches who ran every round, and to Empire Fitness for sponsoring the morning. Breast cancer touches so many families in The Bahamas. Mornings like this are how we show up for them."),
+    h('p',{className:'vf26-ev-place'},icon('pin',15),PBB.place,' · ',PBB.date)))),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+   h(SectionHead,{kicker:'Photos',title:'The morning in pictures.',lead:'Tap any photo to see it full size.'}),
+   h('ul',{className:'vf26-ev-grid'},PBB.photos.map(function(ph,i){return h('li',{key:ph[0],className:i===0?'wide':''},
+    h('button',{type:'button',onClick:function(){setOpen(i);},'aria-label':'View photo '+(i+1)+' of '+n+': '+ph[1]},
+     h('img',{src:pbbSrc(i,true),alt:ph[1],loading:'lazy',decoding:'async'})));})))),
+  h(FinalCTA,{setCurrentPage:setCurrentPage,kicker:'Join us next time',title:'Train with the VFitness community.',lead:'Follow @xvfitnessx for our next community event, or book a free consultation and start training with a VFitness coach.'}),
+  open!=null?h(EventLightbox,{index:open,onClose:function(){setOpen(null);},onGo:function(d){setOpen(function(v){return ((v+d)%n+n)%n;});}}):null);
+}
+window.VFEventStoryPage=VFEventStoryPage;
 
 /* ================= LOCATIONS ================= */
 function VFLocationsPage(props){return h(VFContactPage,props);}

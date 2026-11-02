@@ -27,6 +27,12 @@ once('function Footer(','function VFLegacyFooter(');
 const PAGE_NAMES=["PricingPage", "TrainersPage", "VFResultsPage", "VFLocationsPage", "VFContactPage", "AboutPage", "LoginPage", "SignupPage", "StartHereFlow", "ApplicationPage", "WorkoutProgramsPage", "ProgramLibraryPage", "LegalPage", "PremiumTrainingDirectionPage", "DashboardPage", "GlobalSearchPage"];
 for(const n of PAGE_NAMES)once('function '+n+'(','function VFLegacy'+n+'(');
 
+// 1b. Event story page (PINK Beach Burn 2026) gets its own page key and address.
+once("currentPage==='results'&&/*#__PURE__*/React.createElement(VFResultsPage,{setCurrentPage:setCurrentPage}),",
+  "currentPage==='pinkbeachburn'&&React.createElement(VFEventStoryPage,{setCurrentPage:setCurrentPage}),currentPage==='results'&&/*#__PURE__*/React.createElement(VFResultsPage,{setCurrentPage:setCurrentPage}),");
+once("'refund-policy':'refund'};return map[cand]","'refund-policy':'refund','pink-beach-burn':'pinkbeachburn',events:'pinkbeachburn'};return map[cand]");
+once("const vfT={home:","const vfT={pinkbeachburn:'PINK Beach Burn 2026 | VFitness Bahamas',home:");
+
 // 2. App palette: move legacy hard coded colours onto the VFIT app colours.
 const colorMap=[
   [/#3d7dff/gi,'#4296f0'],[/#6f5bff/gi,'#8869ec'],[/#2dd4bf/gi,'#5fddcc'],[/#5eead4/gi,'#7fe6d8'],
