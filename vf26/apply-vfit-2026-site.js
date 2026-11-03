@@ -247,6 +247,9 @@ function range(marker,from,until,to){
 once("{id:'appointments',label:'Appointments',icon:'calendar-check'}","{id:'appointments',label:'Appointments',icon:'calendar-check'},{id:'groups',label:'Groups',icon:'users'}");
 once("activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"","activeTab==='groups'&&React.createElement(window.VF26AdminGroups||'div',null),activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"");
 
+// 5e3. Results page story details: a "Story details" editor next to each gallery photo (component in vfit-2026.js).
+once('/*#__PURE__*/React.createElement("button",{onClick:()=>handleDeleteImage(image.id),','React.createElement(window.VF26StoryEditButton||"span",{image:image,onSaved:loadGallery}),/*#__PURE__*/React.createElement("button",{onClick:()=>handleDeleteImage(image.id),');
+
 // 5f. Image uploads: Firebase Storage for this project rejects the site origin (CORS), which left uploads spinning.
 //     Images now go to the VFitness file host first, with the old inline fallback kept.
 once("async function uploadImageToStorage(file,folder='gallery'){const compressedDataUrl=await compressImage(file);if(storage){",

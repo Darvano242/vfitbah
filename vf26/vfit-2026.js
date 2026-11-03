@@ -1569,6 +1569,121 @@ var STORIES=[
  {goal:'Muscle gain and fat loss',time:'12 weeks',prog:'Alpha Build',freq:'3x weekly strength split',method:['Chest and arms focus','Strength tracking','Fat loss support','Weekly accountability'],result:'Bigger chest and arms with a leaner stomach.',img:'/program-mass.jpg'},
  {goal:'Full lifestyle change',time:'16 weeks',prog:'Online Coaching',freq:'4x weekly from anywhere',method:['App based workout plan','Meal guidance','Weekly check ins','Trainer messaging'],result:'Consistent training and tracked progress without a trainer on site.',img:'/vf26/fuel-the-fire-v1.webp'}
 ];
+/* ================= THE VFITNESS JOURNEY (results page) =================
+   Story viewer for the published gallery (Firestore "gallery"). Shows only what each entry actually has:
+   the photo exactly as uploaded (never cropped, never altered), the service, and any story fields an admin
+   filled in (displayName, goal, approach, duration, frequency, quote; description is the documented progress).
+   Manual by default; optional Play pauses on interaction, off screen and in background tabs. */
+function vfjService(g){var t=((g.category||'')+' '+(g.title||'')+' '+(g.description||'')).toLowerCase();
+ if(/semi/.test(t))return {k:'semi',l:'Semi-private coaching',cta:'Explore semi-private coaching',id:'vf26-packages'};
+ if(/1\s*on\s*1|1on1|one on one|personal training/.test(t))return {k:'one',l:'1 on 1 coaching',cta:'Ask about 1 on 1 coaching',id:'inperson'};
+ if(/online|remote/.test(t))return {k:'online',l:'Online coaching',cta:'See online plans',id:'vf26-remote'};
+ if(/boot ?camp|program/.test(t))return {k:'program',l:'Training program',cta:'See online plans',id:'vf26-remote'};
+ return {k:'other',l:'VFITNESS coaching',cta:'Find my starting point',id:null};}
+function vfjGoal(g){var t=((g.goal||'')+' '+(g.description||'')+' '+(g.title||'')).toLowerCase();
+ if(/gain|muscle|bulk/.test(t))return 'gain';if(/loss|lbs down|lose|weight loss|leaner|slimmer/.test(t))return 'loss';return null;}
+function vfjClean(s){s=String(s||'').trim();if(!s)return '';if(s===s.toUpperCase()&&/[A-Z]{3}/.test(s))s=s.charAt(0)+s.slice(1).toLowerCase();return s;}
+function useResultStories(){
+ var st=React.useState(null),list=st[0],set=st[1];
+ React.useEffect(function(){try{db.collection('gallery').get().then(function(snap){
+  set(snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}).filter(function(x){return x.imageUrl&&x.status!=='draft'&&x.status!=='archived';})
+   .sort(function(a,b){var da=a.createdAt&&a.createdAt.toDate?a.createdAt.toDate():0,db_=b.createdAt&&b.createdAt.toDate?b.createdAt.toDate():0;return db_-da;}));
+ }).catch(function(){set([]);});}catch(e){set([]);}},[]);
+ return list;}
+function VFResultsJourney(props){
+ var setCurrentPage=props.setCurrentPage,all=useResultStories();
+ var fs=React.useState('all'),filter=fs[0],setFilter=fs[1];
+ var is=React.useState(0),idx=is[0],setIdx=is[1];
+ var ps=React.useState(false),playing=ps[0],setPlaying=ps[1];
+ var ts=React.useState(0),tick=ts[0],setTick=ts[1];/* bumps on every change to replay the entrance */
+ var os=React.useState(false),full=os[0],setFull=os[1];
+ var root=React.useRef(null),strip=React.useRef(null),frame=React.useRef(null),vis=React.useRef(true),touch=React.useRef(null);
+ var items=(all||[]).map(function(g,i){return Object.assign({},g,{n:i,svc:vfjService(g),goalK:vfjGoal(g)});});
+ var FILTERS=[['all','All'],['semi','Semi-private'],['one','1 on 1'],['online','Online'],['program','Programs'],['gain','Muscle gain'],['loss','Fat loss']].filter(function(f){
+  return f[0]==='all'||items.some(function(x){return x.svc.k===f[0]||x.goalK===f[0];});});
+ var list=items.filter(function(x){return filter==='all'||x.svc.k===filter||x.goalK===filter;});
+ var n=list.length,i=n?((idx%n)+n)%n:0,cur=list[i];
+ function goTo(k,user){if(!n)return;if(user)setPlaying(false);setIdx(((k%n)+n)%n);setTick(function(t){return t+1;});}
+ React.useEffect(function(){if(!cur)return;var nx=list[(i+1)%n];if(nx){var im=new Image();im.src=nx.imageUrl;}
+  var el=strip.current&&strip.current.querySelector('[aria-current="true"]');if(el){try{el.scrollIntoView({block:'nearest',inline:'center',behavior:reduceMotion?'auto':'smooth'});}catch(e){}}},[i,filter,n]);
+ React.useEffect(function(){if(!playing||!n)return;var t=setTimeout(function(){if(vis.current&&!document.hidden)goTo(i+1);},9000);return function(){clearTimeout(t);};},[playing,i,n,tick]);
+ React.useEffect(function(){var el=root.current;if(!el||typeof IntersectionObserver==='undefined')return;var io=new IntersectionObserver(function(en){vis.current=en[0].isIntersecting;if(!vis.current)setPlaying(false);},{threshold:.2});io.observe(el);
+  function hid(){if(document.hidden)setPlaying(false);}document.addEventListener('visibilitychange',hid);return function(){io.disconnect();document.removeEventListener('visibilitychange',hid);};},[!!all]);
+ function onKey(e){if(e.target&&/input|textarea|select/i.test(e.target.tagName))return;if(e.key==='ArrowRight'){e.preventDefault();goTo(i+1,true);}else if(e.key==='ArrowLeft'){e.preventDefault();goTo(i-1,true);}}
+ function tilt(e){if(reduceMotion||coarse)return;var f=frame.current;if(!f)return;var r=f.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+  f.style.setProperty('--mx',(x*100).toFixed(1)+'%');f.style.setProperty('--my',(y*100).toFixed(1)+'%');f.style.setProperty('--rx',((.5-y)*3).toFixed(2)+'deg');f.style.setProperty('--ry',((x-.5)*3).toFixed(2)+'deg');}
+ function untilt(){var f=frame.current;if(!f)return;f.style.setProperty('--rx','0deg');f.style.setProperty('--ry','0deg');}
+ if(all===null)return h('div',{className:'vfj vfj-loading',role:'status'},h('p',null,'Loading client results...'));
+ if(!items.length)return null;
+ var pad=function(v){return (v<10?'0':'')+v;};
+ var label=function(x){var t=vfjClean(x.title);if(t&&/before|after|training|trainer|coaching|client|program|results?$/i.test(t))t='';return vfjClean(x.displayName)||t||('Client story '+pad(x.n+1));};
+ var chapters=cur?[['The goal',vfjClean(cur.goal)],['The approach',vfjClean(cur.approach)],['The progress',vfjClean(cur.description)]].filter(function(c){return c[1];}):[];
+ var facts=cur?[['Training period',vfjClean(cur.duration)],['Sessions per week',vfjClean(cur.frequency)]].filter(function(c){return c[1];}):[];
+ var cta=cur&&cur.svc.id?function(){go(setCurrentPage,'pricing')();var id=cur.svc.id;setTimeout(scrollToId(id),400);}:lead(setCurrentPage,{});
+ return h('div',{ref:root,className:'vfj',role:'region','aria-roledescription':'carousel','aria-label':'Client stories',onKeyDown:onKey},
+  FILTERS.length>2?h('div',{className:'vfj-filters',role:'group','aria-label':'Filter client stories'},FILTERS.map(function(f){return h('button',{key:f[0],type:'button',className:'vf26-chip vfj-filter','aria-pressed':filter===f[0]?'true':'false',
+   onClick:function(){setFilter(f[0]);setIdx(0);setPlaying(false);setTick(function(t){return t+1;});}},f[1]);})):null,
+  cur?h('div',{className:'vfj-main'},
+   h('div',{className:'vfj-stage',onTouchStart:function(e){touch.current=e.touches[0].clientX;},onTouchEnd:function(e){if(touch.current==null)return;var d=touch.current-e.changedTouches[0].clientX;if(Math.abs(d)>50)goTo(d>0?i+1:i-1,true);touch.current=null;}},
+    h('div',{className:'vfj-deck','aria-hidden':'true'},h('span',null),h('span',null)),
+    h('div',{ref:frame,className:'vfj-frame',onPointerMove:tilt,onPointerLeave:untilt},
+     h('img',{key:cur.id+'-'+tick,src:cur.imageUrl,alt:'Client transformation '+(i+1)+' of '+n+': '+cur.svc.l+(vfjClean(cur.description)?'. '+vfjClean(cur.description):''),className:'vfj-img',decoding:'async'}),
+     h('span',{className:'vfj-badge'},icon('camera',13),'Real client, shared with consent'),
+     h('button',{type:'button',className:'vfj-open',onClick:function(){setPlaying(false);setFull(true);},'aria-haspopup':'dialog'},icon('expand',14),'Open full image'))),
+   h('div',{className:'vfj-story',key:'s'+cur.id+'-'+tick,'aria-live':playing?'off':'polite'},
+    h('p',{className:'vfj-count vf26-tabular'},pad(i+1)+' / '+pad(n)),
+    h('p',{className:'vfj-svc'},cur.svc.l),
+    h('h3',{className:'vfj-h'},label(cur)),
+    chapters.length?h('dl',{className:'vfj-ch'},chapters.map(function(c,k){return h('div',{key:c[0],style:{'--k':k}},h('dt',null,c[0]),h('dd',null,c[1]));})):
+     h('p',{className:'vfj-none'},'Photo shared with the client’s consent. Ask us about the program behind this result.'),
+    facts.length?h('div',{className:'vfj-facts'},facts.map(function(f,k){return h('div',{key:f[0],style:{'--k':k+chapters.length}},h('span',null,f[0]),h('b',null,f[1]));})):null,
+    vfjClean(cur.quote)?h('blockquote',{className:'vfj-quote'},'“'+vfjClean(cur.quote)+'”'):null,
+    h('button',{type:'button',className:'vf26-btn vf26-btn-primary vfj-cta',onClick:cta},cur.svc.cta,icon('arrow',16,{className:'vf26-arrow'})),
+    h('div',{className:'vfj-nav'},
+     h('button',{type:'button',className:'vf26-round',onClick:function(){goTo(i-1,true);},'aria-label':'Previous story'},icon('left',18)),
+     h('button',{type:'button',className:'vf26-round',onClick:function(){goTo(i+1,true);},'aria-label':'Next story'},icon('right',18)),
+     reduceMotion||n<2?null:h('button',{type:'button',className:'vfj-play','aria-pressed':playing?'true':'false',onClick:function(){setPlaying(!playing);}},playing?'Pause':'Play')))):null,
+  h('div',{ref:strip,className:'vfj-strip',role:'list','aria-label':'All client stories'},list.map(function(x,k){return h('div',{key:x.id,role:'listitem'},
+   h('button',{type:'button',className:'vfj-thumb','aria-current':k===i?'true':'false','aria-label':'Story '+(k+1)+' of '+n+': '+x.svc.l,onClick:function(){goTo(k,true);}},
+    h('img',{src:x.imageUrl,alt:'',loading:'lazy',decoding:'async'}),h('span',{className:'t'},h('b',null,label(x)),h('small',null,x.svc.l))));})),
+  full&&cur?h(VFJFull,{item:cur,onClose:function(){setFull(false);}}):null,
+  h('p',{className:'vf26-note'},'Results vary with consistency, nutrition and individual differences. Details are shown only where the client’s records support them.'));
+}
+function VFJFull(p){var ref=React.useRef(null);useDialog(true,p.onClose,ref);
+ return h('div',{className:'vfh-dlg-back',onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
+  h('div',{ref:ref,className:'vfj-full',role:'dialog','aria-modal':'true','aria-label':'Full image: '+p.item.svc.l},
+   h('button',{type:'button',className:'vfh-dlg-x',onClick:p.onClose,'aria-label':'Close'},icon('close',20)),
+   h('img',{src:p.item.imageUrl,alt:'Client transformation, full image'})));}
+window.VFResultsJourney=VFResultsJourney;
+
+/* Admin: story details for a gallery result (shown on the results page journey). Only fill what the client's
+   records and consent support; empty fields are simply not shown. */
+var VFJ_FIELDS=[['displayName','Client display name or approved label','e.g. Kayla, or leave empty for "Client story"'],['goal','The goal','What the client wanted, in their words'],
+ ['approach','The approach','Service, training frequency and coaching approach'],['description','The progress','Documented outcome'],['duration','Training period','e.g. 12 weeks'],
+ ['frequency','Sessions per week','e.g. 3'],['quote','Client statement (approved)','Their own words, with permission']];
+function VF26StoryEditButton(p){var os=React.useState(false),open=os[0],setOpen=os[1];
+ return h(React.Fragment,null,h('button',{type:'button',className:'vfj-edit-btn',onClick:function(){setOpen(true);}},'Story details'),
+  open?h(VFJStoryEditor,{image:p.image,onClose:function(){setOpen(false);},onSaved:p.onSaved}):null);}
+function VFJStoryEditor(p){var ref=React.useRef(null);useDialog(true,p.onClose,ref);var im=p.image||{};
+ var init={category:im.category||''};VFJ_FIELDS.forEach(function(f){init[f[0]]=im[f[0]]||'';});
+ var vs=React.useState(init),v=vs[0],setV=vs[1];var ss=React.useState(''),msg=ss[0],setMsg=ss[1];var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ function set(k,x){setV(function(o){var n=Object.assign({},o);n[k]=x;return n;});}
+ function save(e){e.preventDefault();setBusy(true);setMsg('');var up={};Object.keys(v).forEach(function(k){up[k]=String(v[k]||'').trim().slice(0,600);});
+  db.collection('gallery').doc(im.id).update(up).then(function(){setMsg('Saved.');p.onSaved&&p.onSaved();setTimeout(p.onClose,500);}).catch(function(err){setMsg('Could not save: '+(err.message||err));}).then(function(){setBusy(false);});}
+ return h('div',{className:'vfh-dlg-back',onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
+  h('form',{ref:ref,className:'vfh-dlg vfj-ed',role:'dialog','aria-modal':'true','aria-label':'Story details',onSubmit:save},
+   h('button',{type:'button',className:'vfh-dlg-x',onClick:p.onClose,'aria-label':'Close'},icon('close',20)),
+   h('div',{className:'vfh-dlg-body'},
+    h('h2',{className:'vfh-dlg-h'},'Story details'),
+    h('p',null,'Shown on the Results page. Only enter what the client’s records and consent support. Empty fields are not shown.'),
+    h('label',{className:'vf26-adm-field'},h('span',null,'Service'),h('select',{value:v.category,onChange:function(e){set('category',e.target.value);}},
+     [['','Work it out from the title'],['semi private','Semi-private coaching'],['1 on 1','1 on 1 coaching'],['online','Online coaching'],['program','Training program']].map(function(o){return h('option',{key:o[0],value:o[0]},o[1]);}))),
+    VFJ_FIELDS.map(function(f){var long=/goal|approach|description|quote/.test(f[0]);return h('label',{key:f[0],className:'vf26-adm-field'},h('span',null,f[1]),
+     h(long?'textarea':'input',{value:v[f[0]],rows:long?2:undefined,maxLength:600,placeholder:f[2],onChange:function(e){set(f[0],e.target.value);}}));}),
+    h('p',{className:'vf26-adm-msg'+(/Could not/.test(msg)?' bad':''),role:'status'},msg),
+    h('div',{className:'vfh-dlg-acts'},h('button',{type:'submit',className:'vf26-btn vf26-btn-primary',disabled:busy},busy?'Saving...':'Save story'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:p.onClose},'Cancel')))));}
+window.VF26StoryEditButton=VF26StoryEditButton;
+
 function VFResultsPage(props){
  var setCurrentPage=props.setCurrentPage;useTop();
  var hasShowcase=typeof TransformationShowcase==='function';
@@ -1576,9 +1691,9 @@ function VFResultsPage(props){
   h(PageHero,{eyebrow:'Client results',title:'Real methods.',accent:'Tracked results.',lead:'Every VFitness transformation follows a documented method: structured training, nutrition support, weekly check ins and progress tracking. This is how results get built.',
    chips:[['users','2,000+ clients served'],['camera','Shared with consent'],['trend','Tracked week to week']],aside:h(ProgressWidget,null),
    actions:[h('button',{key:'a',className:'vf26-btn vf26-btn-primary',onClick:lead(setCurrentPage,{})},'Start yours',icon('arrow',16,{className:'vf26-arrow'})),h('button',{key:'b',className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,'pricing')},'See pricing')]}),
-  hasShowcase?h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{kicker:'Before and after',title:'Transformations from real clients.'}),
-   h(Reveal,{className:'vf26-showcase'},h(TransformationShowcase,null)))):null,
+  h('section',{className:'vf26-section tight',id:'journey'},h('div',{className:'vf26-wrap'},
+   h(SectionHead,{kicker:'The VFITNESS journey',title:'Real clients. Their progress.',lead:'Every photo is an original, shared with the client\u2019s consent. Pick a story, use the arrows or swipe.'}),
+   h(VFResultsJourney,{setCurrentPage:setCurrentPage}))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{kicker:'Program examples',title:'How our programs are structured.',lead:'These describe how each program is built. They are examples, not individual client results. Real client photos are shown above.'}),
    h('div',{className:'vf26-story-grid'},STORIES.map(function(s,i){return h(Reveal,{key:s.prog,className:'vf26-story',delay:(i%2)*90},
