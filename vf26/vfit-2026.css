@@ -1902,3 +1902,24 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 .vfj-edit-btn{width:100%;min-height:40px;margin-bottom:8px;border-radius:.6rem;border:1px solid rgba(66,150,240,.4);background:rgba(66,150,240,.12);color:#8EC9FF;font-weight:600;font-size:14px;cursor:pointer;}
 .vfj-ed{max-width:640px;}
 .vfj-ed .vf26-adm-field{margin-top:10px;}
+.vfh-chap-cap{margin:10px 0 0;min-height:1.5em;font-size:16px;font-weight:700;color:var(--vfx-sand-ink);}
+.vfh-chap-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.vfh-chap .vfh-cine-media{background:#131516;}
+/* Semi-private card on the same surface as the treadmill card */
+.vfh-panel.vfh-semi-dark{background:var(--vf-card);border:1px solid var(--vf-border);color:var(--vf-text) !important;box-shadow:none;}
+.vfh-semi-dark .vfh-label,.vfh-semi-dark .sg2-scen-h{color:var(--vfx-blue-soft);}
+[data-vf-theme="light"] .vfh-semi-dark .vfh-label,[data-vf-theme="light"] .vfh-semi-dark .sg2-scen-h{color:var(--vf-primary);}
+.vfh-semi-dark .vfh-h,.vfh-semi-dark .vfh-price .amt,.vfh-semi-dark .sg2-cap,.vfh-semi-dark .vfh-chap-cap{color:var(--vf-text);}
+.vfh-semi-dark .vfh-semi-p,.vfh-semi-dark .vfh-price .per,.vfh-semi-dark .vfh-price .join,.vfh-semi-dark .vfh-price .gym,.vfh-semi-dark .sg2-tip{color:var(--vf-dim);}
+.vfh-semi-dark .vfh-price .per,.vfh-semi-dark .vfh-price .join{font-weight:600;}
+.vfh-semi-dark .vfh-semi-more{color:var(--vf-text);}
+.vfh-semi-dark .vfh-semi-more:focus-visible{outline-color:var(--vfx-blue-soft);}
+.vfh-semi-dark .sg2-chip{background:transparent;border-color:var(--vf-border);color:var(--vf-text);}
+.vfh-semi-dark .sg2-chip:hover{border-color:color-mix(in srgb,var(--vf-primary) 60%,var(--vf-border));}
+.vfh-semi-dark .sg2-chip[aria-pressed="true"]{background:var(--vf-primary);border-color:var(--vf-primary);color:#0b0d10;}
+[data-vf-theme="light"] .vfh-semi-dark .sg2-chip[aria-pressed="true"]{color:#fff;}
+.vfh-semi-dark .sg2-chip:focus-visible{outline-color:var(--vfx-blue-soft);}
+.vfh-semi-dark .sg2-art svg [id$="-root"]{filter:drop-shadow(0 0 .8px rgba(242,241,236,.35));}
+[data-vf-theme="light"] .vfh-semi-dark .sg2-art svg [id$="-root"]{filter:none;}
+.vfh-semi-dark .sg-replay{color:var(--vf-dim);}
+.vfh-semi-sec{margin-top:-28px;}

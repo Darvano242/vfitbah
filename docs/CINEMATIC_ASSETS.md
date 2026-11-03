@@ -5,6 +5,7 @@ entry in `VF_CINEMATIC` (top of the CINEMATIC LOOPS section in `vf26/vfit-2026.j
 
 | Slot | Where it shows | Replaces |
 |---|---|---|
+| `semi` | Homepage, semi-private card (right side) | the drawn coaching scene and scenario buttons |
 | `coach` | Homepage, "How coaching works" card | the drawn treadmill scene |
 | `strength` | Homepage, new card after it | nothing (new) |
 
@@ -35,3 +36,31 @@ burned into the frames.
 Poster loads first; the tile video loads and plays muted and inline only when the card is on screen; it pauses
 off screen, in a background tab, or when the visitor presses pause. Reduced motion shows the poster only.
 The full-size file is fetched only when the dialog opens.
+
+## Semi-private card: chaptered scene (`semi`)
+
+One coach, four clients, charcoal background (#131516) matching the treadmill card, VFITNESS blue accents.
+20 to 24 s loop, wide view at start and end, camera moves in for each chapter.
+
+| # | key | Button label | Caption (page text, below the video) | Action |
+|---|---|---|---|---|
+| 1 | demo | Demonstration | Know what to do. | Coach demonstrates a controlled squat; client 1 follows while the coach watches. |
+| 2 | weight | Weight selection | The right challenge for you. | Coach hands client 2 a dumbbell; hands meet the handle, client takes the weight, coach releases. |
+| 3 | form | Form coaching | Guidance through every rep. | Client 3 performs a dumbbell exercise; coach gives a visual cue; the next rep is adjusted. |
+| 4 | progress | Progress review | A starting point. A plan forward. | Coach watches client 4, checks a tablet, discusses the next step. |
+| end | | | One coach. Up to four clients. Individual guidance. | Wide view, everyone training, coach attentive; returns to the opening frame. |
+
+Files: `semi-full.mp4` (whole loop, 1280 x 720, no audio, under 6 MB), `semi-poster.webp`, and one clip per chapter
+`semi-demo.mp4`, `semi-weight.mp4`, `semi-form.mp4`, `semi-progress.mp4` (4 to 6 s each, looping, under 2 MB),
+each with an optional `-poster.webp`. Supply each chapter's start time in seconds within the full loop.
+
+Entry to paste into `VF_CINEMATIC`:
+
+    semi:{full:'/vf26/cinematic/semi-full.mp4',poster:'/vf26/cinematic/semi-poster.webp',
+     alt:'One VFITNESS coach guiding four clients in a semi-private session',
+     chapters:[{key:'demo',label:'Demonstration',caption:'Know what to do.',start:2,src:'/vf26/cinematic/semi-demo.mp4'},
+      {key:'weight',label:'Weight selection',caption:'The right challenge for you.',start:7,src:'/vf26/cinematic/semi-weight.mp4'},
+      {key:'form',label:'Form coaching',caption:'Guidance through every rep.',start:12,src:'/vf26/cinematic/semi-form.mp4'},
+      {key:'progress',label:'Progress review',caption:'A starting point. A plan forward.',start:17,src:'/vf26/cinematic/semi-progress.mp4'}]}
+
+Approval steps for this scene: character design, then a rough animated storyboard, then the final render.

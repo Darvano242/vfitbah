@@ -851,6 +851,7 @@ function makeCoachScene(root){
    coach    replaces the drawn coach scene on the homepage
    strength adds a second scene card after it */
 var VF_CINEMATIC={
+ semi:null,      /* semi-private card: {full,poster,alt,chapters:[{key,label,caption,start,src,poster}]} (docs/CINEMATIC_ASSETS.md) */
  coach:null,     /* {tile:'/vf26/cinematic/coach-tile.mp4',full:'/vf26/cinematic/coach-full.mp4',poster:'/vf26/cinematic/coach-poster.webp',alt:'...'} */
  strength:null
 };
@@ -874,6 +875,34 @@ function CinematicLoop(p){
   reduceMotion?null:h('button',{type:'button',className:'vfh-scene-pause',onClick:toggle,'aria-pressed':paused?'true':'false','aria-label':paused?'Play the animation':'Pause the animation'},h('span',{'aria-hidden':'true'},paused?'▶':'❚❚')),
   a.full?h('button',{type:'button',className:'vfh-cine-expand',onClick:function(){setOpen(true);},'aria-haspopup':'dialog'},icon('expand',15),'Watch full size'):null,
   open?h(CineDialog,{asset:a,onClose:function(){setOpen(false);}}):null);
+}
+/* Chaptered rendered video (semi-private card). The full loop plays muted while visible; captions follow the
+   chapter start times. Chapter buttons switch to that chapter's own clip; Full sequence returns to the loop.
+   Captions are page text below the video, never on top of it. */
+function CinematicChapters(p){
+ var a=p.asset,ch=a.chapters||[],ref=React.useRef(null),vis=React.useRef(false),userPaused=React.useRef(false);
+ var cs=React.useState(-1),pick=cs[0],setPick=cs[1];var ls=React.useState(0),live=ls[0],setLive=ls[1];var ps=React.useState(false),paused=ps[0],setPaused=ps[1];
+ var ld=React.useState(false),loaded=ld[0],setLoaded=ld[1];
+ var src=pick>=0&&ch[pick].src?ch[pick].src:a.full,poster=pick>=0&&ch[pick].poster?ch[pick].poster:a.poster;
+ function sync(){var v=ref.current;if(!v||reduceMotion)return;if(vis.current&&!loaded)setLoaded(true);
+  if(vis.current&&!userPaused.current&&!document.hidden){var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}else{try{v.pause();}catch(e){}}}
+ React.useEffect(function(){var v=ref.current;if(!v)return;var io=null;
+  if(typeof IntersectionObserver!=='undefined'){io=new IntersectionObserver(function(en){vis.current=en[0].isIntersecting;sync();},{threshold:.3});io.observe(v);}else{vis.current=true;sync();}
+  document.addEventListener('visibilitychange',sync);return function(){io&&io.disconnect();document.removeEventListener('visibilitychange',sync);};},[]);
+ React.useEffect(sync,[loaded,src]);
+ function onTime(){if(pick>=0)return;var v=ref.current;if(!v)return;var t=v.currentTime,k=-1;ch.forEach(function(c,i){if(c.start!=null&&t>=c.start)k=i;});setLive(k);}
+ function choose(i){setPick(i);setLive(i);if(i>=0&&!ch[i].src){var v=ref.current;if(v&&ch[i].start!=null){try{v.currentTime=ch[i].start;}catch(e){}}}}
+ function toggle(){userPaused.current=!userPaused.current;setPaused(userPaused.current);sync();}
+ var cap=live>=0&&ch[live]?ch[live].caption:(a.caption||'One coach. Up to four clients. Individual guidance.');
+ return h('div',{className:'vfh-chap'},
+  h('figure',{className:'vfh-cine'},
+   reduceMotion?h('img',{src:poster,alt:a.alt||'',width:1280,height:720,className:'vfh-cine-media'}):
+   h('video',{ref:ref,key:src,className:'vfh-cine-media',poster:poster,src:loaded?src:undefined,muted:true,loop:true,playsInline:true,preload:'none',width:1280,height:720,'aria-label':a.alt||undefined,onTimeUpdate:onTime,onLoadedData:sync}),
+   reduceMotion?null:h('button',{type:'button',className:'vfh-scene-pause',onClick:toggle,'aria-pressed':paused?'true':'false','aria-label':paused?'Play the animation':'Pause the animation'},h('span',{'aria-hidden':'true'},paused?'▶':'❚❚'))),
+  h('p',{className:'vfh-chap-cap','aria-live':'polite'},cap),
+  ch.length?h('div',{className:'vfh-chap-btns',role:'group','aria-label':'Watch a coaching moment'},
+   [h('button',{key:'all',type:'button',className:'sg2-chip','aria-pressed':pick<0?'true':'false',onClick:function(){choose(-1);}},'Full sequence')].concat(ch.map(function(c,i){
+    return h('button',{key:c.key,type:'button',className:'sg2-chip','aria-pressed':pick===i?'true':'false',onClick:function(){choose(i);}},c.label);}))):null);
 }
 function CineDialog(p){var ref=React.useRef(null);useDialog(true,p.onClose,ref);var a=p.asset;
  return h('div',{className:'vfh-dlg-back',onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
@@ -908,7 +937,7 @@ var SG2_VB='0 0 600 300';
 var SG2_DUMB='<g transform="translate(0,7) rotate(90)"><rect x="-11" y="-2.2" width="22" height="4.4" rx="2" fill="#5b636e"/><rect x="-14" y="-6" width="5" height="12" rx="1.6" fill="#2b3037"/><rect x="9" y="-6" width="5" height="12" rx="1.6" fill="#2b3037"/></g>';
 function sg2Defs(list){var s='<defs>';list.forEach(function(d){Object.keys(d.pal).forEach(function(k){var c=d.pal[k],rev=d.rev;
   s+='<linearGradient id="cs-'+d.k+k+'" x1="'+(rev?1:0)+'" y1="0" x2="'+(rev?0:1)+'" y2="0"><stop offset="0" stop-color="'+c[0]+'"/><stop offset=".55" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[1]+'" stop-opacity=".92"/></linearGradient>';});});
- s+='<radialGradient id="sg2-sh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#243E33" stop-opacity=".38"/><stop offset="1" stop-color="#243E33" stop-opacity="0"/></radialGradient>';
+ s+='<radialGradient id="sg2-sh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>';
  s+='<radialGradient id="sg2-floor" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#e6dcc6"/><stop offset="1" stop-color="#e6dcc6" stop-opacity="0"/></radialGradient>';
  return s+'</defs>';}
 var SG2_BODY={
@@ -946,14 +975,13 @@ var SG2_CAST=[
    torsoExtra:'<path d="M0 -55 L5 -46 L10 -55" stroke="#4296f0" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'}}];
 function sg2SVG(){var defs=SG2_CAST.map(function(c){return {k:c.id,pal:c.pal,rev:c.dir<0};});
  var s='<svg viewBox="'+SG2_VB+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+sg2Defs(defs);
- s+='<ellipse cx="300" cy="252" rx="290" ry="44" fill="url(#sg2-floor)"/>';
  /* draw back to front by floor y */
  SG2_CAST.slice().sort(function(a,b){return a.y-b.y;}).forEach(function(c){
-  s+='<ellipse class="sg2-ring" id="'+c.id+'-ring" cx="'+c.x+'" cy="'+(c.y+1)+'" rx="'+(46*c.s)+'" ry="'+(9*c.s)+'" fill="none" stroke="#4296f0" stroke-width="2" opacity="'+(c.coach?'.9':'0')+'"/>';
+  s+='<ellipse class="sg2-ring" id="'+c.id+'-ring" cx="'+c.x+'" cy="'+(c.y+1)+'" rx="'+(46*c.s)+'" ry="'+(9*c.s)+'" fill="none" stroke="#4296f0" stroke-width="1.6" opacity="'+(c.coach?'.7':'0')+'"/>';
   s+='<ellipse cx="'+c.x+'" cy="'+(c.y+1)+'" rx="'+(34*c.s)+'" ry="'+(6*c.s)+'" fill="url(#sg2-sh)"/>';
   var hipY=-(SG2_BODY[c.body].L1+SG2_BODY[c.body].L2+11)+2;
   s+='<g id="'+c.id+'-root" transform="translate('+c.x+','+c.y+') scale('+(c.s*c.dir)+','+c.s+') translate(0,'+hipY+')">'+sg2Person(c.id,c.body,c.look)+'</g>';});
- s+='<g id="sg2-tag" opacity="0"><rect id="sg2-tagbg" x="0" y="0" width="10" height="24" rx="12" fill="#243E33"/><text id="sg2-tagt" x="0" y="16" text-anchor="middle" font-size="12.5" font-weight="600" fill="#F0EADC" font-family="Geist,system-ui,sans-serif"></text></g>';
+ s+='<g id="sg2-tag" opacity="0"><rect id="sg2-tagbg" x="0" y="0" width="10" height="24" rx="12" fill="#24282d" stroke="#4296f0" stroke-opacity=".7" stroke-width="1"/><text id="sg2-tagt" x="0" y="16" text-anchor="middle" font-size="12.5" font-weight="600" fill="#F2F1EC" font-family="Geist,system-ui,sans-serif"></text></g>';
  return s+'</svg>';}
 function sg2Rot(el,a,x,y){if(el)el.setAttribute('transform',(x!=null?'translate('+x.toFixed(2)+','+y.toFixed(2)+') ':'')+'rotate('+a.toFixed(2)+')');}
 /* apply a pose: angles in degrees; hip {x,y} offset; legs by ankle targets (IK) or angles */
@@ -980,7 +1008,7 @@ function SemiGroupScene(){
   sg2Pose(art,C[4],gest);
   var coach=art.querySelector('#sc-root');var dirToward=SG2_CAST[sel].x<300?-1:1;
   coach.setAttribute('transform','translate(300,244) scale('+(.9*dirToward)+',.9) translate(0,'+(-(SG2_BODY.m.L1+SG2_BODY.m.L2+11)+2)+')');
-  C.forEach(function(c,i){var r=art.querySelector('#'+c.id+'-ring');if(r&&!c.coach)r.setAttribute('opacity',i===sel?'.95':'0');});
+  C.forEach(function(c,i){var r=art.querySelector('#'+c.id+'-ring');if(r&&!c.coach)r.setAttribute('opacity',i===sel?'.85':'0');});
   var tag=art.querySelector('#sg2-tag'),t=art.querySelector('#sg2-tagt'),bg=art.querySelector('#sg2-tagbg');
   var txt=sel===1?'Technique adjusted to you.':sel===2?'Progress at your level.':sel===0?'Starting point set for you.':'Challenge increased for you.';
   t.textContent=txt;var cs=SG2_CAST[sel],w=txt.length*6.9+26,cx=cs.x+(cs.x<300?-34:34),ty=Math.max(4,cs.y-cs.s*(SG2_BODY[cs.body].L1+SG2_BODY[cs.body].L2+cs.body.length*0+120)-(sel===1?-6:30));
@@ -1082,15 +1110,15 @@ function HomePage(props){
   h('div',{className:'vfh-scene-copy'},h('p',{className:'vfh-label'},'Strength coaching'),h('h2',{id:'vfh-str-h',className:'vfh-sec-h'},'Technique first, then load.'),
    h('p',null,'Your coach watches every rep and gives one clear cue at a time, so you lift with control and add weight safely.'))):null;
  var semiSec=h('section',{className:'vfh-semi-sec','aria-label':'Semi-private coaching'},
-   h('div',{className:'vfh-panel vfh-semi tone-sand vfh-card vf26-reveal'},h('div',{className:'vfh-copy'},
+   h('div',{className:'vfh-panel vfh-semi vfh-semi-dark vfh-card vf26-reveal'},h('div',{className:'vfh-copy'},
     h('div',{className:'vfh-semi-text'},h('p',{className:'vfh-label'},'Semi-private coaching'),
     h('h2',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
     h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.')),
-    h(SemiGroupScene,null),
+    VF_CINEMATIC.semi?h('div',{className:'sg2'},h(CinematicChapters,{asset:VF_CINEMATIC.semi})):h(SemiGroupScene,null),
     h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
      h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
     h('div',{className:'vfh-semi-acts'},
-     h('button',{type:'button',className:'vf26-btn vfh-btn-ink',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
+     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))));
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
