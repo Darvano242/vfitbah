@@ -1763,7 +1763,7 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 /* Coach scene (homepage) */
 .vfh-scene{display:grid;gap:20px;align-items:center;padding:20px;border:1px solid var(--vf-border);border-radius:var(--vfx-radius-l);background:var(--vf-card);}
 .vfh-scene-fig{position:relative;margin:0;}
-.vfh-scene-art{aspect-ratio:584/304;width:100%;color:var(--vf-text);}
+.vfh-scene-art{aspect-ratio:600/330;width:100%;color:var(--vf-text);}
 .vfh-scene-art svg{display:block;width:100%;height:100%;}
 .vfh-scene-pause{position:absolute;right:0;top:0;width:44px;height:44px;border-radius:999px;border:1px solid var(--vf-border);background:var(--vf-surface-2);color:var(--vf-text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
 .vfh-scene-pause:focus-visible{outline:3px solid var(--vfx-blue-soft);outline-offset:2px;}

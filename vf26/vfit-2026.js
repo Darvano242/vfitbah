@@ -661,113 +661,190 @@ function PromoSlider(){
    h('button',{type:'button','aria-label':'Close',onClick:function(){setBox(null);}},icon('close',20))):null));
 }
 
-/* ================= COACH SCENE (homepage) =================
-   Original vector scene: a VFITNESS coach guiding a client on a treadmill. 12 second loop:
-   walk, coach checks posture, jog, coach nods and gives a thumbs up, back to a walk.
-   The SVG is drawn in its resting pose first (that is the static illustration), then animated with
-   requestAnimationFrame only while visible and the tab is active. Reduced motion keeps the static pose.
-   window.vfCoachScene.point() makes the coach gesture (used when the consultation button is hovered or focused). */
-var CS_W=584,CS_H=304;
-function csLimb(id,len,w,col,child){return '<g id="'+id+'"><line x1="0" y1="0" x2="0" y2="'+len+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>'+(child||'')+'</g>';}
+/* ================= COACH SCENE v2 (homepage) =================
+   Original 2.5D vector scene: a VFITNESS coach watching a client walk on a treadmill.
+   Characters are rigged from shaped, shaded segments (tapered limbs with muscle contours, hands, sneakers,
+   profile faces). The client's feet follow a real walking cycle solved with two-bone IK: heel contact,
+   weight transfer, push-off over the toe and swing recovery, with the stance foot moving at belt speed so
+   nothing slides. Light comes from the upper left for every object. 12 second loop: brisk walk throughout,
+   coach breathes and shifts weight, gives a small coaching gesture, later a nod.
+   Static pose = the still illustration (also used for reduced motion). Editable source: docs/coach-scene/. */
+var CS_VB='40 60 600 330';
+function csSeg(id,len,wt,wb,fill,o){o=o||{};var bf=o.bf||0,bb=o.bb||0,r1=wt/2,r2=wb/2;
+ var d='M'+(-r1)+' 0 C'+(-r1-bb)+' '+(len*.38)+' '+(-r2-bb*.5)+' '+(len*.72)+' '+(-r2)+' '+len+
+  ' A'+r2+' '+r2+' 0 0 0 '+r2+' '+len+' C'+(r2+bf*.5)+' '+(len*.72)+' '+(r1+bf)+' '+(len*.38)+' '+r1+' 0 A'+r1+' '+(r1*.85)+' 0 0 0 '+(-r1)+' 0Z';
+ return '<g id="'+id+'"><path d="'+d+'" fill="'+fill+'"/>'+(o.extra||'')+(o.child||'')+'</g>';}
+function csDefs(){
+ var g=function(id,a,b,rev){return '<linearGradient id="'+id+'" x1="'+(rev?1:0)+'" y1="0" x2="'+(rev?0:1)+'" y2="0"><stop offset="0" stop-color="'+a+'"/><stop offset=".55" stop-color="'+b+'"/><stop offset="1" stop-color="'+b+'" stop-opacity=".92"/></linearGradient>';};
+ var pal={
+  clSkin:['#ae7650','#83553a'],clSkinF:['#8d5d3f','#69412a'],clTop:['#e9edf2','#b9c2cc'],clTopF:['#c9d0d8','#9aa5b1'],clLeg:['#3a404a','#22262d'],clLegF:['#2c3139','#1a1d22'],
+  coSkin:['#73492f','#4f311f'],coSkinF:['#5f3b26','#402717'],coTop:['#4a525d','#262a31'],coTopF:['#363c45','#1c1f24'],coLeg:['#3a4048','#15181c'],coLegF:['#2a2f36','#0f1114'],
+  tm:['#6b737e','#3b4149']};
+ var s='<defs>';Object.keys(pal).forEach(function(k){var rev=/^co/.test(k);s+=g('cs-'+k,pal[k][0],pal[k][1],rev);});
+ s+='<radialGradient id="cs-shadow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>';
+ s+='<linearGradient id="cs-screen" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8EC9FF"/><stop offset="1" stop-color="#2f74c6"/></linearGradient>';
+ s+='<linearGradient id="cs-deck" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5d646e"/><stop offset="1" stop-color="#30353c"/></linearGradient>';
+ return s+'</defs>';}
+function csShoe(id,upper,upperD,sole,accent){
+ return '<g id="'+id+'">'+
+  '<path d="M-8 0 C-9 -6 -5 -9 0 -8 L7 -7 C11 -5 15 -2 20 -1 C25 0 27 3 26 6 L26 9 L-8 9 C-10 7 -10 3 -8 0Z" fill="'+upper+'"/>'+
+  '<path d="M-8 4 C-4 5 6 5 26 6 L26 9 L-8 9Z" fill="'+upperD+'" opacity=".55"/>'+
+  '<path d="M3 -6 L10 -3.5 M5.5 -7 L12 -3" stroke="'+accent+'" stroke-width="1.3" stroke-linecap="round" opacity=".9"/>'+
+  '<path d="M-9 8 L27 8 C28 8 28.5 10.5 27 11.5 L-8 11.5 C-10 11.5 -10.5 8 -9 8Z" fill="'+sole+'"/>'+
+  '</g>';}
+function csHand(skin,shade,thumbId){
+ return '<g transform="translate(0,1)"><path d="M-4.6 0 C-5.4 4 -5 9 -1.5 11.5 C1.5 13 5 11 5.2 7 C5.5 3.5 4.8 1 4 0Z" fill="'+skin+'"/>'+
+  '<path d="M1 9.5 C2.5 10 4 9 4.6 7" stroke="'+shade+'" stroke-width="1" fill="none" stroke-linecap="round" opacity=".7"/>'+
+  '<path d="M3.6 1.5 C6.5 2.5 7.4 5 6.4 7 C5.6 7.8 4.6 7 4.4 6" fill="'+skin+'"/>'+
+  (thumbId?'<path id="'+thumbId+'" d="M3 2 C4.6 -3 6.4 -6.5 7.8 -6.2 C9 -5.8 8 -2 6 2.5Z" fill="'+skin+'" opacity="0"/>':'')+'</g>';}
 function csPerson(pre,o){
- /* right-facing rig at the hip. o: skin, skinD, top, topD, bottom, bottomD, shoe, hair, extras */
- var leg=function(side){var near=side==='n';
-  return csLimb(pre+'-th'+side,50,near?17:16,near?o.bottom:o.bottomD,
-   '<g id="'+pre+'-kn'+side+'" transform="translate(0,50)">'+
-    '<line x1="0" y1="0" x2="0" y2="46" stroke="'+(near?o.legSkin||o.bottom:o.legSkinD||o.bottomD)+'" stroke-width="'+(near?14:13)+'" stroke-linecap="round"/>'+
-    '<g id="'+pre+'-ft'+side+'" transform="translate(0,46)"><rect x="-6" y="-4" width="24" height="10" rx="5" fill="'+(near?o.shoe:o.shoeD)+'"/><rect x="-6" y="3" width="24" height="3" rx="1.5" fill="'+(near?o.sole:o.soleD)+'"/></g>'+
-   '</g>');};
- var arm=function(side){var near=side==='n';
-  return csLimb(pre+'-sh'+side,32,near?12:11,near?o.sleeve:o.sleeveD,
-   '<line x1="0" y1="16" x2="0" y2="32" stroke="'+(near?o.skin:o.skinD)+'" stroke-width="'+(near?11:10)+'" stroke-linecap="round"/>'+
-   '<g id="'+pre+'-el'+side+'" transform="translate(0,32)"><line x1="0" y1="0" x2="0" y2="28" stroke="'+(near?o.skin:o.skinD)+'" stroke-width="'+(near?10:9)+'" stroke-linecap="round"/>'+
-    '<circle cx="0" cy="31" r="6.5" fill="'+(near?o.skin:o.skinD)+'"/>'+(near&&o.thumb?'<rect id="'+pre+'-thumb" x="-2.5" y="20" width="5" height="11" rx="2.5" fill="'+o.skin+'" opacity="0"/>':'')+'</g>');};
- var torso='<path d="M-13 2 C-15 -20 -16 -46 -12 -64 Q0 -72 12 -64 C16 -46 15 -20 13 2 Z" fill="'+o.top+'"/>'+
-  '<path d="M-13 2 C-14 -6 -14 -12 -13.5 -16 L13.5 -16 C14 -12 14 -6 13 2 Z" fill="'+o.waist+'"/>'+(o.logo||'');
- var head='<g id="'+pre+'-hd" transform="translate(4,-70)"><rect x="-5" y="-10" width="10" height="12" rx="4" fill="'+o.skinD+'"/>'+
-  '<g transform="translate(0,-24)"><ellipse cx="0" cy="0" rx="15" ry="16.5" fill="'+o.skin+'"/>'+o.hair+
-  '<ellipse cx="13" cy="1" rx="3" ry="4.5" fill="'+o.skin+'"/><circle cx="8" cy="-2" r="1.6" fill="#1a1412"/>'+(o.face||'')+'</g></g>';
- return '<g id="'+pre+'"><g id="'+pre+'-hip">'+leg('f')+
-  '<g id="'+pre+'-tb">'+arm('f')+torso+head+'</g>'+leg('n')+
-  '<g id="'+pre+'-tf">'+arm('n')+'</g></g></g>';
-}
+ var G=function(k){return 'url(#cs-'+o.k+k+')';};
+ var leg=function(s){var n=s==='n',sfx=n?'':'F';
+  return csSeg(pre+'-th'+s,o.L1,o.thW,o.knW,G('Leg'+sfx),{bf:o.quad,bb:o.ham,
+    extra:(o.legStripe&&n?'<path d="M'+(-o.thW/2+2)+' 4 L'+(-o.knW/2+1.5)+' '+(o.L1-4)+'" stroke="#4296f0" stroke-width="2.2" stroke-linecap="round" opacity=".9"/>':''),
+    child:'<g id="'+pre+'-kn'+s+'" transform="translate(0,'+o.L1+')">'+
+     csSeg(pre+'-sn'+s,o.L2,o.knW-1,o.ankW,G('Leg'+sfx),{bb:o.calf,bf:.5,
+      extra:(o.cuff?'<rect x="'+(-o.ankW/2-1.5)+'" y="'+(o.L2-7)+'" width="'+(o.ankW+3)+'" height="6" rx="3" fill="'+(n?'#0c0e10':'#08090a')+'"/>':'')+
+       '<path d="M'+(o.knW/2-3)+' 2 C'+(o.knW/2-1)+' 6 '+(o.knW/2-1.5)+' 9 '+(o.knW/2-3.5)+' 12" stroke="#000" stroke-opacity=".18" stroke-width="1.2" fill="none"/>'})+
+     '<g transform="translate(0,'+o.L2+')"><g id="'+pre+'-ft'+s+'">'+(o.sock?'<rect x="-4.5" y="-6" width="9" height="7" rx="3" fill="'+(n?o.sock:o.sockD)+'"/>':'')+
+      csShoe(pre+'-shoe'+s,n?o.shoe:o.shoeD,n?o.shoeD:'#000',n?o.sole:o.soleD,o.shoeAcc)+'</g></g>'+
+    '</g>'});};
+ var arm=function(s){var n=s==='n',sfx=n?'':'F';
+  return csSeg(pre+'-sh'+s,o.A1,o.shW,o.elW,G('Skin'+sfx),{bf:o.bicep,bb:o.tri,
+    extra:'<path d="M'+(-o.shW/2-1.5)+' -3 C'+(-o.shW/2-2.5)+' '+(o.sleeve*.6)+' '+(-o.shW/2)+' '+o.sleeve+' '+(-o.shW/2+.5)+' '+o.sleeve+' L'+(o.shW/2+1)+' '+(o.sleeve-1)+' C'+(o.shW/2+2.5)+' '+(o.sleeve*.5)+' '+(o.shW/2+1.5)+' -2 '+(o.shW/2)+' -4Z" fill="'+G('Top'+sfx)+'"/>'+
+     (o.sleeveBand&&n?'<path d="M'+(-o.shW/2)+' '+(o.sleeve-2.5)+' L'+(o.shW/2+1)+' '+(o.sleeve-3.5)+'" stroke="#4296f0" stroke-width="2" stroke-linecap="round"/>':''),
+    child:'<g id="'+pre+'-el'+s+'" transform="translate(0,'+o.A1+')">'+csSeg(pre+'-fa'+s,o.A2,o.elW-.5,o.wrW,G('Skin'+sfx),{bf:o.fore,bb:.6,
+      child:(o.watch&&n?'<rect x="'+(-o.wrW/2-1.2)+'" y="'+(o.A2-5)+'" width="'+(o.wrW+2.4)+'" height="4.5" rx="1.5" fill="#0b0c0e"/>':'')+
+       '<g transform="translate(0,'+o.A2+')">'+csHand(n?o.skin:o.skinD,o.skinS,n&&o.thumb?pre+'-thumb':null)+'</g>'})+'</g>'});};
+ var torso='<path d="'+o.torso+'" fill="'+G('Top')+'"/>'+(o.torsoExtra||'');
+ var head='<g id="'+pre+'-hd" transform="translate('+o.neckX+','+(-o.T)+')">'+
+  '<path d="M-5 4 L-5 -8 C-2 -10 3 -10 5.5 -8 L5.5 4Z" fill="'+o.skinS+'"/>'+
+  '<g transform="translate(0,-9)">'+
+   '<ellipse cx="0" cy="-15" rx="14" ry="15.5" fill="'+o.skin+'"/>'+
+   '<path d="M8 -27 C12 -24 14.2 -20 14.4 -16.5 C14.6 -15 14.2 -14 14.6 -12.5 C16 -10 18.4 -8.4 18 -6.8 C17.6 -5.8 16 -5.8 15.2 -5.4 C15.6 -4.4 15.6 -3.6 15 -3 C15.6 -2.2 15.4 -1.2 14.6 -.4 C14.6 1.5 13.6 3.2 11.5 4.2 C8 5.6 4 5 1 2 L-2 -6Z" fill="'+o.skin+'"/>'+
+   '<path d="M-2 -6 C0 -1 3 3 7 4.6 C4 5.4 1 4.6 -1 2Z" fill="'+o.skinS+'" opacity=".5"/>'+
+   '<ellipse cx="-1.5" cy="-12" rx="3.2" ry="4.6" fill="'+o.skinD+'"/><path d="M-1 -15 C-2.6 -13.5 -2.6 -10.5 -1 -9" stroke="'+o.skinS+'" stroke-width="1" fill="none"/>'+
+   '<path d="M9.2 -13.4 C10.4 -14.6 12.2 -14.6 13.4 -13.6 C12.2 -12.4 10.4 -12.3 9.2 -13.4Z" fill="#f4efe9"/><circle cx="12" cy="-13.5" r="1.25" fill="#1b130f"/>'+
+   '<path d="M8.6 -15.2 C10.4 -16 12.4 -15.9 13.8 -14.9" stroke="'+o.lid+'" stroke-width=".9" fill="none" stroke-linecap="round"/>'+
+   '<path d="M8 -18 C10 -19.2 12.6 -19.2 14.2 -18" stroke="'+o.brow+'" stroke-width="1.9" fill="none" stroke-linecap="round"/>'+
+   '<path d="M17.2 -6.4 C16.4 -6 15.8 -6.3 15.6 -7" stroke="'+o.skinS+'" stroke-width=".9" fill="none" stroke-linecap="round"/>'+
+   '<path d="'+o.mouth+'" stroke="'+o.lip+'" stroke-width="1.2" fill="none" stroke-linecap="round"/>'+
+   o.hair+(o.beard||'')+'</g></g>';
+ var tb=function(id,inner){return '<g id="'+pre+'-'+id+'" transform="translate(0,0)">'+inner+'</g>';};
+ return '<g id="'+pre+'"><g id="'+pre+'-hip">'+
+  '<g transform="translate(0,'+(-o.shY)+')">'+'</g>'+
+  leg('f')+
+  tb('tb','<g transform="translate('+o.shX+','+(-o.shY)+')">'+arm('f')+'</g>'+torso+head)+
+  '<path d="'+o.pelvis+'" fill="'+G('Leg')+'"/>'+
+  leg('n')+
+  tb('tf','<g transform="translate('+o.shX+','+(-o.shY)+')">'+arm('n')+'</g>'+(o.torsoFront||''))+
+ '</g></g>';}
 function coachSceneSVG(){
- var client=csPerson('cl',{skin:'#7a4b33',skinD:'#5f3826',top:'#ec4899',sleeve:'#ec4899',sleeveD:'#be185d',waist:'#1f2329',
-  bottom:'#1f2329',bottomD:'#15181c',legSkin:'#1f2329',legSkinD:'#15181c',shoe:'#f5f5f4',shoeD:'#d6d3d1',sole:'#ec4899',soleD:'#be185d',
-  hair:'<path d="M-15 -2 C-16 -14 -8 -20 2 -19 C12 -18 16 -10 15 -4 C10 -10 2 -12 -6 -10 C-10 -8 -13 -5 -15 -2 Z" fill="#20130d"/><circle cx="-12" cy="-16" r="8" fill="#20130d"/>',
-  face:'<path d="M9 7 Q12 8 14 6" stroke="#3b2118" stroke-width="1.6" fill="none" stroke-linecap="round"/>'});
- var coach=csPerson('co',{skin:'#5c3a27',skinD:'#472b1c',top:'#f8fafc',sleeve:'#f8fafc',sleeveD:'#cbd5e1',waist:'#111418',
-  bottom:'#111418',bottomD:'#0b0d10',legSkin:'#111418',legSkinD:'#0b0d10',shoe:'#111418',shoeD:'#0b0d10',sole:'#4296f0',soleD:'#2f6fb8',thumb:1,
-  logo:'<path d="M-7 -50 L0 -38 L7 -50" stroke="#4296f0" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="-8" y="-33" width="16" height="2.4" rx="1.2" fill="#111418" opacity=".55"/>',
-  hair:'<path d="M-15 -3 C-15 -15 -7 -19 2 -18.5 C11 -18 15 -11 15 -5 C11 -9 5 -11 -2 -11 C-9 -11 -13 -8 -15 -3 Z" fill="#0f0a08"/>',
-  face:'<path d="M15 2 C15 12 8 17 1 16 C-4 15 -7 11 -7 7 C-3 10 3 11 8 9 C11 8 13 5 15 2 Z" fill="#0f0a08"/><path d="M8 9.5 Q11 10.5 13 9" stroke="#e7d3c7" stroke-width="1.4" fill="none" stroke-linecap="round"/>'});
- return '<svg viewBox="44 76 '+CS_W+' '+CS_H+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+
-  '<ellipse cx="300" cy="368" rx="250" ry="14" fill="currentColor" opacity=".08"/>'+
-  /* treadmill */
-  '<g id="tm">'+
-   '<path d="M436 330 L452 196" stroke="#5b636e" stroke-width="12" stroke-linecap="round"/>'+
-   '<path d="M430 246 L350 250" stroke="#6b7480" stroke-width="7" stroke-linecap="round"/>'+
-   '<rect x="420" y="178" width="70" height="26" rx="8" fill="#3a4049" transform="rotate(-12 455 191)"/>'+
-   '<rect x="430" y="183" width="40" height="12" rx="3" fill="#4296f0" opacity=".85" transform="rotate(-12 455 191)"/>'+
-   '<rect x="84" y="326" width="372" height="26" rx="13" fill="#4a5059"/>'+
-   '<rect x="92" y="322" width="356" height="10" rx="5" fill="#1d2126"/>'+
-   '<line id="tm-belt" x1="100" y1="327" x2="440" y2="327" stroke="#3b424c" stroke-width="3" stroke-dasharray="16 22"/>'+
-   '<circle cx="104" cy="340" r="7" fill="#2c3138"/><circle cx="436" cy="340" r="7" fill="#2c3138"/>'+
-   '<rect x="96" y="350" width="22" height="12" rx="4" fill="#3a4049"/><rect x="420" y="350" width="22" height="12" rx="4" fill="#3a4049"/>'+
-  '</g>'+
-  '<g transform="translate(280,230)">'+client+'</g>'+
-  '<g transform="translate(548,264) scale(-1,1)">'+coach+'</g>'+
- '</svg>';
-}
+ var client=csPerson('cl',{k:'cl',L1:49,L2:47,thW:22,knW:14,ankW:8.5,quad:2.5,ham:2,calf:3.2,A1:31,A2:28,shW:12.5,elW:9.2,wrW:6.6,bicep:1.2,tri:1,fore:1,sleeve:11,
+  T:66,shX:1,shY:58,neckX:3,legStripe:1,sleeveBand:0,
+  skin:'#9a6644',skinD:'#7d5136',skinS:'#5e3a25',lid:'#3b2418',brow:'#2a1a12',lip:'#6b3a2c',
+  shoe:'#f3f4f6',shoeD:'#c9ced6',sole:'#4296f0',soleD:'#2f6fb8',shoeAcc:'#4296f0',sock:'#ffffff',sockD:'#d9dde3',
+  torso:'M-11 2 C-14 -12 -13.5 -28 -12 -40 C-11 -50 -10 -58 -6 -63 C-1 -67 6 -66 9 -61 C12 -56 13.5 -49 12.5 -43 C11.5 -38 9.5 -33 9 -26 C8.6 -18 10.5 -8 11 2Z',
+  torsoExtra:'<path d="M-11 2 C-11.5 -3 -11.8 -6 -11.6 -9 L10 -9 C10.1 -6 10.6 -2 11 2Z" fill="url(#cs-clLeg)"/>'+
+   '<path d="M9.5 -42 C7 -37 5.5 -33 4.8 -27" stroke="#8b96a3" stroke-width="1" fill="none" opacity=".7"/><path d="M-9 -20 C-4 -18 2 -18 8 -20" stroke="#8b96a3" stroke-width=".9" fill="none" opacity=".55"/>'+
+   '<path d="M-12.2 -38 C-11.6 -46 -10.5 -55 -7 -61" stroke="#4296f0" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+  pelvis:'M-12 -10 C-15 -4 -14 4 -9 8 C-3 11 5 10 9.5 6 C12.5 2 12 -6 10 -10Z',
+  mouth:'M13.4 -2.6 C14.2 -2 14.9 -2.2 15.3 -2.8',
+  hair:'<path d="M-13 -9 C-16 -18 -12 -29 -2 -31.5 C6 -33 12 -29.5 13.6 -23 C11 -24.6 8 -25 5 -24 C2 -22.5 0 -20 -1.5 -17 C-4 -19 -7 -17 -8 -14 C-9 -12 -10 -10 -13 -9Z" fill="#1d1310"/>'+
+   '<circle cx="-11" cy="-26" r="7.5" fill="#1d1310"/><path d="M-14 -28 C-12 -31 -8 -31 -6.5 -28.5" stroke="#3a2a22" stroke-width="1" fill="none"/>'+
+   '<path d="M-1 -29 C4 -30 9 -28 11 -25" stroke="#3a2a22" stroke-width=".9" fill="none" opacity=".8"/>'});
+ var coach=csPerson('co',{k:'co',L1:53,L2:50,thW:28,knW:17,ankW:10.5,quad:3.4,ham:2.5,calf:3.6,A1:32,A2:29,shW:17.5,elW:12,wrW:8,bicep:3.4,tri:2.8,fore:2.2,sleeve:14,
+  T:72,shX:0,shY:62,neckX:3,cuff:1,sleeveBand:1,watch:1,thumb:1,
+  skin:'#6b4430',skinD:'#563521',skinS:'#3d2517',lid:'#24140c',brow:'#120c09',lip:'#3e2117',
+  shoe:'#eef1f4',shoeD:'#c3c9d1',sole:'#1c1f24',soleD:'#111317',shoeAcc:'#4296f0',
+  torso:'M-15 2 C-18 -14 -21 -30 -21 -45 C-20.5 -56 -16 -64 -8 -68.5 C0 -72 12 -70 17 -63.5 C20.5 -58 21 -49 19 -41 C17 -35 13 -30 12 -22 C11.5 -14 13 -6 13.5 2Z',
+  torsoExtra:'<path d="M14.5 -44 C11 -40 8 -38 4 -37" stroke="#15181c" stroke-width="1.2" fill="none" opacity=".6"/>'+
+   '<path d="M0 -55 L5 -46 L10 -55" stroke="#4296f0" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'+
+   '<path d="M-12 -20 C-5 -17 3 -17 11 -20" stroke="#15181c" stroke-width="1" fill="none" opacity=".5"/>',
+  pelvis:'M-15 -10 C-18 -3 -17 5 -11 9 C-4 12 6 11 11 7 C14.5 2 14 -6 12 -10Z',
+  mouth:'M13 -2.4 C14 -2.6 14.8 -2.6 15.4 -2.4',
+  hair:'<path d="M-12.5 -8 C-15.5 -16 -13 -27.5 -3 -30.6 C4 -32.4 10.5 -30 13.2 -24.5 L9.6 -24 C8.4 -22 8.6 -20.6 9.4 -19.4 L7 -19.6 C5 -19.4 3.4 -18 2.4 -16.6 L1.6 -17.4 C-1.8 -18 -4.6 -16 -5.4 -13.4 C-6 -11.4 -8.6 -9 -12.5 -8Z" fill="#0d0907"/>'+
+   '<path d="M-10 -22 C-6 -27 2 -29.5 9 -27" stroke="#2a201b" stroke-width="1" stroke-dasharray="1.2 1.8" fill="none" opacity=".8"/>',
+  beard:'<path d="M-1.4 -8.6 C-1 -3 2 2.6 7 5 C10.6 6.4 14 4.8 14.8 .6 C15 -1 14.6 -1.6 14 -1.8 C13 -.8 11.4 -.8 10 -1.6 C8.8 -3.6 7 -4.2 5.2 -4 C3.4 -4.4 1.8 -6 1.4 -8.6Z" fill="#0d0907"/>'+
+   '<path d="M11.2 -5.2 C12.6 -6 14.4 -5.8 15.6 -4.6 C14.4 -4.1 12.6 -4.2 11.2 -5.2Z" fill="#0d0907"/>'});
+ var tm='<g id="tm">'+
+  '<ellipse cx="268" cy="353" rx="205" ry="11" fill="url(#cs-shadow)"/>'+
+  '<path d="M444 336 L462 204" stroke="url(#cs-tm)" stroke-width="13" stroke-linecap="round"/>'+
+  '<path d="M440 248 L352 252" stroke="#7b838e" stroke-width="7" stroke-linecap="round"/><path d="M440 246 L352 250" stroke="#a3abb5" stroke-width="2" stroke-linecap="round" opacity=".6"/>'+
+  '<g transform="rotate(-14 466 196)"><rect x="430" y="182" width="78" height="28" rx="9" fill="#353b43"/><rect x="430" y="182" width="78" height="9" rx="5" fill="#4a515a"/>'+
+   '<rect x="440" y="188" width="44" height="14" rx="3.5" fill="url(#cs-screen)"/><path d="M445 198 L452 194 L458 197 L466 191 L474 193" stroke="#e8f4ff" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".9"/>'+
+   '<circle cx="494" cy="195" r="3.5" fill="#8EC9FF"/></g>'+
+  '<path d="M82 336 C82 328 88 324 96 324 L448 324 C458 324 466 330 466 340 L466 344 C466 349 462 352 456 352 L92 352 C86 352 82 348 82 342Z" fill="url(#cs-deck)"/>'+
+  '<path d="M418 324 L458 324 C464 326 466 332 466 338 L418 338Z" fill="#4a515a"/>'+
+  '<rect x="94" y="318" width="330" height="8" rx="4" fill="#15181c"/>'+
+  '<line id="tm-belt" x1="98" y1="320" x2="420" y2="320" stroke="#2f353d" stroke-width="2.2" stroke-dasharray="3 9"/>'+
+  '<path d="M92 342 L460 342" stroke="#000" stroke-opacity=".25" stroke-width="1.5"/>'+
+  '<rect x="98" y="350" width="22" height="9" rx="3" fill="#2a2f36"/><rect x="432" y="350" width="22" height="9" rx="3" fill="#2a2f36"/>'+
+  '<ellipse id="cl-fsn" cx="0" cy="318.5" rx="15" ry="2.6" fill="#000" opacity=".3"/><ellipse id="cl-fsf" cx="0" cy="318.5" rx="15" ry="2.6" fill="#000" opacity=".3"/>'+
+ '</g>';
+ return '<svg viewBox="'+CS_VB+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+csDefs()+tm+
+  '<ellipse cx="552" cy="377" rx="38" ry="5.5" fill="url(#cs-shadow)"/>'+
+  '<g id="cl-root" transform="translate(272,221)">'+client+'</g>'+
+  '<g transform="translate(556,264) scale(-1,1)">'+coach+'</g>'+
+ '</svg>';}
 function csSmooth(a,b,t){var x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);}
 function csLerp(a,b,k){return a+(b-a)*k;}
+function csEase(x){return x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;}
+var CS_GAIT={T:1.12,stance:.62,S:58,ank:91.5,toe:17,lift:14};
+/* ankle position (relative to the hip) and foot angle for gait phase u in [0,1) */
+function csFoot(u){var G=CS_GAIT,st=G.stance,half=G.S/2,a=0,x,y;
+ if(u<st){var toeX=half+G.toe-G.S*(u/st);
+  if(u<.1)a=csLerp(-12,0,csEase(u/.1));else if(u>.42)a=csLerp(0,30,csEase((u-.42)/(st-.42)));
+  var r=a*Math.PI/180;
+  if(u<.1){x=half-G.S*(u/st);y=G.ank;}
+  else{x=toeX-G.toe*Math.cos(r);y=G.ank-G.toe*Math.sin(r);}
+ }else{var s=(u-st)/(1-st),r0=30*Math.PI/180,x0=-half+G.toe-G.toe*Math.cos(r0)-G.S*0, y0=G.ank-G.toe*Math.sin(r0);
+  x0=(half+G.toe-G.S)-G.toe*Math.cos(r0);
+  x=csLerp(x0,half,csEase(s));y=csLerp(y0,G.ank,s)-G.lift*Math.sin(Math.PI*Math.min(1,s*1.08));a=csLerp(30,-12,csEase(s));}
+ return {x:x,y:y,a:a};}
+function csIK(x,y,L1,L2){var d=Math.min(Math.hypot(x,y),L1+L2-.2),base=Math.atan2(x,y);
+ var al=Math.acos(Math.max(-1,Math.min(1,(L1*L1+d*d-L2*L2)/(2*L1*d)))),be=Math.acos(Math.max(-1,Math.min(1,(L2*L2+d*d-L1*L1)/(2*L2*d))));
+ var th=-(base+al)*180/Math.PI,kn=(al+be)*180/Math.PI;return {th:th,kn:kn};}
 function makeCoachScene(root){
- var q=function(id){return root.querySelector('#'+id);};
- var E={};['cl-hip','cl-tb','cl-tf','cl-hd','co-hip','co-tb','co-tf','co-hd','co-thumb','tm-belt'].forEach(function(k){E[k]=q(k);});
+ var q=function(id){return root.querySelector('#'+id);};var E={};
+ ['cl-hip','cl-tb','cl-tf','cl-hd','co-hip','co-tb','co-tf','co-hd','co-thumb','tm-belt','cl-fsn','cl-fsf'].forEach(function(k){E[k]=q(k);});
  ['th','kn','ft','sh','el'].forEach(function(p){['n','f'].forEach(function(s){E['cl-'+p+s]=q('cl-'+p+s);E['co-'+p+s]=q('co-'+p+s);});});
- var LOOP=12,phase=0,belt=0,pointUntil=0;
- function kAt(t){return csSmooth(4,5.5,t)*(1-csSmooth(9.5,11,t));}
- function rot(el,a,x,y){if(el)el.setAttribute('transform',(x!=null?'translate('+x+','+y+') ':'')+'rotate('+a.toFixed(2)+')');}
+ var LOOP=12,belt=0,pointUntil=0,G=CS_GAIT,v=G.S/(G.stance*G.T);
+ function rot(el,a,x,y){if(el)el.setAttribute('transform',(x!=null?'translate('+x.toFixed(2)+','+y.toFixed(2)+') ':'')+'rotate('+a.toFixed(2)+')');}
  function pose(t,now){
-  var k=kAt(t),p=phase;
-  /* client */
-  var At=csLerp(22,36,k),bounce=csLerp(1.5,5,k)*Math.cos(2*p),lean=csLerp(4,11,k);
-  E['cl-hip'].setAttribute('transform','translate(0,'+(-Math.abs(bounce)).toFixed(2)+')');
-  ['n','f'].forEach(function(s){var pp=s==='n'?p:p+Math.PI;
-   var th=-At*Math.sin(pp),kn=csLerp(6,14,k)+csLerp(26,78,k)*Math.pow(Math.max(0,Math.cos(pp)),1.4);
-   rot(E['cl-th'+s],th);rot(E['cl-kn'+s],kn,0,50);rot(E['cl-ft'+s],-(th+kn)*0.85+ (Math.cos(pp)>0?-6:2),0,46);
-   var sh=csLerp(16,38,k)*Math.sin(pp),el=-csLerp(28,88,k);
-   rot(E['cl-sh'+s],sh,2,-60);rot(E['cl-el'+s],el,0,32);});
-  rot(E['cl-tb'],lean);rot(E['cl-tf'],lean);rot(E['cl-hd'],-lean*0.4+Math.sin(p*2)*0.8,4,-70);
+  var u=(t/G.T)%1,bob=1.6*(1+Math.cos(4*Math.PI*(u-.31)))/2,breath=Math.sin(t*2*Math.PI/3.6);
+  E['cl-hip'].setAttribute('transform','translate(0,'+(-bob).toFixed(2)+')');
+  ['n','f'].forEach(function(s){var uu=s==='n'?u:(u+.5)%1,f=csFoot(uu),ik=csIK(f.x,f.y+bob,49,47);
+   rot(E['cl-th'+s],ik.th);rot(E['cl-kn'+s],ik.kn,0,49);rot(E['cl-ft'+s],f.a-(ik.th+ik.kn));
+   var sw=Math.cos(2*Math.PI*uu),sh=16*sw+2,el=-(16+12*Math.max(0,-Math.cos(2*Math.PI*uu-0.5)));
+   /* near arm swings with the far leg */
+   var o=s==='n'?'f':'n';rot(E['cl-sh'+o],sh);rot(E['cl-el'+o],el,0,31);
+   var sx=272+f.x+6,lift=G.ank-f.y;var fs=E['cl-fs'+s];if(fs){fs.setAttribute('cx',sx.toFixed(1));fs.setAttribute('opacity',(0.32*Math.max(0,1-lift/10)).toFixed(2));fs.setAttribute('rx',(15-lift*.4).toFixed(1));}});
+  var lean=3+breath*.4,tw=Math.sin(4*Math.PI*u)*.6;
+  rot(E['cl-tb'],lean+tw);rot(E['cl-tf'],lean+tw);rot(E['cl-hd'],-lean*.6-bob*.6+breath*.5,3,-66);
   /* coach */
-  var g=csSmooth(2,2.6,t)*(1-csSmooth(4.3,4.9,t)),nod=csSmooth(8.6,9,t)*(1-csSmooth(10.2,10.7,t));
-  var pt=now<pointUntil?Math.min(1,(pointUntil-now)/300,(1600-(pointUntil-now))/250+0.2):0;g=Math.max(g,Math.min(1,pt));
-  var breathe=Math.sin(t*2.1)*0.6;
-  rot(E['co-thn'],-3);rot(E['co-knn'],4,0,50);rot(E['co-ftn'],-1,0,46);
-  rot(E['co-thf'],5);rot(E['co-knf'],3,0,50);rot(E['co-ftf'],-8,0,46);
-  rot(E['co-tb'],-2+breathe*0.3);rot(E['co-tf'],-2+breathe*0.3);
-  rot(E['co-shf'],28,2,-60);rot(E['co-elf'],-112,0,32);           /* hand on hip */
-  var pump=Math.sin(t*9)*6*g;
-  var sh=csLerp(csLerp(6,-28,nod),-78+pump,g),el=csLerp(csLerp(-10,-118,nod),-18,g);
-  rot(E['co-shn'],sh,2,-60);rot(E['co-eln'],el,0,32);
-  if(E['co-thumb'])E['co-thumb'].setAttribute('opacity',nod>0.5?'1':'0');
-  var hd=-4+g*-3+Math.sin(Math.min(1,Math.max(0,(t-8.7)/1.4))*Math.PI*2)*10*nod;
-  rot(E['co-hd'],hd,4,-70);
-  E['tm-belt'].setAttribute('stroke-dashoffset',(belt%38).toFixed(1));
+  var shift=Math.sin(t*2*Math.PI/6),g=csSmooth(2.6,3.1,t)*(1-csSmooth(4.4,5,t)),nod=csSmooth(8.4,8.7,t)*(1-csSmooth(9.6,10,t));
+  var pt=now&&now<pointUntil?1:0;g=Math.max(g,pt);
+  rot(E['co-thn'],-3+shift*1.2);rot(E['co-knn'],4,0,53);rot(E['co-ftn'],-1-shift*1.2);
+  rot(E['co-thf'],6-shift*1.2);rot(E['co-knf'],3,0,53);rot(E['co-ftf'],-9+shift*1.2);
+  E['co-hip'].setAttribute('transform','translate('+(shift*.8).toFixed(2)+','+(Math.abs(shift)*.4).toFixed(2)+')');
+  var tb=-2+breath*.5;rot(E['co-tb'],tb);rot(E['co-tf'],tb);
+  rot(E['co-shf'],24+breath*.5);rot(E['co-elf'],-104,0,32);
+  var sh=csLerp(csLerp(8,-14,nod),-52,g),el=csLerp(csLerp(-14,-112,nod),-64,g);
+  rot(E['co-shn'],sh+breath*.6);rot(E['co-eln'],el,0,32);
+  if(E['co-thumb'])E['co-thumb'].setAttribute('opacity',nod>.55?'1':'0');
+  var nodA=nod>0?Math.sin(Math.min(1,Math.max(0,(t-8.6)/1))*Math.PI*2)*7*nod:0;
+  rot(E['co-hd'],-3+nodA+breath*.4,3,-72);
+  E['tm-belt'].setAttribute('stroke-dashoffset',(belt%12).toFixed(2));
  }
- var raf=0,last=0,t0=0,running=false;
- function step(now){if(!running)return;var dt=Math.min(0.05,(now-last)/1000||0);last=now;
-  var t=((now-t0)/1000)%LOOP,k=kAt(t),cyc=csLerp(1.15,0.72,k);
-  phase+=dt*2*Math.PI/cyc;belt+=dt*csLerp(70,150,k);pose(t,now);raf=requestAnimationFrame(step);}
- pose(0.5,0);
- return {
-  play:function(){if(running)return;running=true;last=performance.now();if(!t0)t0=last;raf=requestAnimationFrame(step);},
+ var raf=0,last=0,clock=0,running=false;
+ function step(now){if(!running)return;var dt=Math.min(.05,(now-last)/1000||0);last=now;clock+=dt;belt+=v*dt;pose(clock%LOOP,now);raf=requestAnimationFrame(step);}
+ pose(0.18,0);
+ return {play:function(){if(running)return;running=true;last=performance.now();raf=requestAnimationFrame(step);},
   pause:function(){running=false;cancelAnimationFrame(raf);},
-  point:function(){pointUntil=performance.now()+1600;if(!running)pose(2.5,0);},
-  seek:function(t){phase=0;for(var s=0;s<t;s+=1/60){var kk=kAt(s);phase+=(1/60)*2*Math.PI/csLerp(1.15,0.72,kk);}belt=t*100;pose(t,0);},
-  get running(){return running;}
- };
-}
+  point:function(){pointUntil=performance.now()+1500;if(!running)pose(clock%LOOP,performance.now());},
+  seek:function(t){clock=t;belt=v*t;pose(t%LOOP,0);},
+  get running(){return running;}};}
 function CoachScene(){
  var ref=React.useRef(null),scene=React.useRef(null);
  var ps=React.useState(false),paused=ps[0],setPaused=ps[1];var userPaused=React.useRef(false),visible=React.useRef(false);
