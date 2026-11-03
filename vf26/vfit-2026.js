@@ -1201,7 +1201,27 @@ var PBB={
   ['pbb26-5-circuit','Participants working through a dumbbell circuit between orange cones while a coach watches'],
   ['pbb26-6-kettlebells','A line of participants doing kettlebell squats under the palm trees'],
   ['pbb26-7-briefing','A coach in a Stronger Together shirt briefing a group before the next round'],
-  ['pbb26-8-tent','Participants in pink gathering at the VFitness Train Smart Train Elite tent before the start']
+  ['pbb26-8-tent','Participants in pink gathering at the VFitness Train Smart Train Elite tent before the start'],
+  ['pbb26-9-friends','Three participants in pink smiling together in front of the VFitness tent'],
+  ['pbb26-10-banner','Two participants and a VFitness coach in a PINK Beach Burn shirt posing by the Train Smart Train Elite banner'],
+  ['pbb26-11-cones','Participants at their cones with dumbbells on the grass, the sea behind them'],
+  ['pbb26-12-rows','A participant in a pink shirt doing bent-over dumbbell rows while a coach watches the group'],
+  ['pbb26-13-kettlebell','The group working through a dumbbell round beside the tent, a kettlebell in the foreground'],
+  ['pbb26-14-plank','Participants holding a plank together in a circle on a red mat'],
+  ['pbb26-15-warmup','A VFitness coach leading a warm-up as the morning sun comes through the palms'],
+  ['pbb26-16-swings','A line of participants doing kettlebell deadlifts and swings under the palm trees'],
+  ['pbb26-17-dj','The DJ giving a thumbs up from the booth under the tent'],
+  ['pbb26-18-goblet','A line of participants doing goblet squats and kettlebell deadlifts while a coach counts the reps'],
+  ['pbb26-19-stronger','A coach in a Stronger Together shirt guiding the group through kettlebell swings'],
+  ['pbb26-20-jacks','The group doing jumping jacks with a coach in front'],
+  ['pbb26-21-lineup','Participants, including a young participant, lined up at their cones listening to the next round'],
+  ['pbb26-22-squats','Participants doing dumbbell squats and kettlebell deadlifts while a coach checks form'],
+  ['pbb26-23-crowd','The full group in pink working through kettlebell swings, coaches walking the line'],
+  ['pbb26-24-finale','The group finishing a kettlebell round together under the palms']
+ ],
+ videos:[
+  {src:'/vf26/pbb26-video-warmup.mp4',poster:'/vf26/pbb26-video-warmup-poster.webp',title:'On the field',desc:'Coaches leading the group through the morning. 12 seconds.'},
+  {src:'/vf26/pbb26-video-jacks.mp4',poster:'/vf26/pbb26-video-jacks-poster.webp',title:'Arms up',desc:'Jumping jacks with the whole group. 2 seconds.'}
  ]};
 function pbbSrc(i,sm){return '/vf26/'+PBB.photos[i][0]+(sm?'-sm':'')+'.webp';}
 function EventStoryCard(p){
@@ -1259,10 +1279,15 @@ function VFEventStoryPage(props){
     h('div',{className:'vf26-ev-words'},WORDS.map(function(w){return h('span',{key:w},w);})),
     h('p',{className:'vf26-ev-place'},icon('pin',15),PBB.place,' · ',PBB.date)))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{kicker:'Photos',title:'The morning in pictures.',lead:'Tap any photo to see it full size.'}),
+   h(SectionHead,{kicker:'Photos',title:'The morning in pictures.',lead:PBB.photos.length+' photos from the morning. Tap any photo to see it full size.'}),
    h('ul',{className:'vf26-ev-grid'},PBB.photos.map(function(ph,i){return h('li',{key:ph[0],className:i===0?'wide':''},
     h('button',{type:'button',onClick:function(){setOpen(i);},'aria-label':'View photo '+(i+1)+' of '+n+': '+ph[1]},
      h('img',{src:pbbSrc(i,true),alt:ph[1],loading:'lazy',decoding:'async'})));})))),
+  h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+   h(SectionHead,{kicker:'Video',title:'See it move.',lead:'Press play to watch. Sound is on once you play.'}),
+   h('div',{className:'vf26-ev-videos'},PBB.videos.map(function(v){return h('figure',{key:v.src,className:'vf26-ev-video'},
+    h('video',{src:v.src,poster:v.poster,controls:true,playsInline:true,preload:'none',width:1280,height:720,'aria-label':v.title+'. '+v.desc}),
+    h('figcaption',null,h('b',null,v.title),' ',v.desc));})))),
   h(FinalCTA,{setCurrentPage:setCurrentPage,kicker:'Join us next time',title:'Train with the VFitness community.',lead:'Follow @xvfitnessx for our next community event, or book a free consultation and start training with a VFitness coach.'}),
   open!=null?h(EventLightbox,{index:open,onClose:function(){setOpen(null);},onGo:function(d){setOpen(function(v){return ((v+d)%n+n)%n;});}}):null);
 }

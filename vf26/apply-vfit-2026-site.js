@@ -339,7 +339,7 @@ html=html.replace(/<meta name="theme-color" content="[^"]*">/,'<meta name="theme
 const outDir=path.join(site,'vf26');
 fs.mkdirSync(outDir,{recursive:true});
 for(const f of fs.readdirSync(here)){
-  if(/\.(css|js|webp|jpg|png)$/i.test(f)&&f!=='apply-vfit-2026-site.js'&&f!=='devserver.js'&&f!=='build.js'&&!/\.(part|base)\./.test(f))fs.copyFileSync(path.join(here,f),path.join(outDir,f));
+  if(/\.(css|js|webp|jpg|png|mp4)$/i.test(f)&&f!=='apply-vfit-2026-site.js'&&f!=='devserver.js'&&f!=='build.js'&&!/\.(part|base)\./.test(f))fs.copyFileSync(path.join(here,f),path.join(outDir,f));
 }
 
 // 7. Verify: every inline script and the component file must parse.
