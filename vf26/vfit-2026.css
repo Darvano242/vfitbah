@@ -1784,3 +1784,22 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 .vf26-intro-skip:focus-visible{outline:3px solid #8EC9FF;outline-offset:2px;}
 [data-vf-theme="light"] .vf26-intro-logo .word{color:#F2F1EC;}
 @media (max-width:520px){.vf26-intro-logo .tile{width:60px;height:60px;border-radius:1.2rem;}.vf26-intro-logo .word{font-size:1.8rem;}}
+.vfh-cine{position:relative;margin:0;}
+.vfh-cine-media{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:var(--vfx-radius-m);background:#0f1112;}
+.vfh-cine-expand{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid rgba(242,241,236,.25);background:rgba(19,21,22,.72);color:#F2F1EC;font:600 14px/1 inherit;cursor:pointer;}
+.vfh-cine-expand:focus-visible{outline:3px solid var(--vfx-blue-soft);outline-offset:2px;}
+.vfh-cine .vfh-scene-pause{right:10px;top:10px;}
+.vfh-panel.vfh-card{cursor:default;}
+.vfh-panel.vfh-card:hover{transform:none;}
+.vfh-semi .vfh-semi-p{margin:12px 0 0;font-size:15.5px;line-height:1.55;color:var(--vfx-sand-ink);}
+.vfh-semi .vfh-price{padding-top:18px;}
+.vfh-semi .vfh-price .join{margin-top:8px;font-size:15px;font-weight:600;}
+.vfh-semi .vfh-price .gym{font-size:14px;}
+.vfh-semi-acts{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin-top:16px;}
+.vfh-btn-ink{background:var(--vfx-sand-ink);color:#F0EADC !important;border:0;text-decoration:none;}
+.vfh-btn-ink:hover{background:#1a2e25;}
+.vfh-btn-ink:focus-visible,.vfh-semi-more:focus-visible{outline:3px solid var(--vfx-sand-ink);outline-offset:3px;}
+.vfh-semi-more{display:inline-flex;align-items:center;gap:6px;min-height:44px;background:none;border:0;padding:0;font:600 15px/1 inherit;color:var(--vfx-sand-ink);cursor:pointer;text-decoration:underline;text-underline-offset:4px;}
+.vfh-dlg-sub{margin:18px 0 10px;font-size:17px;}
+@media (min-width:1100px){.vfh-semi{grid-row:7 / 81;}.vfh-pbb{grid-row:83 / 137;}.vfh-progress{grid-row:139 / 183;}}
+.vfh-dlg .vfh-terms+.vfh-dlg-price{margin-top:18px;}

@@ -845,6 +845,43 @@ function makeCoachScene(root){
   point:function(){pointUntil=performance.now()+1500;if(!running)pose(clock%LOOP,performance.now());},
   seek:function(t){clock=t;belt=v*t;pose(t%LOOP,0);},
   get running(){return running;}};}
+/* ================= CINEMATIC LOOPS (rendered video assets) =================
+   Drop-in slots for professionally rendered animation. Fill an entry when the animator delivers files to
+   /vf26/cinematic/ (see docs/CINEMATIC_ASSETS.md); empty slots change nothing on the site.
+   coach    replaces the drawn coach scene on the homepage
+   strength adds a second scene card after it */
+var VF_CINEMATIC={
+ coach:null,     /* {tile:'/vf26/cinematic/coach-tile.mp4',full:'/vf26/cinematic/coach-full.mp4',poster:'/vf26/cinematic/coach-poster.webp',alt:'...'} */
+ strength:null
+};
+window.VF_CINEMATIC=VF_CINEMATIC;
+function CinematicLoop(p){
+ var a=p.asset,ref=React.useRef(null),vis=React.useRef(false),userPaused=React.useRef(false);
+ var ps=React.useState(false),paused=ps[0],setPaused=ps[1];var os=React.useState(false),open=os[0],setOpen=os[1];
+ var ls=React.useState(false),loaded=ls[0],setLoaded=ls[1];
+ function sync(){var v=ref.current;if(!v||reduceMotion)return;
+  if(vis.current&&!loaded)setLoaded(true);
+  if(vis.current&&!userPaused.current&&!document.hidden&&!open){var pr=v.play();if(pr&&pr.catch)pr.catch(function(){});}else{try{v.pause();}catch(e){}}}
+ React.useEffect(function(){var v=ref.current;if(!v)return;var io=null;
+  if(typeof IntersectionObserver!=='undefined'){io=new IntersectionObserver(function(en){vis.current=en[0].isIntersecting;sync();},{threshold:.25});io.observe(v);}else{vis.current=true;sync();}
+  document.addEventListener('visibilitychange',sync);return function(){io&&io.disconnect();document.removeEventListener('visibilitychange',sync);};},[]);
+ React.useEffect(sync,[loaded,open]);
+ function toggle(){userPaused.current=!userPaused.current;setPaused(userPaused.current);sync();}
+ var dref=React.useRef(null);
+ return h('figure',{className:'vfh-cine'},
+  reduceMotion?h('img',{src:a.poster,alt:a.alt||'',width:a.w||1280,height:a.h||720,className:'vfh-cine-media'}):
+  h('video',{ref:ref,className:'vfh-cine-media',poster:a.poster,src:loaded?a.tile:undefined,muted:true,loop:true,playsInline:true,preload:'none',width:a.w||1280,height:a.h||720,'aria-label':a.alt||undefined,onLoadedData:sync}),
+  reduceMotion?null:h('button',{type:'button',className:'vfh-scene-pause',onClick:toggle,'aria-pressed':paused?'true':'false','aria-label':paused?'Play the animation':'Pause the animation'},h('span',{'aria-hidden':'true'},paused?'▶':'❚❚')),
+  a.full?h('button',{type:'button',className:'vfh-cine-expand',onClick:function(){setOpen(true);},'aria-haspopup':'dialog'},icon('expand',15),'Watch full size'):null,
+  open?h(CineDialog,{asset:a,onClose:function(){setOpen(false);}}):null);
+}
+function CineDialog(p){var ref=React.useRef(null);useDialog(true,p.onClose,ref);var a=p.asset;
+ return h('div',{className:'vfh-dlg-back',onClick:function(e){if(e.target===e.currentTarget)p.onClose();}},
+  h('div',{ref:ref,className:'vfh-dlg wide',role:'dialog','aria-modal':'true','aria-label':a.alt||'Animation'},
+   h('button',{type:'button',className:'vfh-dlg-x',onClick:p.onClose,'aria-label':'Close'},icon('close',20)),
+   h('div',{className:'vfh-dlg-media'},h('video',{src:a.full,poster:a.poster,controls:true,autoPlay:!reduceMotion,muted:true,loop:true,playsInline:true,width:a.w||1920,height:a.h||1080,style:{width:'100%',height:'auto',display:'block'}}))));
+}
+
 function CoachScene(){
  var ref=React.useRef(null),scene=React.useRef(null);
  var ps=React.useState(false),paused=ps[0],setPaused=ps[1];var userPaused=React.useRef(false),visible=React.useRef(false);
@@ -940,18 +977,28 @@ function HomePage(props){
 
  var img=function(src,alt,w,hgt,extra){return h('img',Object.assign({src:src,alt:alt||'',width:w,height:hgt,loading:'lazy',decoding:'async'},extra||{}));};
  var sceneSec=h('section',{className:'vfh-scene','aria-labelledby':'vfh-scene-h'},
-  h(CoachScene,null),
+  VF_CINEMATIC.coach?h(CinematicLoop,{asset:VF_CINEMATIC.coach}):h(CoachScene,null),
   h('div',{className:'vfh-scene-copy'},
    h('p',{className:'vfh-label'},'How coaching works'),
    h('h2',{id:'vfh-scene-h',className:'vfh-sec-h'},'A coach with you, set by set.'),
    h('p',null,'Your coach watches your form, sets your pace and adjusts the plan as you get stronger. In Nassau that happens in the room; online, your coach reviews your logged sessions in the VFIT app.')));
+ var strengthSec=VF_CINEMATIC.strength?h('section',{className:'vfh-scene','aria-labelledby':'vfh-str-h'},h(CinematicLoop,{asset:VF_CINEMATIC.strength}),
+  h('div',{className:'vfh-scene-copy'},h('p',{className:'vfh-label'},'Strength coaching'),h('h2',{id:'vfh-str-h',className:'vfh-sec-h'},'Technique first, then load.'),
+   h('p',null,'Your coach watches every rep and gives one clear cue at a time, so you lift with control and add weight safely.'))):null;
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
   h('div',{className:'vfh-gallery'},
    h(HomePanel,{k:'team',name:'Meet VFITNESS: real coaches, right here in Nassau. Open the team introduction',label:'Meet VFITNESS',title:['Real coaches.','Right here in Nassau.'],cta:'Meet the coaching team',onOpen:function(){setDlg('team');},
     media:img('/vf26/team-four-2026-sm.webp','',900,675,{srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 1100px) 34vw, 100vw',loading:'eager',fetchpriority:'high'})}),
-   h(HomePanel,{k:'semi',tone:'sand',name:'Semi private coaching: $195 for 12 sessions per person, up to four clients. Gym membership is separate. Open the details',label:'Semi private coaching',title:['Small group.','Personal attention.'],cta:'How it works',onOpen:function(){setDlg('semi');},
-    body:h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 sessions')),h('p',{className:'per'},'Per person · Up to four clients'),h('p',{className:'gym'},'Gym membership is separate.'))}),
+   h('div',{className:'vfh-panel vfh-semi tone-sand vfh-card'},h('div',{className:'vfh-copy'},
+    h('p',{className:'vfh-label'},'Semi-private coaching'),
+    h('h3',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
+    h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.'),
+    h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
+     h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
+    h('div',{className:'vfh-semi-acts'},
+     h('button',{type:'button',className:'vf26-btn vfh-btn-ink',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
+     h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))),
    h(HomePanel,{k:'app',name:'VFIT app: your training, your food and your progress together. Open the details',label:'VFIT app · Train online',title:['Your training. Your food.','Your progress, together.'],cta:'What the app does',onOpen:function(){setDlg('app');},
     media:h('div',{className:'vfh-phones'},img('/vf26/wt-3-train.webp','',420,840),img('/vf26/wt-4-eat.webp','',420,840),img('/vf26/wt-5-progress.webp','',420,840)),
     body:h('p',{className:'vfh-note'},'Screens show sample data.')}),
@@ -974,17 +1021,21 @@ function HomePage(props){
   action:navA('trainers',function(){close();go(setCurrentPage,'trainers')();},{className:'vf26-btn vf26-btn-primary'},h(React.Fragment,null,'Meet the coaching team',icon('arrow',16,{className:'vf26-arrow'})))},
   h('p',null,'VFITNESS has coached clients in Nassau since 2018. Every session follows a written plan, progress is tracked, and you train with a coach who knows your goal.'),
   h('ul',{className:'vfh-people'},COACHES.map(function(c){return h('li',{key:c.name},h('b',null,c.name),h('span',null,c.role));})));
- if(dlg==='semi')dialog=h(HomeDialog,{id:'vfh-d-semi',onClose:close,label:'Semi private coaching',title:'Small group. Personal attention.',
+ if(dlg==='semi')dialog=h(HomeDialog,{id:'vfh-d-semi',onClose:close,label:'Semi-private coaching',title:'Your goals. Your coach. A small group beside you.',
   action:h(React.Fragment,null,h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){close();consult();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
    h('button',{type:'button',className:'vf26-link',onClick:function(){close();svc('vf26-packages')();}},'All packages and terms',icon('arrow',15)))},
-  h('p',{className:'vfh-dlg-price'},h('b',null,'$195 for 12 sessions'),' per person. $16.25 a session on the 12 session block. Gym membership is separate.'),
+  h('p',null,'Train with a VFITNESS coach in a group of up to four people. Your coach guides the session, adjusts exercises to your ability, checks your technique, and helps you progress.'),
+  h('p',null,'You share the session while receiving individual guidance, and encouragement from people putting in the work alongside you.'),
+  h('h3',{className:'vfh-dlg-sub'},'What you get'),
   h('dl',{className:'vfh-terms'},[
-   ['Join on your own','You can ask on your own. You do not need a partner.'],
-   ['Matched to a group','Groups of up to four clients, matched by goals, ability and availability.'],
-   ['60 minute sessions','A written plan for every session, with adjustments for you.'],
-   ['Schedule first, then payment','A coach confirms your group schedule before you pay.'],
-   ['A 12 session block','Not a monthly membership. Packages expire 45 days after purchase; paused time is added back.'],
-   ['Cancellations','Sessions cancelled with less than 24 hours notice may be forfeited.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})));
+   ['A clear training plan','Arrive knowing what you are working toward.'],
+   ['Coaching throughout your session','Get help with technique, exercise choices, and suitable weights.'],
+   ['Training matched to your level','Start where you are and progress as you improve.'],
+   ['Accountability and group support','Build consistency with a coach and familiar training partners.'],
+   ['Tracked sessions','Know what you have completed and how many sessions remain.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})),
+  h('p',{className:'vfh-dlg-price'},h('b',null,'12 coached sessions. $195 per person.'),' That is $16.25 per session when you purchase the 12-session package.'),
+  h('p',null,'Come on your own. We will help match you with a suitable group and schedule.'),
+  h('p',{className:'vfh-note'},'Gym membership is separate. Your coach confirms availability and explains package terms before you pay. Sessions are 60 minutes; packages expire 45 days after purchase, with paused time added back; sessions cancelled with less than 24 hours notice may be forfeited.'));
  if(dlg==='app')dialog=h(HomeDialog,{id:'vfh-d-app',onClose:close,wide:true,label:'VFIT app · Train online',title:'Your training. Your food. Your progress, together.',
   action:h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){close();toOnlinePlans(setCurrentPage)();}},'Compare online plans',icon('arrow',16,{className:'vf26-arrow'}))},
   h('div',{className:'vfh-three'},
@@ -996,7 +1047,7 @@ function HomePage(props){
  return h('main',{className:'vf26 vfh'},
   h('div',{className:'vfh-split'},
    intro,
-   h('div',{className:'vfh-stage'},routes,sceneSec,gallery,steps,h(PromoSlider,null))),
+   h('div',{className:'vfh-stage'},routes,sceneSec,strengthSec,gallery,steps,h(PromoSlider,null))),
   dialog);
 }
 
