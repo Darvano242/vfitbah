@@ -1286,9 +1286,9 @@ function VFEventStoryPage(props){
     h('button',{type:'button',onClick:function(){setOpen(i);},'aria-label':'View photo '+(i+1)+' of '+n+': '+ph[1]},
      h('img',{src:pbbSrc(i,true),alt:ph[1],loading:'lazy',decoding:'async'})));})))),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{kicker:'Video',title:'See it move.',lead:'Press play to watch. Sound is on once you play.'}),
+   h(SectionHead,{kicker:'Video',title:'See it move.',lead:'Press play to watch. The clips have no sound.'}),
    h('div',{className:'vf26-ev-videos'},PBB.videos.map(function(v){return h('figure',{key:v.src,className:'vf26-ev-video'},
-    h('video',{src:v.src,poster:v.poster,controls:true,playsInline:true,preload:'none',width:1280,height:720,'aria-label':v.title+'. '+v.desc}),
+    h('video',{src:v.src,poster:v.poster,controls:true,muted:true,playsInline:true,preload:'none',width:1280,height:720,'aria-label':v.title+'. '+v.desc}),
     h('figcaption',null,h('b',null,v.title),' ',v.desc));})))),
   h(FinalCTA,{setCurrentPage:setCurrentPage,kicker:'Join us next time',title:'Train with the VFitness community.',lead:'Follow @xvfitnessx for our next community event, or book a free consultation and start training with a VFitness coach.'}),
   open!=null?h(EventLightbox,{index:open,onClose:function(){setOpen(null);},onGo:function(d){setOpen(function(v){return ((v+d)%n+n)%n;});}}):null);
