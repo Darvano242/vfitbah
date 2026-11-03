@@ -900,6 +900,77 @@ function CoachScene(){
 }
 window.VF26CoachScene=CoachScene;
 
+/* ================= SEMI-PRIVATE GROUP SCENE (homepage card) =================
+   Plays once when the card comes into view (about 7 s): the coach appears, four clients move into place,
+   lines show the coach's attention reaching each one, then three labels and the closing line. It then holds
+   still (no continuous motion); Replay runs it again. Each client is a button: hover, focus or tap shows an
+   example of the individual coaching that client gets. Reduced motion shows the finished composition. */
+var SG_SKIN=[['#8d5a3b','#6e4129'],['#c08a64','#9a6a48'],['#5b3a28','#42291b'],['#a46f4c','#7f5236']];
+function sgBust(o){
+ var g='<defs><clipPath id="'+o.id+'-c"><circle r="28.6"/></clipPath><linearGradient id="'+o.id+'-s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+o.shirt[0]+'"/><stop offset="1" stop-color="'+o.shirt[1]+'"/></linearGradient>'+
+  '<radialGradient id="'+o.id+'-k" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="'+o.skin[0]+'"/><stop offset="1" stop-color="'+o.skin[1]+'"/></radialGradient></defs>';
+ g+='<circle r="30" fill="'+(o.coach?'#243E33':'#fffdf8')+'"/><circle r="30" fill="none" stroke="'+(o.coach?'#4296f0':'#d9cfb8')+'" stroke-width="'+(o.coach?2.2:1.4)+'"/>';
+ g+='<g clip-path="url(#'+o.id+'-c)"><circle r="29" fill="'+(o.coach?'#2f4f41':'#f3ecdd')+'"/>'+(o.hairBack||'')+
+  '<path d="M-27 36 C-27 19 -15 12 0 12 C15 12 27 19 27 36Z" fill="url(#'+o.id+'-s)"/>'+(o.shirtMark||'')+
+  '<path d="M-5.5 3 L-5.5 13 C-2 15.5 2 15.5 5.5 13 L5.5 3Z" fill="'+o.skin[1]+'"/>'+
+  '<ellipse cx="-11" cy="-5" rx="2.6" ry="3.6" fill="'+o.skin[1]+'"/><ellipse cx="11" cy="-5" rx="2.6" ry="3.6" fill="'+o.skin[1]+'"/>'+
+  '<ellipse cx="0" cy="-6" rx="11" ry="13" fill="url(#'+o.id+'-k)"/>'+(o.beard||'')+o.hair+
+  '<path d="M-6.4 -10.6 Q-4 -12 -1.8 -10.8 M1.8 -10.8 Q4 -12 6.4 -10.6" stroke="#1a110c" stroke-width="1.3" fill="none" stroke-linecap="round"/>'+
+  '<ellipse cx="-4" cy="-7" rx="1.35" ry="1.5" fill="#1a110c"/><ellipse cx="4" cy="-7" rx="1.35" ry="1.5" fill="#1a110c"/>'+
+  '<circle cx="-3.6" cy="-7.5" r=".45" fill="#fff"/><circle cx="4.4" cy="-7.5" r=".45" fill="#fff"/>'+
+  '<path d="M0 -5 C-.8 -2.5 -1.6 -1.2 -.4 -.8" stroke="'+o.skin[1]+'" stroke-width=".9" fill="none" stroke-linecap="round"/>'+
+  '<path d="M-3.6 2 Q0 4.6 3.6 2" stroke="'+(o.beard?'#f0e6dc':'#5a2d22')+'" stroke-width="1.2" fill="none" stroke-linecap="round"/></g>';
+ return g;}
+var SG_PEOPLE=[
+ {id:'sg0',x:42,y:42,skin:SG_SKIN[0],shirt:['#e9edf2','#b9c2cc'],shirtMark:'<path d="M-27 36 C-27 24 -22 17 -15 14" stroke="#4296f0" stroke-width="2.6" fill="none"/>',
+  hair:'<path d="M-11.5 -7 C-12.5 -19 -4 -23 3 -22 C10 -21 13 -14 11.5 -7 C10 -12 6 -15 0 -15 C-6 -15 -10 -12 -11.5 -7Z" fill="#1d1310"/><circle cx="0" cy="-23" r="7" fill="#1d1310"/>',
+  tip:'Exercise adapted to your level.'},
+ {id:'sg1',x:318,y:42,skin:SG_SKIN[1],shirt:['#3a4049','#22262d'],
+  hairBack:'<path d="M-15 -8 C-16 6 -15 16 -12 26 L12 26 C15 16 16 6 15 -8Z" fill="#2a1a12"/>',
+  hair:'<path d="M-12 -4 C-13.5 -18 -6 -23 1 -22.5 C8.5 -22 13.5 -17 12 -4 C10 -11 6.5 -15.5 1 -15.6 C-4 -15.4 -8.5 -12 -12 -4Z" fill="#2a1a12"/>',
+  tip:'Technique cue: brace your core before each rep.'},
+ {id:'sg2',x:46,y:154,skin:SG_SKIN[2],shirt:['#4296f0','#2f6fb8'],
+  hair:'<path d="M-11 -9 C-11 -18 -5 -21.5 0 -21.5 C5 -21.5 11 -18 11 -9 C9 -12.5 6 -14.6 0 -14.6 C-6 -14.6 -9 -12.5 -11 -9Z" fill="#0f0a08"/>',
+  tip:'Weight chosen for the reps you can do well today.'},
+ {id:'sg3',x:314,y:154,skin:SG_SKIN[3],shirt:['#d7dbe0','#a9b2bd'],shirtMark:'<rect x="-27" y="22" width="54" height="3" fill="#4296f0" opacity=".85"/>',
+  hair:'<path d="M-13 -2 C-17 -15 -10 -26 0 -26 C10 -26 17 -15 13 -2 C12 -10 7 -14.5 0 -14.5 C-7 -14.5 -12 -10 -13 -2Z" fill="#20130d"/><circle cx="-9" cy="-20" r="5" fill="#20130d"/><circle cx="9" cy="-20" r="5" fill="#20130d"/><circle cx="0" cy="-25" r="5.5" fill="#20130d"/>',
+  tip:'Progress checked and your plan adjusted every session.'}];
+var SG_COACH={id:'sgc',x:180,y:98,coach:1,skin:['#6b4430','#4a2d1d'],shirt:['#3a4049','#1e2227'],
+ shirtMark:'<path d="M-4 18 L0 25 L4 18" stroke="#4296f0" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+ hair:'<path d="M-11 -9 C-11 -19 -5 -22 0 -22 C5 -22 11 -19 11 -9 C9 -12.5 6 -14.4 0 -14.4 C-6 -14.4 -9 -12.5 -11 -9Z" fill="#0d0907"/>',
+ beard:'<path d="M-11 -6 C-11.5 5 -6 11 0 11.5 C6 11 11.5 5 11 -6 C9.5 -1 7 1.5 3.8 1.6 C2 .4 -2 .4 -3.8 1.6 C-7 1.5 -9.5 -1 -11 -6Z" fill="#0d0907"/>'};
+var SG_LABELS=[['Your level',0],['Your technique',1],['Your progress',3]];
+function sgSVG(){var s='<svg viewBox="0 0 360 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">';
+ SG_PEOPLE.forEach(function(p,i){var dx=p.x-SG_COACH.x,dy=p.y-SG_COACH.y,d=Math.hypot(dx,dy),ux=dx/d,uy=dy/d;
+  var x1=SG_COACH.x+ux*34,y1=SG_COACH.y+uy*38,x2=p.x-ux*27,y2=p.y-uy*27,L=Math.hypot(x2-x1,y2-y1);
+  s+='<line class="sg-line" id="sgl'+i+'" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" style="--len:'+L.toFixed(1)+';--i:'+i+'"/>';});
+ SG_PEOPLE.forEach(function(p,i){var ox=(p.x<180?-40:40),oy=(p.y<98?-20:20);
+  s+='<g class="sg-p" id="sgp'+i+'" style="--i:'+i+';--ox:'+ox+'px;--oy:'+oy+'px"><g transform="translate('+p.x+','+p.y+') scale(.8)">'+sgBust(p)+'</g></g>';});
+ s+='<g class="sg-c"><g transform="translate('+SG_COACH.x+','+SG_COACH.y+') scale(1.05)">'+sgBust(SG_COACH)+'</g></g>';
+ SG_LABELS.forEach(function(l,j){var p=SG_PEOPLE[l[1]],mx=SG_COACH.x+(p.x-SG_COACH.x)*.5,my=SG_COACH.y+(p.y-SG_COACH.y)*.5+(p.y<98?-12:12),w=l[0].length*6.1+18;
+  s+='<g class="sg-lab" style="--j:'+j+'"><rect x="'+(mx-w/2).toFixed(1)+'" y="'+(my-10)+'" width="'+w.toFixed(1)+'" height="20" rx="10" fill="#243E33"/><text x="'+mx.toFixed(1)+'" y="'+(my+4)+'" text-anchor="middle" font-size="11" font-weight="600" fill="#F0EADC" font-family="Geist,system-ui,sans-serif">'+l[0]+'</text></g>';});
+ return s+'</svg>';}
+function SemiGroupScene(){
+ var ref=React.useRef(null),played=React.useRef(false);var ss=React.useState(-1),sel=ss[0],setSel=ss[1];
+ function run(){var el=ref.current;if(!el)return;el.classList.remove('play');void el.offsetWidth;el.classList.add('play');played.current=true;}
+ React.useEffect(function(){var el=ref.current;if(!el)return;var art=el.querySelector('.sg-art');art.innerHTML=sgSVG();
+  if(reduceMotion){el.classList.add('done');return;}
+  if(typeof IntersectionObserver==='undefined'){run();return;}
+  var io=new IntersectionObserver(function(en){if(en[0].isIntersecting&&!played.current&&!document.hidden){run();io.disconnect();}},{threshold:.45});io.observe(el);
+  return function(){io.disconnect();};},[]);
+ React.useEffect(function(){var el=ref.current;if(!el)return;SG_PEOPLE.forEach(function(p,i){var g=el.querySelector('#sgp'+i),l=el.querySelector('#sgl'+i);
+  if(g)g.classList.toggle('on',i===sel);if(l)l.classList.toggle('on',i===sel);});},[sel]);
+ var tip=sel>=0?SG_PEOPLE[sel].tip:'Select a client to see an example of their individual coaching.';
+ return h('div',{ref:ref,className:'sg'},
+  h('div',{className:'sg-stage'},h('div',{className:'sg-art'}),
+   SG_PEOPLE.map(function(p,i){return h('button',{key:p.id,type:'button',className:'sg-hit'+(i===sel?' on':''),style:{left:(p.x/360*100)+'%',top:(p.y/196*100)+'%'},
+    'aria-pressed':i===sel?'true':'false','aria-label':'Client '+(i+1)+': '+p.tip,
+    onMouseEnter:function(){setSel(i);},onFocus:function(){setSel(i);},onClick:function(){setSel(i);}});})),
+  h('p',{className:'sg-cap'},'Up to four clients. Individual guidance.'),
+  h('p',{className:'sg-tip','aria-live':'polite'},tip),
+  reduceMotion?null:h('button',{type:'button',className:'sg-replay',onClick:run,'aria-label':'Replay the group animation'},'Replay'));
+}
+
 /* ================= HOMEPAGE (Nov 2026 redesign) =================
    Desktop: a calm introduction panel (about a third of the width, sticky under the header) beside a composed,
    staggered gallery of six real panels. Phone: introduction, then the two ways to train, then the gallery in one
@@ -988,27 +1059,30 @@ function HomePage(props){
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
   h('div',{className:'vfh-gallery'},
+   h('div',{className:'vfh-col c1'},
    h(HomePanel,{k:'team',name:'Meet VFITNESS: real coaches, right here in Nassau. Open the team introduction',label:'Meet VFITNESS',title:['Real coaches.','Right here in Nassau.'],cta:'Meet the coaching team',onOpen:function(){setDlg('team');},
     media:img('/vf26/team-four-2026-sm.webp','',900,675,{srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 1100px) 34vw, 100vw',loading:'eager',fetchpriority:'high'})}),
+   h(HomePanel,{k:'app',name:'VFIT app: your training, your food and your progress together. Open the details',label:'VFIT app · Train online',title:['Your training. Your food.','Your progress, together.'],cta:'What the app does',onOpen:function(){setDlg('app');},
+    media:h('div',{className:'vfh-phones'},img('/vf26/wt-3-train.webp','',420,840),img('/vf26/wt-4-eat.webp','',420,840),img('/vf26/wt-5-progress.webp','',420,840)),
+    body:h('p',{className:'vfh-note'},'Screens show sample data.')}),
+   h(HomePanel,{k:'founder',name:'Meet your head coach, Darvano Andrews, founder of VFITNESS. Meet Darvano and the team',label:'Darvano Andrews · Founder',title:['Meet your','head coach.'],cta:'Meet Darvano and the team',page:'trainers',run:go(setCurrentPage,'trainers'),
+    media:img('/vf26/darvano-andrews.webp','',720,900)})),
+   h('div',{className:'vfh-col c2'},
    h('div',{className:'vfh-panel vfh-semi tone-sand vfh-card'},h('div',{className:'vfh-copy'},
     h('p',{className:'vfh-label'},'Semi-private coaching'),
     h('h3',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
     h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.'),
+    h(SemiGroupScene,null),
     h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
      h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
     h('div',{className:'vfh-semi-acts'},
      h('button',{type:'button',className:'vf26-btn vfh-btn-ink',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))),
-   h(HomePanel,{k:'app',name:'VFIT app: your training, your food and your progress together. Open the details',label:'VFIT app · Train online',title:['Your training. Your food.','Your progress, together.'],cta:'What the app does',onOpen:function(){setDlg('app');},
-    media:h('div',{className:'vfh-phones'},img('/vf26/wt-3-train.webp','',420,840),img('/vf26/wt-4-eat.webp','',420,840),img('/vf26/wt-5-progress.webp','',420,840)),
-    body:h('p',{className:'vfh-note'},'Screens show sample data.')}),
    h(HomePanel,{k:'pbb',name:'Pink Beach Burn: Nassau showed up in pink. Read the story',label:'Pink Beach Burn · October 31, 2026',title:['Nassau showed up','in pink.'],cta:'Read the story',page:'pinkbeachburn',run:go(setCurrentPage,'pinkbeachburn'),
     media:img(pbbSrc(0,true),'',720,540)}),
-   h(HomePanel,{k:'founder',name:'Meet your head coach, Darvano Andrews, founder of VFITNESS. Meet Darvano and the team',label:'Darvano Andrews · Founder',title:['Meet your','head coach.'],cta:'Meet Darvano and the team',page:'trainers',run:go(setCurrentPage,'trainers'),
-    media:img('/vf26/darvano-andrews.webp','',720,900)}),
    h(HomePanel,{k:'progress',tone:proof?null:'blue',name:'Progress you can see. Explore client results',label:'Client results',title:['Progress','you can see.'],cta:'Explore client results',page:'results',run:go(setCurrentPage,'results'),
     media:proof?img(proof.imageUrl,'',800,1000):null,
-    body:proof?null:h('p',{className:'vfh-note'},'Real client photos and documented progress, published with permission.')})));
+    body:proof?null:h('p',{className:'vfh-note'},'Real client photos and documented progress, published with permission.')}))));
 
  var steps=h('section',{className:'vfh-steps','aria-labelledby':'vfh-steps-h'},
   h('h2',{id:'vfh-steps-h',className:'vfh-sec-h'},'What happens after you ask'),
