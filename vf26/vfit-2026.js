@@ -1220,6 +1220,8 @@ var PBB={
   ['pbb26-24-finale','The group finishing a kettlebell round together under the palms']
  ],
  videos:[
+  {src:'/vf26/pbb26-video-run.mp4',poster:'/vf26/pbb26-video-run-poster.webp',title:'The warm-up',desc:'The whole group jogging across the field to start the morning. 9 seconds.'},
+  {src:'/vf26/pbb26-video-stations.mp4',poster:'/vf26/pbb26-video-stations-poster.webp',title:'Four stations',desc:'The four station setup, with groups rotating through each one. 33 seconds.'},
   {src:'/vf26/pbb26-video-warmup.mp4',poster:'/vf26/pbb26-video-warmup-poster.webp',title:'On the field',desc:'Coaches leading the group through the morning. 12 seconds.'},
   {src:'/vf26/pbb26-video-jacks.mp4',poster:'/vf26/pbb26-video-jacks-poster.webp',title:'Arms up',desc:'Jumping jacks with the whole group. 2 seconds.'}
  ]};
