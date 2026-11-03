@@ -1771,3 +1771,16 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 .vfh-scene-copy .vfh-sec-h{margin-bottom:10px;}
 @media (min-width:900px){.vfh-scene{grid-template-columns:1.35fr 1fr;padding:24px 28px;}}
 .vfh-scene-copy .vfh-sec-h{font-size:clamp(1.5rem,2.2vw,1.9rem);}
+
+/* Logo entrance (homepage, once per session) */
+.vf26-intro{position:fixed;inset:0;z-index:2147483000;pointer-events:none;background:#131516;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:background .42s ease-out;}
+.vf26-intro-glow{position:absolute;width:70vmax;height:70vmax;border-radius:50%;background:radial-gradient(circle,rgba(66,150,240,.22),rgba(66,150,240,0) 62%);transition:opacity .3s ease-out;}
+.vf26-intro-logo{position:relative;display:flex;align-items:center;gap:1.3rem;padding:6px 10px;overflow:hidden;opacity:0;will-change:transform,filter,opacity;}
+.vf26-intro-logo .tile{width:80px;height:80px;border-radius:1.6rem;overflow:hidden;box-shadow:0 12px 32px -14px rgba(66,150,240,.9);flex:none;}
+.vf26-intro-logo .tile img{display:block;width:100%;height:100%;}
+.vf26-intro-logo .word{font-family:'Geist',system-ui,sans-serif;font-weight:800;font-size:2.3rem;letter-spacing:.02em;color:#F2F1EC;}
+.vf26-intro-logo .sheen{position:absolute;top:-20%;bottom:-20%;left:0;width:35%;background:linear-gradient(90deg,rgba(142,201,255,0),rgba(142,201,255,.55),rgba(142,201,255,0));mix-blend-mode:screen;opacity:0;pointer-events:none;}
+.vf26-intro-skip{position:fixed;right:16px;bottom:16px;z-index:2147483001;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(242,241,236,.3);background:rgba(19,21,22,.7);color:#F2F1EC;font:600 14px/1 'Geist',system-ui,sans-serif;cursor:pointer;}
+.vf26-intro-skip:focus-visible{outline:3px solid #8EC9FF;outline-offset:2px;}
+[data-vf-theme="light"] .vf26-intro-logo .word{color:#F2F1EC;}
+@media (max-width:520px){.vf26-intro-logo .tile{width:60px;height:60px;border-radius:1.2rem;}.vf26-intro-logo .word{font-size:1.8rem;}}

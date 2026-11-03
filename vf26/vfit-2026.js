@@ -14,6 +14,49 @@ fixAccent();
 try{new MutationObserver(fixAccent).observe(root,{attributes:true,attributeFilter:['style']});}catch(e){}
 
 var reduceMotion=false;try{reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+/* ================= LOGO ENTRANCE =================
+   About 1.3 s, once per browser session, homepage only. The logo comes forward out of a soft blur, a blue light
+   sweeps across it, then it flies into the header position while the page (already rendered underneath) is revealed.
+   It never blocks the page: the overlay ignores pointer events, any key, click or tap skips it, and there is a Skip
+   button. Reduced motion, repeat visits and internal navigation open directly. No video, no audio. */
+(function(){
+ try{
+  if(reduceMotion)return;
+  var path=(location.pathname||'/').replace(/\/+$/,'')||'/';if(path!=='/')return;
+  if(sessionStorage.getItem('vf_intro_seen'))return;sessionStorage.setItem('vf_intro_seen','1');
+  if(!document.body||!Element.prototype.animate)return;
+ }catch(e){return;}
+ var ov=document.createElement('div');ov.className='vf26-intro';ov.setAttribute('aria-hidden','true');
+ ov.innerHTML='<div class="vf26-intro-glow"></div><div class="vf26-intro-logo"><span class="tile"><img src="/vf26/vfit-app-icon.webp" alt="" width="80" height="80"></span><span class="word">VFITNESS</span><span class="sheen"></span></div>';
+ var skip=document.createElement('button');skip.type='button';skip.className='vf26-intro-skip';skip.textContent='Skip intro';
+ document.body.appendChild(ov);document.body.appendChild(skip);
+ var logo=ov.querySelector('.vf26-intro-logo'),sheen=ov.querySelector('.sheen'),done=false,timers=[],anims=[];
+ function finish(){if(done)return;done=true;timers.forEach(clearTimeout);anims.forEach(function(a){try{a.cancel();}catch(e){}});
+  var b=document.querySelector('.vf26-header .vf26-brand');if(b)b.style.visibility='';
+  ['keydown','pointerdown','wheel','touchstart'].forEach(function(ev){window.removeEventListener(ev,finish,true);});
+  try{ov.remove();skip.remove();}catch(e){}}
+ ['keydown','pointerdown','wheel','touchstart'].forEach(function(ev){window.addEventListener(ev,finish,{capture:true,passive:true});});
+ skip.addEventListener('click',finish);
+ var ease='cubic-bezier(.2,.8,.2,1)';
+ anims.push(logo.animate([{opacity:0,transform:'perspective(800px) translateZ(-160px) scale(.86)',filter:'blur(10px)'},{opacity:1,transform:'perspective(800px) translateZ(0) scale(1)',filter:'blur(0)'}],{duration:560,easing:ease,fill:'forwards'}));
+ anims.push(sheen.animate([{transform:'translateX(-120%) skewX(-18deg)',opacity:0},{opacity:.9,offset:.3},{transform:'translateX(260%) skewX(-18deg)',opacity:0}],{duration:420,delay:470,easing:'ease-in-out',fill:'forwards'}));
+ timers.push(setTimeout(function(){
+  var b=document.querySelector('.vf26-header .vf26-brand'),r=b&&b.getBoundingClientRect(),L=logo.getBoundingClientRect();
+  if(!(r&&r.width))anims.push(ov.animate([{opacity:1},{opacity:0}],{duration:420,easing:'ease-out',fill:'forwards'}));
+  if(r&&r.width){
+   try{var wc=getComputedStyle(b.querySelector('.vf26-brand-word')).color;var w=logo.querySelector('.word');w.style.transition='color .44s ease-out';w.style.color=wc;}catch(e){}
+   b.style.visibility='hidden';
+   var dx=(r.left+r.width/2)-(L.left+L.width/2),dy=(r.top+r.height/2)-(L.top+L.height/2),sc=r.height/L.height;
+   var fly=logo.animate([{transform:'perspective(800px) translate(0,0) scale(1)'},{transform:'perspective(800px) translate('+dx+'px,'+dy+'px) scale('+sc+')'}],{duration:440,easing:ease,fill:'forwards'});
+   anims.push(fly);logo.style.opacity='1';
+   ov.querySelector('.vf26-intro-glow').style.opacity='0';
+   ov.style.background='transparent';
+  }
+  timers.push(setTimeout(finish,470));
+ },880));
+ timers.push(setTimeout(finish,2600));/* safety: never longer than this */
+})();
+
 var coarse=false;try{coarse=window.matchMedia('(hover: none)').matches;}catch(e){}
 
 function h(){return React.createElement.apply(React,arguments);}
