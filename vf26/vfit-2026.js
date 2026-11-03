@@ -715,7 +715,7 @@ function csPerson(pre,o){
      (o.sleeveBand&&n?'<path d="M'+(-o.shW/2)+' '+(o.sleeve-2.5)+' L'+(o.shW/2+1)+' '+(o.sleeve-3.5)+'" stroke="#4296f0" stroke-width="2" stroke-linecap="round"/>':''),
     child:'<g id="'+pre+'-el'+s+'" transform="translate(0,'+o.A1+')">'+csSeg(pre+'-fa'+s,o.A2,o.elW-.5,o.wrW,G('Skin'+sfx),{bf:o.fore,bb:.6,
       child:(o.watch&&n?'<rect x="'+(-o.wrW/2-1.2)+'" y="'+(o.A2-5)+'" width="'+(o.wrW+2.4)+'" height="4.5" rx="1.5" fill="#0b0c0e"/>':'')+
-       '<g transform="translate(0,'+o.A2+')">'+csHand(n?o.skin:o.skinD,o.skinS,n&&o.thumb?pre+'-thumb':null)+'</g>'})+'</g>'});};
+       '<g transform="translate(0,'+o.A2+')">'+csHand(n?o.skin:o.skinD,o.skinS,n&&o.thumb?pre+'-thumb':null)+(n?(o.prop||''):(o.propF||''))+'</g>'})+'</g>'});};
  var torso='<path d="'+o.torso+'" fill="'+G('Top')+'"/>'+(o.torsoExtra||'');
  var head='<g id="'+pre+'-hd" transform="translate('+o.neckX+','+(-o.T)+')">'+
   '<path d="M-5 4 L-5 -8 C-2 -10 3 -10 5.5 -8 L5.5 4Z" fill="'+o.skinS+'"/>'+
@@ -900,75 +900,100 @@ function CoachScene(){
 }
 window.VF26CoachScene=CoachScene;
 
-/* ================= SEMI-PRIVATE GROUP SCENE (homepage card) =================
-   Plays once when the card comes into view (about 7 s): the coach appears, four clients move into place,
-   lines show the coach's attention reaching each one, then three labels and the closing line. It then holds
-   still (no continuous motion); Replay runs it again. Each client is a button: hover, focus or tap shows an
-   example of the individual coaching that client gets. Reduced motion shows the finished composition. */
-var SG_SKIN=[['#8d5a3b','#6e4129'],['#c08a64','#9a6a48'],['#5b3a28','#42291b'],['#a46f4c','#7f5236']];
-function sgBust(o){
- var g='<defs><clipPath id="'+o.id+'-c"><circle r="28.6"/></clipPath><linearGradient id="'+o.id+'-s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+o.shirt[0]+'"/><stop offset="1" stop-color="'+o.shirt[1]+'"/></linearGradient>'+
-  '<radialGradient id="'+o.id+'-k" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="'+o.skin[0]+'"/><stop offset="1" stop-color="'+o.skin[1]+'"/></radialGradient></defs>';
- g+='<circle r="30" fill="'+(o.coach?'#243E33':'#fffdf8')+'"/><circle r="30" fill="none" stroke="'+(o.coach?'#4296f0':'#d9cfb8')+'" stroke-width="'+(o.coach?2.2:1.4)+'"/>';
- g+='<g clip-path="url(#'+o.id+'-c)"><circle r="29" fill="'+(o.coach?'#2f4f41':'#f3ecdd')+'"/>'+(o.hairBack||'')+
-  '<path d="M-27 36 C-27 19 -15 12 0 12 C15 12 27 19 27 36Z" fill="url(#'+o.id+'-s)"/>'+(o.shirtMark||'')+
-  '<path d="M-5.5 3 L-5.5 13 C-2 15.5 2 15.5 5.5 13 L5.5 3Z" fill="'+o.skin[1]+'"/>'+
-  '<ellipse cx="-11" cy="-5" rx="2.6" ry="3.6" fill="'+o.skin[1]+'"/><ellipse cx="11" cy="-5" rx="2.6" ry="3.6" fill="'+o.skin[1]+'"/>'+
-  '<ellipse cx="0" cy="-6" rx="11" ry="13" fill="url(#'+o.id+'-k)"/>'+(o.beard||'')+o.hair+
-  '<path d="M-6.4 -10.6 Q-4 -12 -1.8 -10.8 M1.8 -10.8 Q4 -12 6.4 -10.6" stroke="#1a110c" stroke-width="1.3" fill="none" stroke-linecap="round"/>'+
-  '<ellipse cx="-4" cy="-7" rx="1.35" ry="1.5" fill="#1a110c"/><ellipse cx="4" cy="-7" rx="1.35" ry="1.5" fill="#1a110c"/>'+
-  '<circle cx="-3.6" cy="-7.5" r=".45" fill="#fff"/><circle cx="4.4" cy="-7.5" r=".45" fill="#fff"/>'+
-  '<path d="M0 -5 C-.8 -2.5 -1.6 -1.2 -.4 -.8" stroke="'+o.skin[1]+'" stroke-width=".9" fill="none" stroke-linecap="round"/>'+
-  '<path d="M-3.6 2 Q0 4.6 3.6 2" stroke="'+(o.beard?'#f0e6dc':'#5a2d22')+'" stroke-width="1.2" fill="none" stroke-linecap="round"/></g>';
- return g;}
-var SG_PEOPLE=[
- {id:'sg0',x:42,y:42,skin:SG_SKIN[0],shirt:['#e9edf2','#b9c2cc'],shirtMark:'<path d="M-27 36 C-27 24 -22 17 -15 14" stroke="#4296f0" stroke-width="2.6" fill="none"/>',
-  hair:'<path d="M-11.5 -7 C-12.5 -19 -4 -23 3 -22 C10 -21 13 -14 11.5 -7 C10 -12 6 -15 0 -15 C-6 -15 -10 -12 -11.5 -7Z" fill="#1d1310"/><circle cx="0" cy="-23" r="7" fill="#1d1310"/>',
-  tip:'Exercise adapted to your level.'},
- {id:'sg1',x:318,y:42,skin:SG_SKIN[1],shirt:['#3a4049','#22262d'],
-  hairBack:'<path d="M-15 -8 C-16 6 -15 16 -12 26 L12 26 C15 16 16 6 15 -8Z" fill="#2a1a12"/>',
-  hair:'<path d="M-12 -4 C-13.5 -18 -6 -23 1 -22.5 C8.5 -22 13.5 -17 12 -4 C10 -11 6.5 -15.5 1 -15.6 C-4 -15.4 -8.5 -12 -12 -4Z" fill="#2a1a12"/>',
-  tip:'Technique cue: brace your core before each rep.'},
- {id:'sg2',x:46,y:154,skin:SG_SKIN[2],shirt:['#4296f0','#2f6fb8'],
-  hair:'<path d="M-11 -9 C-11 -18 -5 -21.5 0 -21.5 C5 -21.5 11 -18 11 -9 C9 -12.5 6 -14.6 0 -14.6 C-6 -14.6 -9 -12.5 -11 -9Z" fill="#0f0a08"/>',
-  tip:'Weight chosen for the reps you can do well today.'},
- {id:'sg3',x:314,y:154,skin:SG_SKIN[3],shirt:['#d7dbe0','#a9b2bd'],shirtMark:'<rect x="-27" y="22" width="54" height="3" fill="#4296f0" opacity=".85"/>',
-  hair:'<path d="M-13 -2 C-17 -15 -10 -26 0 -26 C10 -26 17 -15 13 -2 C12 -10 7 -14.5 0 -14.5 C-7 -14.5 -12 -10 -13 -2Z" fill="#20130d"/><circle cx="-9" cy="-20" r="5" fill="#20130d"/><circle cx="9" cy="-20" r="5" fill="#20130d"/><circle cx="0" cy="-25" r="5.5" fill="#20130d"/>',
-  tip:'Progress checked and your plan adjusted every session.'}];
-var SG_COACH={id:'sgc',x:180,y:98,coach:1,skin:['#6b4430','#4a2d1d'],shirt:['#3a4049','#1e2227'],
- shirtMark:'<path d="M-4 18 L0 25 L4 18" stroke="#4296f0" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
- hair:'<path d="M-11 -9 C-11 -19 -5 -22 0 -22 C5 -22 11 -19 11 -9 C9 -12.5 6 -14.4 0 -14.4 C-6 -14.4 -9 -12.5 -11 -9Z" fill="#0d0907"/>',
- beard:'<path d="M-11 -6 C-11.5 5 -6 11 0 11.5 C6 11 11.5 5 11 -6 C9.5 -1 7 1.5 3.8 1.6 C2 .4 -2 .4 -3.8 1.6 C-7 1.5 -9.5 -1 -11 -6Z" fill="#0d0907"/>'};
-var SG_LABELS=[['Your level',0],['Your technique',1],['Your progress',3]];
-function sgSVG(){var s='<svg viewBox="0 0 360 196" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">';
- SG_PEOPLE.forEach(function(p,i){var dx=p.x-SG_COACH.x,dy=p.y-SG_COACH.y,d=Math.hypot(dx,dy),ux=dx/d,uy=dy/d;
-  var x1=SG_COACH.x+ux*34,y1=SG_COACH.y+uy*38,x2=p.x-ux*27,y2=p.y-uy*27,L=Math.hypot(x2-x1,y2-y1);
-  s+='<line class="sg-line" id="sgl'+i+'" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" style="--len:'+L.toFixed(1)+';--i:'+i+'"/>';});
- SG_PEOPLE.forEach(function(p,i){var ox=(p.x<180?-40:40),oy=(p.y<98?-20:20);
-  s+='<g class="sg-p" id="sgp'+i+'" style="--i:'+i+';--ox:'+ox+'px;--oy:'+oy+'px"><g transform="translate('+p.x+','+p.y+') scale(.8)">'+sgBust(p)+'</g></g>';});
- s+='<g class="sg-c"><g transform="translate('+SG_COACH.x+','+SG_COACH.y+') scale(1.05)">'+sgBust(SG_COACH)+'</g></g>';
- SG_LABELS.forEach(function(l,j){var p=SG_PEOPLE[l[1]],mx=SG_COACH.x+(p.x-SG_COACH.x)*.5,my=SG_COACH.y+(p.y-SG_COACH.y)*.5+(p.y<98?-12:12),w=l[0].length*6.1+18;
-  s+='<g class="sg-lab" style="--j:'+j+'"><rect x="'+(mx-w/2).toFixed(1)+'" y="'+(my-10)+'" width="'+w.toFixed(1)+'" height="20" rx="10" fill="#243E33"/><text x="'+mx.toFixed(1)+'" y="'+(my+4)+'" text-anchor="middle" font-size="11" font-weight="600" fill="#F0EADC" font-family="Geist,system-ui,sans-serif">'+l[0]+'</text></g>';});
+/* ================= SEMI-PRIVATE COACHING SCENE (homepage card) =================
+   A miniature coaching session on one warm floor: four clients in a shallow semicircle around a VFITNESS
+   coach, drawn with the same rig as the treadmill scene (csPerson). Depth comes from placement and scale on
+   an elliptical floor. Stage 1: approved still (the coaching-begins moment). Animation follows approval. */
+var SG2_VB='0 0 600 300';
+var SG2_DUMB='<g transform="translate(0,7) rotate(90)"><rect x="-11" y="-2.2" width="22" height="4.4" rx="2" fill="#5b636e"/><rect x="-14" y="-6" width="5" height="12" rx="1.6" fill="#2b3037"/><rect x="9" y="-6" width="5" height="12" rx="1.6" fill="#2b3037"/></g>';
+function sg2Defs(list){var s='<defs>';list.forEach(function(d){Object.keys(d.pal).forEach(function(k){var c=d.pal[k],rev=d.rev;
+  s+='<linearGradient id="cs-'+d.k+k+'" x1="'+(rev?1:0)+'" y1="0" x2="'+(rev?0:1)+'" y2="0"><stop offset="0" stop-color="'+c[0]+'"/><stop offset=".55" stop-color="'+c[1]+'"/><stop offset="1" stop-color="'+c[1]+'" stop-opacity=".92"/></linearGradient>';});});
+ s+='<radialGradient id="sg2-sh" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#243E33" stop-opacity=".38"/><stop offset="1" stop-color="#243E33" stop-opacity="0"/></radialGradient>';
+ s+='<radialGradient id="sg2-floor" cx=".5" cy=".45" r=".6"><stop offset="0" stop-color="#e6dcc6"/><stop offset="1" stop-color="#e6dcc6" stop-opacity="0"/></radialGradient>';
+ return s+'</defs>';}
+var SG2_BODY={
+ f:{L1:47,L2:45,thW:22,knW:14,ankW:8.5,quad:2.5,ham:2,calf:3,A1:30,A2:27,shW:12,elW:9,wrW:6.5,bicep:1.2,tri:1,fore:1,sleeve:11,T:64,shX:1,shY:56,neckX:3,
+  torso:'M-11 2 C-14 -12 -13.5 -27 -12 -39 C-11 -49 -10 -56 -6 -61 C-1 -65 6 -64 9 -59 C12 -54 13.5 -47 12.5 -41 C11.5 -36 9.5 -32 9 -25 C8.6 -17 10.5 -8 11 2Z',
+  pelvis:'M-12 -10 C-15 -4 -14 4 -9 8 C-3 11 5 10 9.5 6 C12.5 2 12 -6 10 -10Z',mouth:'M13.4 -2.6 C14.2 -2 14.9 -2.2 15.3 -2.8'},
+ m:{L1:51,L2:48,thW:26,knW:16,ankW:10,quad:3,ham:2.4,calf:3.4,A1:31,A2:28,shW:15.5,elW:11,wrW:7.6,bicep:2.8,tri:2.4,fore:2,sleeve:13,T:70,shX:0,shY:60,neckX:3,
+  torso:'M-14 2 C-17 -14 -20 -29 -20 -43 C-19.5 -54 -15 -62 -8 -66.5 C0 -70 11 -68 16 -61.5 C19.5 -56 20 -47 18 -40 C16 -34 12.5 -29 11.5 -21 C11 -13 12.5 -6 13 2Z',
+  pelvis:'M-15 -10 C-18 -3 -17 5 -11 9 C-4 12 6 11 11 7 C14.5 2 14 -6 12 -10Z',mouth:'M13 -2.4 C14 -2.6 14.8 -2.6 15.4 -2.4'}};
+var SG2_HAIR={
+ bun:'<path d="M-13 -9 C-16 -18 -12 -29 -2 -31.5 C6 -33 12 -29.5 13.6 -23 C11 -24.6 8 -25 5 -24 C2 -22.5 0 -20 -1.5 -17 C-4 -19 -7 -17 -8 -14 C-9 -12 -10 -10 -13 -9Z" fill="#1d1310"/><circle cx="-11" cy="-26" r="7.5" fill="#1d1310"/>',
+ long:'<path d="M-14 6 C-18 -6 -16 -24 -4 -31 C6 -34 13 -29 14 -22 C10 -24 6 -24 2 -22 C-1 -18 -3 -14 -4 -8 C-6 0 -8 6 -6 14 C-10 13 -13 10 -14 6Z" fill="#2a1a12"/>',
+ puff:'<path d="M-13 -9 C-16 -18 -12 -29 -2 -31.5 C6 -33 12 -29.5 13.6 -23 C9 -25 4 -24 0 -21 C-4 -18 -8 -14 -13 -9Z" fill="#20130d"/><circle cx="-4" cy="-33" r="9" fill="#20130d"/>',
+ fade:'<path d="M-12.5 -8 C-15.5 -16 -13 -27.5 -3 -30.6 C4 -32.4 10.5 -30 13.2 -24.5 L9.6 -24 C8.4 -22 8.6 -20.6 9.4 -19.4 L7 -19.6 C5 -19.4 3.4 -18 2.4 -16.6 L1.6 -17.4 C-1.8 -18 -4.6 -16 -5.4 -13.4 C-6 -11.4 -8.6 -9 -12.5 -8Z" fill="#0d0907"/>',
+ locs:'<path d="M-13 -8 C-16 -18 -12 -29 -2 -31.5 C6 -33 12 -29.5 13.6 -23 C10 -24 6 -23.5 2 -21 C-2 -18 -6 -14 -13 -8Z" fill="#17100c"/><path d="M-12 -12 C-15 -2 -15 6 -13 12 M-9 -14 C-11 -4 -11 4 -9 10 M-6 -15 C-7.5 -7 -7.5 0 -6 6" stroke="#17100c" stroke-width="3.2" stroke-linecap="round" fill="none"/>'};
+var SG2_BEARD='<path d="M-1.4 -8.6 C-1 -3 2 2.6 7 5 C10.6 6.4 14 4.8 14.8 .6 C15 -1 14.6 -1.6 14 -1.8 C13 -.8 11.4 -.8 10 -1.6 C8.8 -3.6 7 -4.2 5.2 -4 C3.4 -4.4 1.8 -6 1.4 -8.6Z" fill="#0d0907"/><path d="M11.2 -5.2 C12.6 -6 14.4 -5.8 15.6 -4.6 C14.4 -4.1 12.6 -4.2 11.2 -5.2Z" fill="#0d0907"/>';
+function sg2Person(pre,body,look){var b=SG2_BODY[body],o={};for(var k in b)o[k]=b[k];for(var j in look)o[j]=look[j];o.k=pre;
+ o.skinD=o.skinD||o.skin;return csPerson(pre,o);}
+/* cast: x, floor y, scale, facing (1 right, -1 left), look */
+var SG2_CAST=[
+ {id:'s0',role:'Beginner',x:118,y:226,s:.8,dir:1,body:'f',pal:{Skin:['#a7704b','#7f5134'],SkinF:['#8b5b3d','#663f28'],Top:['#e9edf2','#b9c2cc'],TopF:['#c9d0d8','#9aa5b1'],Leg:['#4a5260','#2a2f37'],LegF:['#363c46','#1f232a']},
+  look:{skin:'#9a6644',skinD:'#7d5136',skinS:'#5e3a25',lid:'#3b2418',brow:'#2a1a12',lip:'#6b3a2c',shoe:'#f3f4f6',shoeD:'#c9ced6',sole:'#9aa5b1',soleD:'#7d8794',shoeAcc:'#9aa5b1',hair:SG2_HAIR.puff,sock:'#fff',sockD:'#e5e7eb'},
+  tip:'We adjust the exercise to your starting point.'},
+ {id:'s1',role:'Building strength',x:196,y:268,s:.95,dir:1,body:'f',pal:{Skin:['#7b4c31','#5a3622'],SkinF:['#65402a','#4a2c1b'],Top:['#4296f0','#2f6fb8'],TopF:['#3a82d0','#285f9c'],Leg:['#2c3139','#191c21'],LegF:['#22262d','#121417']},
+  look:{skin:'#6e4430',skinD:'#59351f',skinS:'#3f2516',lid:'#24140c',brow:'#160d09',lip:'#4a281c',shoe:'#f3f4f6',shoeD:'#c9ced6',sole:'#4296f0',soleD:'#2f6fb8',shoeAcc:'#4296f0',hair:SG2_HAIR.locs,sock:'#fff',sockD:'#e5e7eb'},
+  tip:'We guide your technique and weight selection.'},
+ {id:'s2',role:'Improving consistency',x:404,y:268,s:.95,dir:-1,body:'m',pal:{Skin:['#c08a64','#9a6a48'],SkinF:['#a47552','#7f5639'],Top:['#d7dbe0','#a9b2bd'],TopF:['#bcc3cc','#8f99a6'],Leg:['#3b414b','#22262d'],LegF:['#2d323a','#1a1d22']},
+  look:{skin:'#b57f5a',skinD:'#946446',skinS:'#6f4a32',lid:'#3b2418',brow:'#2a1a12',lip:'#7a4232',shoe:'#2b3037',shoeD:'#1c2025',sole:'#f3f4f6',soleD:'#cfd4da',shoeAcc:'#9aa5b1',hair:SG2_HAIR.fade,prop:SG2_DUMB,propF:SG2_DUMB},
+  tip:'You follow a structured session with your coach.'},
+ {id:'s3',role:'Ready to progress',x:486,y:226,s:.8,dir:-1,body:'f',pal:{Skin:['#94613f','#6f4529'],SkinF:['#7c5034','#5c3a23'],Top:['#2f3540','#1c2027'],TopF:['#262b34','#15181d'],Leg:['#5a6372','#363c47'],LegF:['#474f5c','#2b3039']},
+  look:{skin:'#8a5a3b',skinD:'#6f462d',skinS:'#52331f',lid:'#2c1a10',brow:'#1c110b',lip:'#5c3022',shoe:'#f3f4f6',shoeD:'#c9ced6',sole:'#4296f0',soleD:'#2f6fb8',shoeAcc:'#4296f0',hair:SG2_HAIR.long,sock:'#fff',sockD:'#e5e7eb'},
+  tip:'We increase the challenge as your ability improves.'},
+ {id:'sc',role:'Coach',coach:1,x:300,y:244,s:.9,dir:-1,body:'m',pal:{Skin:['#73492f','#4f311f'],SkinF:['#5f3b26','#402717'],Top:['#4a525d','#262a31'],TopF:['#363c45','#1c1f24'],Leg:['#3a4048','#15181c'],LegF:['#2a2f36','#0f1114']},
+  look:{skin:'#6b4430',skinD:'#563521',skinS:'#3d2517',lid:'#24140c',brow:'#120c09',lip:'#3e2117',shoe:'#eef1f4',shoeD:'#c3c9d1',sole:'#1c1f24',soleD:'#111317',shoeAcc:'#4296f0',hair:SG2_HAIR.fade,beard:SG2_BEARD,cuff:1,sleeveBand:1,watch:1,thumb:1,
+   torsoExtra:'<path d="M0 -55 L5 -46 L10 -55" stroke="#4296f0" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'}}];
+function sg2SVG(){var defs=SG2_CAST.map(function(c){return {k:c.id,pal:c.pal,rev:c.dir<0};});
+ var s='<svg viewBox="'+SG2_VB+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+sg2Defs(defs);
+ s+='<ellipse cx="300" cy="252" rx="290" ry="44" fill="url(#sg2-floor)"/>';
+ /* draw back to front by floor y */
+ SG2_CAST.slice().sort(function(a,b){return a.y-b.y;}).forEach(function(c){
+  s+='<ellipse class="sg2-ring" id="'+c.id+'-ring" cx="'+c.x+'" cy="'+(c.y+1)+'" rx="'+(46*c.s)+'" ry="'+(9*c.s)+'" fill="none" stroke="#4296f0" stroke-width="2" opacity="'+(c.coach?'.9':'0')+'"/>';
+  s+='<ellipse cx="'+c.x+'" cy="'+(c.y+1)+'" rx="'+(34*c.s)+'" ry="'+(6*c.s)+'" fill="url(#sg2-sh)"/>';
+  var hipY=-(SG2_BODY[c.body].L1+SG2_BODY[c.body].L2+11)+2;
+  s+='<g id="'+c.id+'-root" transform="translate('+c.x+','+c.y+') scale('+(c.s*c.dir)+','+c.s+') translate(0,'+hipY+')">'+sg2Person(c.id,c.body,c.look)+'</g>';});
+ s+='<g id="sg2-tag" opacity="0"><rect id="sg2-tagbg" x="0" y="0" width="10" height="24" rx="12" fill="#243E33"/><text id="sg2-tagt" x="0" y="16" text-anchor="middle" font-size="12.5" font-weight="600" fill="#F0EADC" font-family="Geist,system-ui,sans-serif"></text></g>';
  return s+'</svg>';}
+function sg2Rot(el,a,x,y){if(el)el.setAttribute('transform',(x!=null?'translate('+x.toFixed(2)+','+y.toFixed(2)+') ':'')+'rotate('+a.toFixed(2)+')');}
+/* apply a pose: angles in degrees; hip {x,y} offset; legs by ankle targets (IK) or angles */
+function sg2Pose(root,c,P){var q=function(id){return root.querySelector('#'+c.id+'-'+id);},b=SG2_BODY[c.body];
+ q('hip').setAttribute('transform','translate('+(P.hx||0).toFixed(2)+','+(P.hy||0).toFixed(2)+')');
+ ['n','f'].forEach(function(s){var L=P['leg'+s]||{x:s==='n'?3:-3,y:b.L1+b.L2-.6};
+  var ik=csIK(L.x-(P.hx||0),L.y-(P.hy||0),b.L1,b.L2);sg2Rot(q('th'+s),ik.th);sg2Rot(q('kn'+s),ik.kn,0,b.L1);sg2Rot(q('ft'+s),(L.a||0)-(ik.th+ik.kn));
+  sg2Rot(q('sh'+s),P['sh'+s]!=null?P['sh'+s]:(s==='n'?4:-4));sg2Rot(q('el'+s),P['el'+s]!=null?P['el'+s]:-14,0,b.A1);});
+ sg2Rot(q('tb'),P.tb||0);sg2Rot(q('tf'),P.tb||0);sg2Rot(q('hd'),P.hd||0,b.neckX,-b.T);
+ var th=q('thumb');if(th)th.setAttribute('opacity',P.thumb?'1':'0');}
+var SG2_REST={hy:0};
+function sg2Squat(k){var b=SG2_BODY.f;return {hx:-16*k,hy:40*k,legn:{x:6,y:b.L1+b.L2-.6},legf:{x:-2,y:b.L1+b.L2-.6},tb:22*k,hd:-16*k,shn:csLerp(4,-82,k),shf:csLerp(-4,-78,k),eln:csLerp(-14,-8,k),elf:csLerp(-14,-8,k)};}
+function sg2Curl(k){return {shn:-4,shf:4,eln:csLerp(-12,-128,k),elf:csLerp(-12,-128,1-k),tb:-1,hd:-2};}
 function SemiGroupScene(){
- var ref=React.useRef(null),played=React.useRef(false);var ss=React.useState(-1),sel=ss[0],setSel=ss[1];
- function run(){var el=ref.current;if(!el)return;el.classList.remove('play');void el.offsetWidth;el.classList.add('play');played.current=true;}
- React.useEffect(function(){var el=ref.current;if(!el)return;var art=el.querySelector('.sg-art');art.innerHTML=sgSVG();
-  if(reduceMotion){el.classList.add('done');return;}
-  if(typeof IntersectionObserver==='undefined'){run();return;}
-  var io=new IntersectionObserver(function(en){if(en[0].isIntersecting&&!played.current&&!document.hidden){run();io.disconnect();}},{threshold:.45});io.observe(el);
-  return function(){io.disconnect();};},[]);
- React.useEffect(function(){var el=ref.current;if(!el)return;SG_PEOPLE.forEach(function(p,i){var g=el.querySelector('#sgp'+i),l=el.querySelector('#sgl'+i);
-  if(g)g.classList.toggle('on',i===sel);if(l)l.classList.toggle('on',i===sel);});},[sel]);
- var tip=sel>=0?SG_PEOPLE[sel].tip:'Select a client to see an example of their individual coaching.';
- return h('div',{ref:ref,className:'sg'},
-  h('div',{className:'sg-stage'},h('div',{className:'sg-art'}),
-   SG_PEOPLE.map(function(p,i){return h('button',{key:p.id,type:'button',className:'sg-hit'+(i===sel?' on':''),style:{left:(p.x/360*100)+'%',top:(p.y/196*100)+'%'},
-    'aria-pressed':i===sel?'true':'false','aria-label':'Client '+(i+1)+': '+p.tip,
-    onMouseEnter:function(){setSel(i);},onFocus:function(){setSel(i);},onClick:function(){setSel(i);}});})),
-  h('p',{className:'sg-cap'},'Up to four clients. Individual guidance.'),
-  h('p',{className:'sg-tip','aria-live':'polite'},tip),
-  reduceMotion?null:h('button',{type:'button',className:'sg-replay',onClick:run,'aria-label':'Replay the group animation'},'Replay'));
+ var ref=React.useRef(null);var ss=React.useState(1),sel=ss[0],setSel=ss[1];
+ React.useEffect(function(){var el=ref.current;if(!el)return;el.querySelector('.sg2-art').innerHTML=sg2SVG();},[]);
+ React.useEffect(function(){var el=ref.current;if(!el)return;var art=el.querySelector('.sg2-art');if(!art.firstChild)art.innerHTML=sg2SVG();
+  var C=SG2_CAST;
+  sg2Pose(art,C[0],{shn:20,shf:24,eln:-100,elf:-100,hd:2});            /* hands on hips */
+  sg2Pose(art,C[1],sg2Squat(1));
+  sg2Pose(art,C[2],sg2Curl(.35));
+  sg2Pose(art,C[3],{shn:8,shf:-6,eln:-18,elf:-12,hd:-2,legn:{x:8,y:SG2_BODY.f.L1+SG2_BODY.f.L2-1},legf:{x:-6,y:SG2_BODY.f.L1+SG2_BODY.f.L2-1}});
+  var gest=sel===1?{shn:-62,eln:-20,shf:26,elf:-100,hd:6,tb:4}:{shn:-58,eln:-24,shf:26,elf:-100,hd:4,tb:3};
+  sg2Pose(art,C[4],gest);
+  var coach=art.querySelector('#sc-root');var dirToward=SG2_CAST[sel].x<300?-1:1;
+  coach.setAttribute('transform','translate(300,244) scale('+(.9*dirToward)+',.9) translate(0,'+(-(SG2_BODY.m.L1+SG2_BODY.m.L2+11)+2)+')');
+  C.forEach(function(c,i){var r=art.querySelector('#'+c.id+'-ring');if(r&&!c.coach)r.setAttribute('opacity',i===sel?'.95':'0');});
+  var tag=art.querySelector('#sg2-tag'),t=art.querySelector('#sg2-tagt'),bg=art.querySelector('#sg2-tagbg');
+  var txt=sel===1?'Technique adjusted to you.':sel===2?'Progress at your level.':sel===0?'Starting point set for you.':'Challenge increased for you.';
+  t.textContent=txt;var cs=SG2_CAST[sel],w=txt.length*6.9+26,cx=cs.x+(cs.x<300?-34:34),ty=Math.max(4,cs.y-cs.s*(SG2_BODY[cs.body].L1+SG2_BODY[cs.body].L2+cs.body.length*0+120)-(sel===1?-6:30));
+  cx=Math.max(w/2+6,Math.min(600-w/2-6,cx));bg.setAttribute('x',(cx-w/2).toFixed(1));bg.setAttribute('width',w.toFixed(1));bg.setAttribute('y',ty);t.setAttribute('x',cx);t.setAttribute('y',ty+16.5);tag.setAttribute('opacity','1');
+ },[sel]);
+ var C=SG2_CAST.slice(0,4);
+ return h('div',{ref:ref,className:'sg2'},
+  h('div',{className:'sg2-art'}),
+  h('p',{className:'sg2-cap'},'One coach. Up to four clients. Personal guidance.'),
+  h('div',{className:'sg2-scen'},h('p',{className:'sg2-scen-h',id:'sg2-scen-h'},'Example coaching scenarios'),
+   h('div',{className:'sg2-chips',role:'group','aria-labelledby':'sg2-scen-h'},C.map(function(c,i){return h('button',{key:c.id,type:'button',className:'sg2-chip','aria-pressed':i===sel?'true':'false',
+    onMouseEnter:function(){setSel(i);},onFocus:function(){setSel(i);},onClick:function(){setSel(i);}},c.role);})),
+   h('p',{className:'sg2-tip','aria-live':'polite'},C[sel].tip)));
 }
 
 /* ================= HOMEPAGE (Nov 2026 redesign) =================
@@ -1056,33 +1081,34 @@ function HomePage(props){
  var strengthSec=VF_CINEMATIC.strength?h('section',{className:'vfh-scene','aria-labelledby':'vfh-str-h'},h(CinematicLoop,{asset:VF_CINEMATIC.strength}),
   h('div',{className:'vfh-scene-copy'},h('p',{className:'vfh-label'},'Strength coaching'),h('h2',{id:'vfh-str-h',className:'vfh-sec-h'},'Technique first, then load.'),
    h('p',null,'Your coach watches every rep and gives one clear cue at a time, so you lift with control and add weight safely.'))):null;
+ var semiSec=h('section',{className:'vfh-semi-sec','aria-label':'Semi-private coaching'},
+   h('div',{className:'vfh-panel vfh-semi tone-sand vfh-card vf26-reveal'},h('div',{className:'vfh-copy'},
+    h('div',{className:'vfh-semi-text'},h('p',{className:'vfh-label'},'Semi-private coaching'),
+    h('h2',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
+    h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.')),
+    h(SemiGroupScene,null),
+    h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
+     h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
+    h('div',{className:'vfh-semi-acts'},
+     h('button',{type:'button',className:'vf26-btn vfh-btn-ink',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
+     h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))));
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
   h('div',{className:'vfh-gallery'},
    h('div',{className:'vfh-col c1'},
    h(HomePanel,{k:'team',name:'Meet VFITNESS: real coaches, right here in Nassau. Open the team introduction',label:'Meet VFITNESS',title:['Real coaches.','Right here in Nassau.'],cta:'Meet the coaching team',onOpen:function(){setDlg('team');},
     media:img('/vf26/team-four-2026-sm.webp','',900,675,{srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 1100px) 34vw, 100vw',loading:'eager',fetchpriority:'high'})}),
+   h(HomePanel,{k:'pbb',name:'Pink Beach Burn: Nassau showed up in pink. Read the story',label:'Pink Beach Burn · October 31, 2026',title:['Nassau showed up','in pink.'],cta:'Read the story',page:'pinkbeachburn',run:go(setCurrentPage,'pinkbeachburn'),
+    media:img(pbbSrc(0,true),'',720,540)})),
+   h('div',{className:'vfh-col c2'},
    h(HomePanel,{k:'app',name:'VFIT app: your training, your food and your progress together. Open the details',label:'VFIT app · Train online',title:['Your training. Your food.','Your progress, together.'],cta:'What the app does',onOpen:function(){setDlg('app');},
     media:h('div',{className:'vfh-phones'},img('/vf26/wt-3-train.webp','',420,840),img('/vf26/wt-4-eat.webp','',420,840),img('/vf26/wt-5-progress.webp','',420,840)),
     body:h('p',{className:'vfh-note'},'Screens show sample data.')}),
    h(HomePanel,{k:'founder',name:'Meet your head coach, Darvano Andrews, founder of VFITNESS. Meet Darvano and the team',label:'Darvano Andrews · Founder',title:['Meet your','head coach.'],cta:'Meet Darvano and the team',page:'trainers',run:go(setCurrentPage,'trainers'),
     media:img('/vf26/darvano-andrews.webp','',720,900)})),
-   h('div',{className:'vfh-col c2'},
-   h('div',{className:'vfh-panel vfh-semi tone-sand vfh-card'},h('div',{className:'vfh-copy'},
-    h('p',{className:'vfh-label'},'Semi-private coaching'),
-    h('h3',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
-    h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.'),
-    h(SemiGroupScene,null),
-    h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
-     h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
-    h('div',{className:'vfh-semi-acts'},
-     h('button',{type:'button',className:'vf26-btn vfh-btn-ink',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
-     h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))),
-   h(HomePanel,{k:'pbb',name:'Pink Beach Burn: Nassau showed up in pink. Read the story',label:'Pink Beach Burn · October 31, 2026',title:['Nassau showed up','in pink.'],cta:'Read the story',page:'pinkbeachburn',run:go(setCurrentPage,'pinkbeachburn'),
-    media:img(pbbSrc(0,true),'',720,540)}),
    h(HomePanel,{k:'progress',tone:proof?null:'blue',name:'Progress you can see. Explore client results',label:'Client results',title:['Progress','you can see.'],cta:'Explore client results',page:'results',run:go(setCurrentPage,'results'),
     media:proof?img(proof.imageUrl,'',800,1000):null,
-    body:proof?null:h('p',{className:'vfh-note'},'Real client photos and documented progress, published with permission.')}))));
+    body:proof?null:h('p',{className:'vfh-note'},'Real client photos and documented progress, published with permission.')})));
 
  var steps=h('section',{className:'vfh-steps','aria-labelledby':'vfh-steps-h'},
   h('h2',{id:'vfh-steps-h',className:'vfh-sec-h'},'What happens after you ask'),
@@ -1121,7 +1147,7 @@ function HomePage(props){
  return h('main',{className:'vf26 vfh'},
   h('div',{className:'vfh-split'},
    intro,
-   h('div',{className:'vfh-stage'},routes,sceneSec,strengthSec,gallery,steps,h(PromoSlider,null))),
+   h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,steps,h(PromoSlider,null))),
   dialog);
 }
 
