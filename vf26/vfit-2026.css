@@ -1923,3 +1923,29 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 [data-vf-theme="light"] .vfh-semi-dark .sg2-art svg [id$="-root"]{filter:none;}
 .vfh-semi-dark .sg-replay{color:var(--vf-dim);}
 .vfh-semi-sec{margin-top:-28px;}
+/* Judges round: sticky intro must not be inside a scroll container */
+main.vf26.vfh{overflow:visible !important;overflow-x:clip !important;}
+/* Semi-private card: headline across the full card, scene gets the larger column */
+.vfh-semi .vfh-semi-text{display:contents;}
+.vfh-semi .vfh-copy{grid-template-areas:"lab" "head" "body" "price" "acts" "scene";}
+.vfh-semi .vfh-label{grid-area:lab;}.vfh-semi .vfh-h{grid-area:head;}.vfh-semi .vfh-semi-p{grid-area:body;}
+@media (min-width:900px){
+  .vfh-semi .vfh-copy{grid-template-columns:minmax(0,.85fr) minmax(0,1.3fr);grid-template-areas:"lab lab" "head head" "body scene" "price scene" "acts scene";column-gap:32px;}
+  .vfh-semi-sec .vfh-semi .vfh-h{font-size:clamp(2rem,2.6vw,2.6rem);}
+  .vfh-semi-sec .vfh-semi .vfh-h span{display:inline;}
+  .vfh-semi-sec .vfh-semi .vfh-h span::before{content:' ';}
+  .vfh-semi .sg2{margin-top:6px;}
+  .vfh-semi .sg2-art{max-height:340px;}
+}
+/* overflow-x:hidden on html/body/#root made #root a scroll container, which disables position:sticky
+   (homepage intro panel, results story). clip stops sideways scroll without creating a scroll container. */
+html[data-vf26],html[data-vf26] body,html[data-vf26] #root{overflow-x:hidden !important;overflow-y:visible !important;}
+@supports (overflow-x:clip){html[data-vf26],html[data-vf26] body,html[data-vf26] #root{overflow-x:clip !important;}}
+/* Dialog scroll lock: pages set body overflow hidden; lock the viewport (html) when they do. */
+html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !important;}
+@media (min-width:900px){
+  .vfh-semi .vfh-copy{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);}
+  .vfh-semi-sec .vfh-price .amt{white-space:nowrap;}
+  .vfh-semi-sec .vfh-price .amt b{font-size:clamp(2.4rem,3.2vw,3.2rem);}
+  .vfh-semi-sec .vfh-price .amt span{font-size:16px;}
+}

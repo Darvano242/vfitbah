@@ -1070,7 +1070,7 @@ function HomePage(props){
   h('div',{className:'vfh-intro-main'},
    h(PromoHeadliner,null),
    h('h1',{className:'vfh-h1'},'Build strength.',h('span',null,'See your progress.')),
-   h('p',{className:'vfh-lead'},'Personal attention. Small-group energy. Structured coaching in Nassau and online, with real people behind your progress.'),
+   h('p',{className:'vfh-lead'},'Personal coaching in small groups of up to four, here in Nassau. Or train online with the VFIT app, with a real coach when you want one.'),
    h('div',{className:'vfh-acts'},
     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult,onMouseEnter:function(){window.vfCoachScene&&window.vfCoachScene.point();},onFocus:function(){window.vfCoachScene&&window.vfCoachScene.point();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
     navA('pricing',go(setCurrentPage,'pricing'),{className:'vf26-btn vf26-btn-outline'},'See pricing')),
@@ -1096,7 +1096,7 @@ function HomePage(props){
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train online'),
     h('p',{className:'vfh-route-t'},'The VFIT app, with a coach if you want one'),
-    h('p',{className:'vfh-route-p'},h('b',null,'VFIT App $19.99 a month'),'. The 8-Week VFIT Shred $297 one time. Elite Online Coaching $197 a month.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'From $19.99 a month'),'. Add a VFITNESS coach whenever you want one.'),
     h('button',{type:'button',className:'vf26-link',onClick:route('Train online','vf26-remote')},'Online plans',icon('arrow',15)))));
 
  var img=function(src,alt,w,hgt,extra){return h('img',Object.assign({src:src,alt:alt||'',width:w,height:hgt,loading:'lazy',decoding:'async'},extra||{}));};
