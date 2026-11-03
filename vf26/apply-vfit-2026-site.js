@@ -51,6 +51,38 @@ once("const pickNext=(k,v)=>{set(k,v);setErr('');setStep(s=>s+1);",
 once('if(saved){setAppId(applicationId);setDone(true);}',
   "if(saved){try{window.vfTrack&&window.vfTrack('consultation_request_accepted',{});}catch(_){}setAppId(applicationId);setDone(true);}");
 once('style:{outline:\'none\'}},"Application Received."),','style:{outline:\'none\'}},"Request received."),');
+// 1f. Consultation request in 4 steps: goal, how to train, contact, schedule and send. Coach, location and package
+// are confirmed by the coach on the call (site buttons can still prefill them). Optional details fold away.
+once('  {title:"Preferred trainer?",body:choiceStep(TRAINERS,\'trainer\',\'Preferred trainer\')},\n  {title:"Preferred location?",body:choiceStep(LOCS,\'location\',\'Preferred location\')},\n','');
+{
+  const a=html.indexOf('  {title:"When can you train?"');const b=html.indexOf('  {title:"Review and submit"');
+  if(a<0||b<a)throw new Error('Start Here schedule step not found');
+  const when=html.slice(a,b);
+  const c0=when.indexOf('VH("div",{id:"sh-times-label"');const c1=when.indexOf('VH("button",{type:"button",onClick:()=>{setErr(\'\');setStep(step+1);}');
+  if(c0<0||c1<c0)throw new Error('Start Here schedule chips not found');
+  const chips=when.slice(c0,c1);
+  html=html.slice(0,a)+html.slice(b);
+  once('{title:"Review and submit",body:VH("div",null,','{title:"When can you train? Then send it.",body:VH("div",null,'+chips);
+}
+once('[["Goal",data.goal,0],["Training",data.trainingType,1],["Trainer",data.trainer,2],["Location",data.location,3],["Name",data.name,4],["WhatsApp",data.whatsapp,4],["Email",data.email,4],["Schedule",(data.times.join(\', \')||\'Flexible\')+(data.daysPerWeek?\' | \'+data.daysPerWeek:\'\'),5],["Package",data.packageInterest,6]]',
+  '[["Goal",data.goal,0],["Training",data.trainingType,1],["Name",data.name,2],["WhatsApp",data.whatsapp,2],["Email",data.email,2]]');
+{
+  const s0=html.indexOf('VH("div",{className:"grid grid-cols-2 gap-3"},field("AGE"');
+  const endTxt='field("GOAL TIMELINE","timeline",{ph:"Example: 12 weeks"}),';const s1=html.indexOf(endTxt,s0);
+  if(s0<0||s1<0||s1-s0>3000)throw new Error('Start Here optional fields not found');
+  const inner=html.slice(s0,s1+endTxt.length-1);
+  html=html.slice(0,s0)+'VH("details",{className:"mb-3"},VH("summary",{className:"text-sm font-bold mb-3",style:{color:\'#9cc0ff\',cursor:\'pointer\',minHeight:\'44px\',display:\'flex\',alignItems:\'center\'}},"Add more about you (optional)"),'+inner+'),'+html.slice(s1+endTxt.length);
+}
+once('setStep(4);setTimeout(()=>showErrors(f),60)','setStep(2);setTimeout(()=>showErrors(f),60)');
+once("{password:'This password does not match the existing account for this email.'},4);}","{password:'This password does not match the existing account for this email.'},2);}");
+once("{password:'Use at least 6 characters.'},4);}","{password:'Use at least 6 characters.'},2);}");
+once("{email:'Enter a valid email address.'},4);}","{email:'Enter a valid email address.'},2);}");
+once('Math.min(Math.max(d.step,0),7)','Math.min(Math.max(d.step,0),3)');
+once('const{password:_pw,waiver:_wv,...safeData}=data;',
+  "const{password:_pw,waiver:_wv,...safeData0}=data;const safeData={...safeData0,trainer:data.trainer||'No preference',location:data.location||'Coach will confirm',packageInterest:data.packageInterest||'Need a recommendation'};");
+once('trainer:data.trainer,location:data.location,schedule:data.times.join','trainer:safeData.trainer,location:safeData.location,schedule:data.times.join');
+once('package:data.packageInterest,','package:safeData.packageInterest,');
+
 // 1e. Refund and cancellation policy states the package expiry the system applies.
 once("['Session Packages','Unused in person training sessions may be eligible for credit. Sessions cancelled with less than 24 hours notice may be forfeited.']",
   "['Session Packages','Session packages expire 45 days after purchase. Time a package is paused by your coach is added back. Unused in person training sessions may be eligible for credit. Sessions cancelled with less than 24 hours notice may be forfeited.']");

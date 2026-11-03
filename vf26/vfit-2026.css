@@ -1949,3 +1949,11 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
   .vfh-semi-sec .vfh-price .amt b{font-size:clamp(2.4rem,3.2vw,3.2rem);}
   .vfh-semi-sec .vfh-price .amt span{font-size:16px;}
 }
+
+/* Conversion pass: WhatsApp next to the consultation button, a real face in the intro */
+.vfh-wa{gap:8px;}
+.vfh-wa svg{color:#25D366;}
+.vfh-coach{display:flex;align-items:center;gap:12px;margin:18px 0 0;}
+.vfh-coach img{width:44px;height:44px;border-radius:999px;object-fit:cover;object-position:50% 20%;border:2px solid var(--vf-border);flex:none;}
+.vfh-coach p{margin:0;font-size:14px;line-height:1.4;color:var(--vf-dim);}
+.vfh-coach b{color:var(--vf-text);font-weight:600;}

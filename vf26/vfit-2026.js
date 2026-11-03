@@ -1060,7 +1060,7 @@ function HomePage(props){
  function svc(id){return function(){go(setCurrentPage,'pricing')();setTimeout(scrollToId(id),400);};}
  function route(name,id){return function(){vfTrack('coaching_path_selected',{path:name});svc(id)();};}
  var consult=lead(setCurrentPage,{vf_lead_type:'Semi private'});
- var HOW3=[['Tell us your goal','A few short questions about your goal, schedule and preferred location.'],['A coach contacts you','A VFITNESS coach reviews your answers and contacts you to confirm a consultation time.'],['Start training','Your coach confirms your plan and group time before you pay. Sessions and invoices live in your client portal.']];
+ var HOW3=[['Tell us your goal','Four short steps: your goal, how you want to train, your contact details and when you can train.'],['A coach contacts you','A VFITNESS coach reviews your answers and contacts you to confirm a consultation time.'],['Start training','Your coach confirms your plan and group time before you pay. Sessions and invoices live in your client portal.']];
  var close=function(){setDlg(null);};
 
  var intro=h('aside',{className:'vfh-intro','aria-label':'About VFITNESS'},
@@ -1073,17 +1073,14 @@ function HomePage(props){
    h('p',{className:'vfh-lead'},'Personal coaching in small groups of up to four, here in Nassau. Or train online with the VFIT app, with a real coach when you want one.'),
    h('div',{className:'vfh-acts'},
     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult,onMouseEnter:function(){window.vfCoachScene&&window.vfCoachScene.point();},onFocus:function(){window.vfCoachScene&&window.vfCoachScene.point();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
-    navA('pricing',go(setCurrentPage,'pricing'),{className:'vf26-btn vf26-btn-outline'},'See pricing')),
+    h('a',{className:'vf26-btn vf26-btn-outline vfh-wa',href:waLink('home'),target:'_blank',rel:'noopener noreferrer',onClick:function(){vfTrack('whatsapp_clicked',{path:'home'});}},icon('chat',16),'Message us on WhatsApp')),
    h('p',{className:'vfh-fine'},'A coach contacts you to confirm a suitable time.'),
+   h('div',{className:'vfh-coach'},h('img',{src:'/vf26/darvano-andrews.webp',alt:'',width:44,height:44,loading:'eager',decoding:'async'}),h('p',null,h('b',null,'Darvano Andrews'),' and the VFITNESS coaching team')),
    h('dl',{className:'vfh-facts'},
     h('div',null,h('dt',null,'Clients served'),h('dd',null,'2,000+')),
     h('div',null,h('dt',null,'Coaching since'),h('dd',null,'2018')),
     h('div',null,h('dt',null,'Nassau locations'),h('dd',null,'3')))),
-  h('nav',{className:'vfh-intro-nav','aria-label':'Explore'},
-   [['pricing','Services'],['trainers','Team'],['results','Results'],['about','Company'],['contact','Contact']].map(function(x){return navA(x[0],go(setCurrentPage,x[0]),{key:x[0]},x[1]);})),
-  h('p',{className:'vfh-legal'},
-   navA('privacy',go(setCurrentPage,'privacy'),null,'Privacy'),navA('terms',go(setCurrentPage,'terms'),null,'Terms'),navA('refund',go(setCurrentPage,'refund'),null,'Refunds'),
-   h('span',null,'Licensed business in The Bahamas')));
+  h('p',{className:'vfh-legal'},h('span',null,'Licensed business in The Bahamas')));
 
  var routes=h('section',{className:'vfh-routes','aria-labelledby':'vfh-routes-h'},
   h('h2',{id:'vfh-routes-h',className:'vfh-sec-h'},'Two ways to train'),
@@ -1118,7 +1115,7 @@ function HomePage(props){
     h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
      h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
     h('div',{className:'vfh-semi-acts'},
-     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Find my starting point',icon('arrow',16,{className:'vf26-arrow'})),
+     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))));
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
@@ -1607,7 +1604,7 @@ function vfjService(g){var t=((g.category||'')+' '+(g.title||'')+' '+(g.descript
  if(/1\s*on\s*1|1on1|one on one|personal training/.test(t))return {k:'one',l:'1 on 1 coaching',cta:'Ask about 1 on 1 coaching',id:'inperson'};
  if(/online|remote/.test(t))return {k:'online',l:'Online coaching',cta:'See online plans',id:'vf26-remote'};
  if(/boot ?camp|program/.test(t))return {k:'program',l:'Training program',cta:'See online plans',id:'vf26-remote'};
- return {k:'other',l:'VFITNESS coaching',cta:'Find my starting point',id:null};}
+ return {k:'other',l:'VFITNESS coaching',cta:'Request my free consultation',id:null};}
 function vfjGoal(g){var t=((g.goal||'')+' '+(g.description||'')+' '+(g.title||'')).toLowerCase();
  if(/gain|muscle|bulk/.test(t))return 'gain';if(/loss|lbs down|lose|weight loss|leaner|slimmer/.test(t))return 'loss';return null;}
 function vfjClean(s){s=String(s||'').trim();if(!s)return '';if(s===s.toUpperCase()&&/[A-Z]{3}/.test(s))s=s.charAt(0)+s.slice(1).toLowerCase();return s;}
