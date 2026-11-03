@@ -618,6 +618,131 @@ function PromoSlider(){
    h('button',{type:'button','aria-label':'Close',onClick:function(){setBox(null);}},icon('close',20))):null));
 }
 
+/* ================= COACH SCENE (homepage) =================
+   Original vector scene: a VFITNESS coach guiding a client on a treadmill. 12 second loop:
+   walk, coach checks posture, jog, coach nods and gives a thumbs up, back to a walk.
+   The SVG is drawn in its resting pose first (that is the static illustration), then animated with
+   requestAnimationFrame only while visible and the tab is active. Reduced motion keeps the static pose.
+   window.vfCoachScene.point() makes the coach gesture (used when the consultation button is hovered or focused). */
+var CS_W=584,CS_H=304;
+function csLimb(id,len,w,col,child){return '<g id="'+id+'"><line x1="0" y1="0" x2="0" y2="'+len+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>'+(child||'')+'</g>';}
+function csPerson(pre,o){
+ /* right-facing rig at the hip. o: skin, skinD, top, topD, bottom, bottomD, shoe, hair, extras */
+ var leg=function(side){var near=side==='n';
+  return csLimb(pre+'-th'+side,50,near?17:16,near?o.bottom:o.bottomD,
+   '<g id="'+pre+'-kn'+side+'" transform="translate(0,50)">'+
+    '<line x1="0" y1="0" x2="0" y2="46" stroke="'+(near?o.legSkin||o.bottom:o.legSkinD||o.bottomD)+'" stroke-width="'+(near?14:13)+'" stroke-linecap="round"/>'+
+    '<g id="'+pre+'-ft'+side+'" transform="translate(0,46)"><rect x="-6" y="-4" width="24" height="10" rx="5" fill="'+(near?o.shoe:o.shoeD)+'"/><rect x="-6" y="3" width="24" height="3" rx="1.5" fill="'+(near?o.sole:o.soleD)+'"/></g>'+
+   '</g>');};
+ var arm=function(side){var near=side==='n';
+  return csLimb(pre+'-sh'+side,32,near?12:11,near?o.sleeve:o.sleeveD,
+   '<line x1="0" y1="16" x2="0" y2="32" stroke="'+(near?o.skin:o.skinD)+'" stroke-width="'+(near?11:10)+'" stroke-linecap="round"/>'+
+   '<g id="'+pre+'-el'+side+'" transform="translate(0,32)"><line x1="0" y1="0" x2="0" y2="28" stroke="'+(near?o.skin:o.skinD)+'" stroke-width="'+(near?10:9)+'" stroke-linecap="round"/>'+
+    '<circle cx="0" cy="31" r="6.5" fill="'+(near?o.skin:o.skinD)+'"/>'+(near&&o.thumb?'<rect id="'+pre+'-thumb" x="-2.5" y="20" width="5" height="11" rx="2.5" fill="'+o.skin+'" opacity="0"/>':'')+'</g>');};
+ var torso='<path d="M-13 2 C-15 -20 -16 -46 -12 -64 Q0 -72 12 -64 C16 -46 15 -20 13 2 Z" fill="'+o.top+'"/>'+
+  '<path d="M-13 2 C-14 -6 -14 -12 -13.5 -16 L13.5 -16 C14 -12 14 -6 13 2 Z" fill="'+o.waist+'"/>'+(o.logo||'');
+ var head='<g id="'+pre+'-hd" transform="translate(4,-70)"><rect x="-5" y="-10" width="10" height="12" rx="4" fill="'+o.skinD+'"/>'+
+  '<g transform="translate(0,-24)"><ellipse cx="0" cy="0" rx="15" ry="16.5" fill="'+o.skin+'"/>'+o.hair+
+  '<ellipse cx="13" cy="1" rx="3" ry="4.5" fill="'+o.skin+'"/><circle cx="8" cy="-2" r="1.6" fill="#1a1412"/>'+(o.face||'')+'</g></g>';
+ return '<g id="'+pre+'"><g id="'+pre+'-hip">'+leg('f')+
+  '<g id="'+pre+'-tb">'+arm('f')+torso+head+'</g>'+leg('n')+
+  '<g id="'+pre+'-tf">'+arm('n')+'</g></g></g>';
+}
+function coachSceneSVG(){
+ var client=csPerson('cl',{skin:'#7a4b33',skinD:'#5f3826',top:'#ec4899',sleeve:'#ec4899',sleeveD:'#be185d',waist:'#1f2329',
+  bottom:'#1f2329',bottomD:'#15181c',legSkin:'#1f2329',legSkinD:'#15181c',shoe:'#f5f5f4',shoeD:'#d6d3d1',sole:'#ec4899',soleD:'#be185d',
+  hair:'<path d="M-15 -2 C-16 -14 -8 -20 2 -19 C12 -18 16 -10 15 -4 C10 -10 2 -12 -6 -10 C-10 -8 -13 -5 -15 -2 Z" fill="#20130d"/><circle cx="-12" cy="-16" r="8" fill="#20130d"/>',
+  face:'<path d="M9 7 Q12 8 14 6" stroke="#3b2118" stroke-width="1.6" fill="none" stroke-linecap="round"/>'});
+ var coach=csPerson('co',{skin:'#5c3a27',skinD:'#472b1c',top:'#f8fafc',sleeve:'#f8fafc',sleeveD:'#cbd5e1',waist:'#111418',
+  bottom:'#111418',bottomD:'#0b0d10',legSkin:'#111418',legSkinD:'#0b0d10',shoe:'#111418',shoeD:'#0b0d10',sole:'#4296f0',soleD:'#2f6fb8',thumb:1,
+  logo:'<path d="M-7 -50 L0 -38 L7 -50" stroke="#4296f0" stroke-width="3.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="-8" y="-33" width="16" height="2.4" rx="1.2" fill="#111418" opacity=".55"/>',
+  hair:'<path d="M-15 -3 C-15 -15 -7 -19 2 -18.5 C11 -18 15 -11 15 -5 C11 -9 5 -11 -2 -11 C-9 -11 -13 -8 -15 -3 Z" fill="#0f0a08"/>',
+  face:'<path d="M15 2 C15 12 8 17 1 16 C-4 15 -7 11 -7 7 C-3 10 3 11 8 9 C11 8 13 5 15 2 Z" fill="#0f0a08"/><path d="M8 9.5 Q11 10.5 13 9" stroke="#e7d3c7" stroke-width="1.4" fill="none" stroke-linecap="round"/>'});
+ return '<svg viewBox="44 76 '+CS_W+' '+CS_H+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'+
+  '<ellipse cx="300" cy="368" rx="250" ry="14" fill="currentColor" opacity=".08"/>'+
+  /* treadmill */
+  '<g id="tm">'+
+   '<path d="M436 330 L452 196" stroke="#5b636e" stroke-width="12" stroke-linecap="round"/>'+
+   '<path d="M430 246 L350 250" stroke="#6b7480" stroke-width="7" stroke-linecap="round"/>'+
+   '<rect x="420" y="178" width="70" height="26" rx="8" fill="#3a4049" transform="rotate(-12 455 191)"/>'+
+   '<rect x="430" y="183" width="40" height="12" rx="3" fill="#4296f0" opacity=".85" transform="rotate(-12 455 191)"/>'+
+   '<rect x="84" y="326" width="372" height="26" rx="13" fill="#4a5059"/>'+
+   '<rect x="92" y="322" width="356" height="10" rx="5" fill="#1d2126"/>'+
+   '<line id="tm-belt" x1="100" y1="327" x2="440" y2="327" stroke="#3b424c" stroke-width="3" stroke-dasharray="16 22"/>'+
+   '<circle cx="104" cy="340" r="7" fill="#2c3138"/><circle cx="436" cy="340" r="7" fill="#2c3138"/>'+
+   '<rect x="96" y="350" width="22" height="12" rx="4" fill="#3a4049"/><rect x="420" y="350" width="22" height="12" rx="4" fill="#3a4049"/>'+
+  '</g>'+
+  '<g transform="translate(280,230)">'+client+'</g>'+
+  '<g transform="translate(548,264) scale(-1,1)">'+coach+'</g>'+
+ '</svg>';
+}
+function csSmooth(a,b,t){var x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);}
+function csLerp(a,b,k){return a+(b-a)*k;}
+function makeCoachScene(root){
+ var q=function(id){return root.querySelector('#'+id);};
+ var E={};['cl-hip','cl-tb','cl-tf','cl-hd','co-hip','co-tb','co-tf','co-hd','co-thumb','tm-belt'].forEach(function(k){E[k]=q(k);});
+ ['th','kn','ft','sh','el'].forEach(function(p){['n','f'].forEach(function(s){E['cl-'+p+s]=q('cl-'+p+s);E['co-'+p+s]=q('co-'+p+s);});});
+ var LOOP=12,phase=0,belt=0,pointUntil=0;
+ function kAt(t){return csSmooth(4,5.5,t)*(1-csSmooth(9.5,11,t));}
+ function rot(el,a,x,y){if(el)el.setAttribute('transform',(x!=null?'translate('+x+','+y+') ':'')+'rotate('+a.toFixed(2)+')');}
+ function pose(t,now){
+  var k=kAt(t),p=phase;
+  /* client */
+  var At=csLerp(22,36,k),bounce=csLerp(1.5,5,k)*Math.cos(2*p),lean=csLerp(4,11,k);
+  E['cl-hip'].setAttribute('transform','translate(0,'+(-Math.abs(bounce)).toFixed(2)+')');
+  ['n','f'].forEach(function(s){var pp=s==='n'?p:p+Math.PI;
+   var th=-At*Math.sin(pp),kn=csLerp(6,14,k)+csLerp(26,78,k)*Math.pow(Math.max(0,Math.cos(pp)),1.4);
+   rot(E['cl-th'+s],th);rot(E['cl-kn'+s],kn,0,50);rot(E['cl-ft'+s],-(th+kn)*0.85+ (Math.cos(pp)>0?-6:2),0,46);
+   var sh=csLerp(16,38,k)*Math.sin(pp),el=-csLerp(28,88,k);
+   rot(E['cl-sh'+s],sh,2,-60);rot(E['cl-el'+s],el,0,32);});
+  rot(E['cl-tb'],lean);rot(E['cl-tf'],lean);rot(E['cl-hd'],-lean*0.4+Math.sin(p*2)*0.8,4,-70);
+  /* coach */
+  var g=csSmooth(2,2.6,t)*(1-csSmooth(4.3,4.9,t)),nod=csSmooth(8.6,9,t)*(1-csSmooth(10.2,10.7,t));
+  var pt=now<pointUntil?Math.min(1,(pointUntil-now)/300,(1600-(pointUntil-now))/250+0.2):0;g=Math.max(g,Math.min(1,pt));
+  var breathe=Math.sin(t*2.1)*0.6;
+  rot(E['co-thn'],-3);rot(E['co-knn'],4,0,50);rot(E['co-ftn'],-1,0,46);
+  rot(E['co-thf'],5);rot(E['co-knf'],3,0,50);rot(E['co-ftf'],-8,0,46);
+  rot(E['co-tb'],-2+breathe*0.3);rot(E['co-tf'],-2+breathe*0.3);
+  rot(E['co-shf'],28,2,-60);rot(E['co-elf'],-112,0,32);           /* hand on hip */
+  var pump=Math.sin(t*9)*6*g;
+  var sh=csLerp(csLerp(6,-28,nod),-78+pump,g),el=csLerp(csLerp(-10,-118,nod),-18,g);
+  rot(E['co-shn'],sh,2,-60);rot(E['co-eln'],el,0,32);
+  if(E['co-thumb'])E['co-thumb'].setAttribute('opacity',nod>0.5?'1':'0');
+  var hd=-4+g*-3+Math.sin(Math.min(1,Math.max(0,(t-8.7)/1.4))*Math.PI*2)*10*nod;
+  rot(E['co-hd'],hd,4,-70);
+  E['tm-belt'].setAttribute('stroke-dashoffset',(belt%38).toFixed(1));
+ }
+ var raf=0,last=0,t0=0,running=false;
+ function step(now){if(!running)return;var dt=Math.min(0.05,(now-last)/1000||0);last=now;
+  var t=((now-t0)/1000)%LOOP,k=kAt(t),cyc=csLerp(1.15,0.72,k);
+  phase+=dt*2*Math.PI/cyc;belt+=dt*csLerp(70,150,k);pose(t,now);raf=requestAnimationFrame(step);}
+ pose(0.5,0);
+ return {
+  play:function(){if(running)return;running=true;last=performance.now();if(!t0)t0=last;raf=requestAnimationFrame(step);},
+  pause:function(){running=false;cancelAnimationFrame(raf);},
+  point:function(){pointUntil=performance.now()+1600;if(!running)pose(2.5,0);},
+  seek:function(t){phase=0;for(var s=0;s<t;s+=1/60){var kk=kAt(s);phase+=(1/60)*2*Math.PI/csLerp(1.15,0.72,kk);}belt=t*100;pose(t,0);},
+  get running(){return running;}
+ };
+}
+function CoachScene(){
+ var ref=React.useRef(null),scene=React.useRef(null);
+ var ps=React.useState(false),paused=ps[0],setPaused=ps[1];var userPaused=React.useRef(false),visible=React.useRef(false);
+ function sync(){var s=scene.current;if(!s)return;if(!reduceMotion&&!userPaused.current&&visible.current&&!document.hidden)s.play();else s.pause();}
+ React.useEffect(function(){
+  var el=ref.current;if(!el)return;el.innerHTML=coachSceneSVG();scene.current=makeCoachScene(el);window.vfCoachScene=scene.current;
+  var io=null;if(typeof IntersectionObserver!=='undefined'){io=new IntersectionObserver(function(en){visible.current=en[0].isIntersecting;sync();},{threshold:.2});io.observe(el);}else{visible.current=true;sync();}
+  document.addEventListener('visibilitychange',sync);
+  return function(){if(io)io.disconnect();document.removeEventListener('visibilitychange',sync);scene.current&&scene.current.pause();if(window.vfCoachScene===scene.current)window.vfCoachScene=null;};
+ },[]);
+ function toggle(){userPaused.current=!userPaused.current;setPaused(userPaused.current);sync();}
+ return h('figure',{className:'vfh-scene-fig'},
+  h('div',{ref:ref,className:'vfh-scene-art'}),
+  reduceMotion?null:h('button',{type:'button',className:'vfh-scene-pause',onClick:toggle,'aria-pressed':paused?'true':'false','aria-label':paused?'Play the coaching animation':'Pause the coaching animation'},
+   h('span',{'aria-hidden':'true'},paused?'▶':'❚❚')));
+}
+window.VF26CoachScene=CoachScene;
+
 /* ================= HOMEPAGE (Nov 2026 redesign) =================
    Desktop: a calm introduction panel (about a third of the width, sticky under the header) beside a composed,
    staggered gallery of six real panels. Phone: introduction, then the two ways to train, then the gallery in one
@@ -666,7 +791,7 @@ function HomePage(props){
    h('h1',{className:'vfh-h1'},'Build strength.',h('span',null,'See your progress.')),
    h('p',{className:'vfh-lead'},'Personal attention. Small-group energy. Structured coaching in Nassau and online, with real people behind your progress.'),
    h('div',{className:'vfh-acts'},
-    h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
+    h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult,onMouseEnter:function(){window.vfCoachScene&&window.vfCoachScene.point();},onFocus:function(){window.vfCoachScene&&window.vfCoachScene.point();}},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
     navA('pricing',go(setCurrentPage,'pricing'),{className:'vf26-btn vf26-btn-outline'},'See pricing')),
    h('p',{className:'vfh-fine'},'A coach contacts you to confirm a suitable time.'),
    h('dl',{className:'vfh-facts'},
@@ -694,6 +819,12 @@ function HomePage(props){
     h('button',{type:'button',className:'vf26-link',onClick:route('Train online','vf26-remote')},'Online plans',icon('arrow',15)))));
 
  var img=function(src,alt,w,hgt,extra){return h('img',Object.assign({src:src,alt:alt||'',width:w,height:hgt,loading:'lazy',decoding:'async'},extra||{}));};
+ var sceneSec=h('section',{className:'vfh-scene','aria-labelledby':'vfh-scene-h'},
+  h(CoachScene,null),
+  h('div',{className:'vfh-scene-copy'},
+   h('p',{className:'vfh-label'},'How coaching works'),
+   h('h2',{id:'vfh-scene-h',className:'vfh-sec-h'},'A coach with you, set by set.'),
+   h('p',null,'Your coach watches your form, sets your pace and adjusts the plan as you get stronger. In Nassau that happens in the room; online, your coach reviews your logged sessions in the VFIT app.')));
  var gallery=h('section',{className:'vfh-gallery-sec','aria-labelledby':'vfh-gal-h'},
   h('h2',{id:'vfh-gal-h',className:'sr-only'},'Inside VFITNESS'),
   h('div',{className:'vfh-gallery'},
@@ -745,7 +876,7 @@ function HomePage(props){
  return h('main',{className:'vf26 vfh'},
   h('div',{className:'vfh-split'},
    intro,
-   h('div',{className:'vfh-stage'},routes,gallery,steps,h(PromoSlider,null))),
+   h('div',{className:'vfh-stage'},routes,sceneSec,gallery,steps,h(PromoSlider,null))),
   dialog);
 }
 

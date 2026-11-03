@@ -1759,3 +1759,15 @@ html[data-vf26][data-vf-area="public"]:not([data-vf-theme="light"]){
 .vf26 .vf26-ev-video video{display:block;width:100%;height:auto;aspect-ratio:16/9;border-radius:16px;background:#0c0d0e;}
 .vf26 .vf26-ev-video figcaption{margin-top:8px;font-size:15px;color:var(--vf-dim);}
 .vf26 .vf26-ev-video figcaption b{color:var(--vf-text);}
+
+/* Coach scene (homepage) */
+.vfh-scene{display:grid;gap:20px;align-items:center;padding:20px;border:1px solid var(--vf-border);border-radius:var(--vfx-radius-l);background:var(--vf-card);}
+.vfh-scene-fig{position:relative;margin:0;}
+.vfh-scene-art{aspect-ratio:584/304;width:100%;color:var(--vf-text);}
+.vfh-scene-art svg{display:block;width:100%;height:100%;}
+.vfh-scene-pause{position:absolute;right:0;top:0;width:44px;height:44px;border-radius:999px;border:1px solid var(--vf-border);background:var(--vf-surface-2);color:var(--vf-text);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;}
+.vfh-scene-pause:focus-visible{outline:3px solid var(--vfx-blue-soft);outline-offset:2px;}
+.vfh-scene-copy p:last-child{margin:0;font-size:16px;line-height:1.6;color:var(--vf-dim);}
+.vfh-scene-copy .vfh-sec-h{margin-bottom:10px;}
+@media (min-width:900px){.vfh-scene{grid-template-columns:1.35fr 1fr;padding:24px 28px;}}
+.vfh-scene-copy .vfh-sec-h{font-size:clamp(1.5rem,2.2vw,1.9rem);}
