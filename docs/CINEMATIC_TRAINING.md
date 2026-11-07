@@ -34,3 +34,4 @@ Make a clip from a start frame and an end frame (for example the assembled bar a
 
 Keep `CT_FRAMES` in `vf26/vfit-2026.js` equal to the frame count. Keep each set under about 3 MB.
 Never use a clip that shows a real person who has not agreed to it.
+- Frames are cached for 30 days (vercel.json). After re-rendering, rename the folder (for example cine-train-2) and update ctSrc so phones fetch the new set.
