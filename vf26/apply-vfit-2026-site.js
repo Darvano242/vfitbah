@@ -141,7 +141,9 @@ html=html.slice(0,bodyClose)+`<link rel="stylesheet" href="/vf26/vfit-2026.css?v
 const anchor='<script src="/vfp-programs.js';
 const ai=html.indexOf(anchor);
 if(ai<0)throw new Error('Could not find the app script anchor');
-html=html.slice(0,ai)+`<script src="/vf26/vfit-2026.js?v=${VERSION}"></script>\n    `+html.slice(ai);
+// Motion tools (self-hosted, deferred, so they never block the first paint): GSAP + ScrollTrigger and Lenis.
+// vfit-2026.js starts smooth scrolling on DOMContentLoaded, after these have run.
+html=html.slice(0,ai)+`<link rel="stylesheet" href="/vf26/vendor-lenis-1.3.27.css">\n    <script defer src="/vf26/vendor-gsap-3.15.1.min.js"></script>\n    <script defer src="/vf26/vendor-scrolltrigger-3.15.1.min.js"></script>\n    <script defer src="/vf26/vendor-lenis-1.3.27.min.js"></script>\n    <script src="/vf26/vfit-2026.js?v=${VERSION}"></script>\n    `+html.slice(ai);
 
 // 5a. Site title
 const OLD_TITLE="VFITNESS Bahamas | Nassau's Premium Body Transformation System";

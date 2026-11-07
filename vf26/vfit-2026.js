@@ -2428,3 +2428,29 @@ Object.keys(PAGES).forEach(function(k){window[k]=PAGES[k];});
 window.VF26={Navigation:Navigation,HomePage:HomePage,Footer:Footer,pages:PAGES};
 window.Navigation=Navigation;window.HomePage=HomePage;window.Footer=Footer;
 })();
+
+/* Smooth wheel scrolling (Lenis on GSAP's ticker) on the public pages only: never in the client portal, admin, sign-in
+   or the consultation and application forms, and never under reduced motion. Touch scrolling stays native.
+   Dialogs, scroll boxes, text areas and selects keep native scrolling, and a dialog that locks the page pauses it. */
+(function(){
+  var PUBLIC=['','results','trainers','team','pricing','services','contact','locations','about','company','programs','library','pink-beach-burn','events','privacy','terms','refund-policy'];
+  var PREVENT='[role="dialog"],[role="alertdialog"],[data-lenis-prevent],textarea,select,[style*="overflow-y: auto"],[style*="overflow: auto"]';
+  var lenis=null,tick=null,obs=null;
+  function reduced(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
+  function isPublic(){var seg=(location.pathname.split('/').filter(Boolean)[0]||'').toLowerCase();return PUBLIC.indexOf(seg)>=0;}
+  function start(){
+    if(lenis||reduced()||!window.Lenis||!window.gsap)return;
+    if(window.ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
+    lenis=new Lenis({lerp:0.1,smoothWheel:true,syncTouch:false,anchors:{offset:-88},prevent:function(n){return !!(n&&n.closest&&n.closest(PREVENT));}});
+    if(window.ScrollTrigger)lenis.on('scroll',ScrollTrigger.update);
+    tick=function(t){if(lenis)lenis.raf(t*1000);};gsap.ticker.add(tick);gsap.ticker.lagSmoothing(0);
+    var sync=function(){var locked=document.body.style.overflow==='hidden'||document.documentElement.style.overflow==='hidden'||document.body.hasAttribute('data-scroll-locked');if(locked)lenis.stop();else lenis.start();};
+    obs=new MutationObserver(sync);obs.observe(document.body,{attributes:true,attributeFilter:['style','data-scroll-locked']});obs.observe(document.documentElement,{attributes:true,attributeFilter:['style']});sync();
+  }
+  function stop(){if(obs)obs.disconnect();obs=null;if(tick&&window.gsap)gsap.ticker.remove(tick);tick=null;if(lenis)lenis.destroy();lenis=null;}
+  var last=null;
+  function check(){var p=location.pathname;if(p===last)return;last=p;if(isPublic()){start();if(lenis){lenis.scrollTo(window.scrollY,{immediate:true,force:true});lenis.resize();}}else stop();}
+  function boot(){check();setInterval(check,400);window.addEventListener('popstate',check);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  window.VF26Motion={get lenis(){return lenis;}};
+})();
