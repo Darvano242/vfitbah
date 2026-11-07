@@ -10,3 +10,8 @@
 - React Bits components are React + build-tool components; this site has no bundler, so port a component by hand into
   `vfit-2026.js` (plain `React.createElement`, no JSX) if one is wanted.
 - Upgrading: replace the vendor files and update the four tags in `apply-vfit-2026-site.js`.
+
+## Skills installed for this repo (dev only, not deployed)
+`.claude/skills/` holds: the official GreenSock gsap-* skills, CloudAI-X threejs-* skills, LottieFiles motion-design,
+design-dna, and Genjutsu (cast, paint, bunshin, _jutsu). Licences sit next to them (LICENSE-*). `.vercelignore`
+keeps .claude, docs and tests out of deployments. The cinematic section is documented in CINEMATIC_TRAINING.md.

@@ -378,6 +378,12 @@ fs.mkdirSync(outDir,{recursive:true});
 for(const f of fs.readdirSync(here)){
   if(/\.(css|js|webp|jpg|png|mp4)$/i.test(f)&&f!=='apply-vfit-2026-site.js'&&f!=='devserver.js'&&f!=='build.js'&&!/\.(part|base)\./.test(f))fs.copyFileSync(path.join(here,f),path.join(outDir,f));
 }
+// Frame sequences for the scroll-scrubbed cinematic sections live in vf26/cine-*/<set>/fNNN.webp.
+for(const d of fs.readdirSync(here)){
+  if(!/^cine-/.test(d)||!fs.statSync(path.join(here,d)).isDirectory())continue;
+  (function copyDir(src,dst){fs.mkdirSync(dst,{recursive:true});for(const f of fs.readdirSync(src)){const s=path.join(src,f),t=path.join(dst,f);
+    if(fs.statSync(s).isDirectory())copyDir(s,t);else if(/\.(webp|jpg|json)$/i.test(f))fs.copyFileSync(s,t);}})(path.join(here,d),path.join(outDir,d));
+}
 
 // 7. Verify: every inline script and the component file must parse.
 const scripts=[...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
