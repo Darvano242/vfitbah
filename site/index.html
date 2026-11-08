@@ -55,16 +55,15 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind is compiled ahead of time into /vf-tw.css (scripts/build-tailwind.sh). The runtime Play CDN was a main cause of mobile lag. -->
     
     <!-- Chart.js for graphs -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="window.dispatchEvent(new Event('vf-lib'))"></script>
 
     <!-- Lucide icons (premium 3D icon system) -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script defer src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" onload="window.dispatchEvent(new Event('vf-lib'))"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap');
         
         * {
             margin: 0;
@@ -275,7 +274,6 @@
            No app logic touched, only presentation.
            ============================================================ */
 
-        @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
 
         :root {
             --mu-bg:        #08090a;
@@ -849,7 +847,7 @@ button,.mu-bottomnav-item,a{touch-action:manipulation;}
 @keyframes vfEliteShine{0%,100%{filter:brightness(1);transform:translateY(0)}50%{filter:brightness(1.12);transform:translateY(-1px)}}
 .vf-elite-banner{animation:vfEliteShine 4s ease-in-out infinite;}
 </style>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 
 
 <style id="vf-iphone-fit-fix">
@@ -1012,6 +1010,7 @@ button,.mu-bottomnav-item,a{touch-action:manipulation;}
 @media(max-width:640px){.vfx-numcell{border-left:0;padding-left:0;border-top:1px solid rgba(125,165,255,.22);padding-top:16px}}
 
 </style>
+<link rel="stylesheet" href="/vf-tw.css?v=20261108">
 </head>
 <body>
     <div id="root">
@@ -1165,7 +1164,7 @@ return"I can help with what to train today, your next recommended weights, nutri
 // ============================================
 // CHART.JS WRAPPER (progress charts)
 // ============================================
-function ProgressChart({type='line',labels=[],datasets=[],height=220}){const canvasRef=useRef(null);const chartRef=useRef(null);useEffect(()=>{if(!canvasRef.current||!window.Chart)return;if(chartRef.current){chartRef.current.destroy();}const ctx=canvasRef.current.getContext('2d');chartRef.current=new window.Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1,labels:{color:'#9aa4b2',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}}});return()=>{if(chartRef.current)chartRef.current.destroy();};},[JSON.stringify(labels),JSON.stringify(datasets),type]);if(!labels.length){return/*#__PURE__*/React.createElement("div",{className:"flex items-center justify-center rounded-xl",style:{height,background:'rgba(255,255,255,.02)',border:'1px dashed var(--mu-border)'}},/*#__PURE__*/React.createElement("div",{className:"text-center"},/*#__PURE__*/React.createElement(Ico,{name:"bar-chart-3",size:28,color:"var(--mu-text-mute)"}),/*#__PURE__*/React.createElement("div",{className:"text-sm mt-2",style:{color:'var(--mu-text-mute)'}},"Not enough data yet")));}return/*#__PURE__*/React.createElement("div",{style:{height}},/*#__PURE__*/React.createElement("canvas",{ref:canvasRef}));}// ============================================
+function ProgressChart({type='line',labels=[],datasets=[],height=220}){const canvasRef=useRef(null);const chartRef=useRef(null);const[cz,setCz]=useState(window.Chart?1:0);useEffect(()=>{if(cz)return;const r=()=>{if(window.Chart)setCz(1);};window.addEventListener('vf-lib',r);return()=>window.removeEventListener('vf-lib',r);},[cz]);useEffect(()=>{if(!canvasRef.current||!window.Chart)return;if(chartRef.current){chartRef.current.destroy();}const ctx=canvasRef.current.getContext('2d');chartRef.current=new window.Chart(ctx,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1,labels:{color:'#9aa4b2',font:{size:11}}}},scales:{x:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}},y:{ticks:{color:'#6b7280',font:{size:10}},grid:{color:'rgba(255,255,255,.05)'}}}}});return()=>{if(chartRef.current)chartRef.current.destroy();};},[JSON.stringify(labels),JSON.stringify(datasets),type,cz]);if(!labels.length){return/*#__PURE__*/React.createElement("div",{className:"flex items-center justify-center rounded-xl",style:{height,background:'rgba(255,255,255,.02)',border:'1px dashed var(--mu-border)'}},/*#__PURE__*/React.createElement("div",{className:"text-center"},/*#__PURE__*/React.createElement(Ico,{name:"bar-chart-3",size:28,color:"var(--mu-text-mute)"}),/*#__PURE__*/React.createElement("div",{className:"text-sm mt-2",style:{color:'var(--mu-text-mute)'}},"Not enough data yet")));}return/*#__PURE__*/React.createElement("div",{style:{height}},/*#__PURE__*/React.createElement("canvas",{ref:canvasRef}));}// ============================================
 // FAVORITES / SAVED SYSTEM (per logged-in user)
 // Stored at users/{uid}/favorites/{type} as { items: [...] }
 // type: programs | workouts | exercises | meals | trainers | transformations
@@ -1314,11 +1313,11 @@ n>1&&React.createElement("div",{className:"flex items-center justify-center gap-
  React.createElement("button",{type:"button",onClick:()=>go(i+1),'aria-label':'Next transformation',style:roundBtn},"\u203A"),
  React.createElement("button",{type:"button",onClick:()=>setStopped(!stopped),'aria-label':stopped?'Play slideshow':'Pause slideshow','aria-pressed':stopped,style:{...roundBtn,fontSize:'.75rem'}},stopped?'\u25B6':'II')),
 n>1&&React.createElement("div",{className:"flex gap-2 mt-3 pb-1",style:{overflowX:'auto',justifyContent:n<=8?'center':'flex-start',scrollbarWidth:'thin'},role:'group','aria-label':'Choose a transformation'},gallery.map((g,idx)=>React.createElement("button",{key:g.id||idx,type:"button",onClick:()=>go(idx),'aria-label':'Show transformation '+(idx+1)+' of '+n+(g.title?': '+g.title:''),'aria-current':idx===i%n?'true':undefined,style:{flex:'0 0 auto',width:'44px',height:'44px',padding:0,borderRadius:'10px',overflow:'hidden',border:idx===i%n?'2px solid var(--mu-primary)':'1px solid rgba(255,255,255,.18)',opacity:idx===i%n?1:.7,background:'rgba(255,255,255,.06)'}},g.imageUrl?React.createElement("img",{src:g.imageUrl,alt:'',loading:'lazy',style:{width:'100%',height:'100%',objectFit:'cover'}}):null))));}// ============================================
-function Ico({name,size=20,color='currentColor',stroke=2.2,fill='none',style={},className=''}){const ref=useRef(null);useEffect(()=>{if(!ref.current)return;const L=window.lucide;if(!L)return;// PascalCase key e.g. "arrow-right" -> "ArrowRight"
+function Ico({name,size=20,color='currentColor',stroke=2.2,fill='none',style={},className=''}){const ref=useRef(null);const[lz,setLz]=useState(window.lucide?1:0);useEffect(()=>{if(lz)return;const r=()=>{if(window.lucide)setLz(1);};window.addEventListener('vf-lib',r);return()=>window.removeEventListener('vf-lib',r);},[lz]);useEffect(()=>{if(!ref.current)return;const L=window.lucide;if(!L)return;// PascalCase key e.g. "arrow-right" -> "ArrowRight"
 const key=name.split(/[-_]/).map(p=>p.charAt(0).toUpperCase()+p.slice(1)).join('');// Lucide UMD shape: L.icons[key] = [tag, attrs, children]
 const store=L.icons||L;let node=store[key]||store[name];ref.current.innerHTML='';if(node){// node can be [tag,attrs,children] or {..., toSvg} or an array of child defs
 let children=Array.isArray(node)?node[2]||node:node.children||[];// Some builds: node is array of [tag, attrs]
-if(Array.isArray(node)&&node.length&&Array.isArray(node[0]))children=node;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',size);svg.setAttribute('height',size);svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill',fill);svg.setAttribute('stroke',color);svg.setAttribute('stroke-width',stroke);svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');(children||[]).forEach(ch=>{if(!Array.isArray(ch))return;const[tag,a]=ch;const el=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(a||{}).forEach(([k,v])=>el.setAttribute(k,v));svg.appendChild(el);});ref.current.appendChild(svg);}},[name,size,color,stroke,fill]);return React.createElement('span',{ref,className:'mu-ico-svg '+className,style:{display:'inline-flex',alignItems:'center',justifyContent:'center',lineHeight:0,width:size,height:size,...style}});}// 3D gradient tile wrapping a Lucide icon
+if(Array.isArray(node)&&node.length&&Array.isArray(node[0]))children=node;const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('width',size);svg.setAttribute('height',size);svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill',fill);svg.setAttribute('stroke',color);svg.setAttribute('stroke-width',stroke);svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');(children||[]).forEach(ch=>{if(!Array.isArray(ch))return;const[tag,a]=ch;const el=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(a||{}).forEach(([k,v])=>el.setAttribute(k,v));svg.appendChild(el);});ref.current.appendChild(svg);}},[name,size,color,stroke,fill,lz]);return React.createElement('span',{ref,className:'mu-ico-svg '+className,style:{display:'inline-flex',alignItems:'center',justifyContent:'center',lineHeight:0,width:size,height:size,...style}});}// 3D gradient tile wrapping a Lucide icon
 function Ico3D({name,size=22,tile=44,variant='primary',style={},className=''}){const grads={primary:'linear-gradient(135deg,#3d7dff,#6f5bff)',teal:'linear-gradient(135deg,#2dd4bf,#3d7dff)',fire:'linear-gradient(135deg,#fb923c,#ef4444)',violet:'linear-gradient(135deg,#8b5cf6,#6f5bff)',green:'linear-gradient(135deg,#22c55e,#10b981)',gold:'linear-gradient(135deg,#f59e0b,#f43f5e)'};const shadow={primary:'0 10px 24px -6px rgba(61,125,255,.6)',teal:'0 10px 24px -6px rgba(45,212,191,.6)',fire:'0 10px 24px -6px rgba(239,68,68,.6)',violet:'0 10px 24px -6px rgba(139,92,246,.6)',green:'0 10px 24px -6px rgba(34,197,94,.6)',gold:'0 10px 24px -6px rgba(245,158,11,.6)'};return React.createElement('span',{className:'mu-ico3d '+className,style:{width:tile,height:tile,minWidth:tile,borderRadius:tile*0.28,display:'inline-flex',alignItems:'center',justifyContent:'center',background:grads[variant]||grads.primary,boxShadow:(shadow[variant]||shadow.primary)+', inset 0 1px 0 rgba(255,255,255,.25)',...style}},React.createElement(Ico,{name,size,color:'#fff',stroke:2.3}));}// ============================================
 // EXERCISE DATABASE - 40+ EXERCISES
 // ============================================
@@ -3651,7 +3650,6 @@ ReactDOM.render(/*#__PURE__*/React.createElement(ErrorBoundary,null,/*#__PURE__*
      Pure additive layer: no component markup touched.
      ================================================================ -->
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style id="vf2026">
 :root{
   --vf-ink:#05070B; --vf-electric:#3d7dff; --vf-violet:#6f5bff; --vf-teal:#2dd4bf;
@@ -3738,7 +3736,8 @@ var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce
 
 /* ============ DEPTH FIELD, island light on a midnight floor ============ */
 var cv=document.getElementById('vf-depthfield');
-if(cv&&cv.getContext){
+/* Skip entirely when the canvas is hidden (the 2026 design hides it) or on touch screens: it redrew a full-screen canvas 45 times a second. */
+if(cv&&cv.getContext&&getComputedStyle(cv).display!=='none'&&!(window.matchMedia&&window.matchMedia('(hover: none)').matches)){
   var ctx=cv.getContext('2d',{alpha:false});
   var W=0,H=0,DPR=Math.min(window.devicePixelRatio||1,2);
   var mobile=Math.min(window.innerWidth,window.innerHeight)<720;

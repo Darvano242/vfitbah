@@ -856,60 +856,6 @@ var VF_CINEMATIC={
  strength:null
 };
 window.VF_CINEMATIC=VF_CINEMATIC;
-/* Cinematic training: a scroll-scrubbed frame sequence (rendered offline with three.js, see docs/CINEMATIC_TRAINING.md).
-   The frame pins with CSS sticky while the page scrolls through the section; GSAP ScrollTrigger maps that scroll to a
-   frame and the canvas draws the nearest loaded one. Frames load in a coarse pass first (every 8th), then fill in.
-   Reduced motion gets the final still and all three chapters as plain text. */
-var CT_FRAMES=150;
-var CT_CHAPTERS=[
- ['01','Start with a plan.','Your coach writes the session before you arrive: exercises, sets and target loads.'],
- ['02','Log every set.','Every set, rep and load is recorded, so next time is never a guess.'],
- ['03','Add a little more.','When the weight moves well, your coach adds a small jump. Week after week, that is how strength is built.']];
-function ctSet(){try{return window.matchMedia('(max-width: 899px)').matches?'m':'d';}catch(e){return 'd';}}
-function ctSrc(set,i){return '/vf26/cine-train/'+set+'/f'+('00'+i).slice(-3)+'.webp';}
-function whenMotion(cb){var n=0;(function wait(){if(window.gsap&&window.ScrollTrigger){window.gsap.registerPlugin(window.ScrollTrigger);cb(true);return;}if(++n>60){cb(false);return;}setTimeout(wait,100);})();}
-function CinematicTraining(p){
- var secRef=React.useRef(null),canRef=React.useRef(null),setRef=React.useRef(ctSet());
- var ls=React.useState(0),loaded=ls[0],setLoaded=ls[1];
- var cs=React.useState(0),chap=cs[0],setChap=cs[1];
- React.useEffect(function(){
-  if(reduceMotion)return;
-  var sec=secRef.current,cv=canRef.current;if(!sec||!cv)return;
-  var set=setRef.current,imgs=[],ok=[],count=0,cur=0,dead=false,tw=null,onScroll=null,started=false,lastPct=-1;
-  var ctx=cv.getContext('2d');
-  function draw(i){var k=-1;for(var d=0;d<CT_FRAMES;d++){if(ok[i-d]){k=i-d;break;}if(ok[i+d]){k=i+d;break;}}
-   if(k<0)return;var im=imgs[k];if(cv.width!==im.naturalWidth||cv.height!==im.naturalHeight){cv.width=im.naturalWidth;cv.height=im.naturalHeight;}ctx.drawImage(im,0,0);}
-  function order(){var o=[],seen={};[8,4,2,1].forEach(function(st){for(var i=0;i<CT_FRAMES;i+=st)if(!seen[i]){seen[i]=1;o.push(i);}});if(!seen[CT_FRAMES-1])o.push(CT_FRAMES-1);return o;}
-  function start(){if(started)return;started=true;var q=order(),active=0;
-   function next(){while(active<6&&q.length){(function(i){active++;var im=new Image();im.decoding='async';
-     im.onload=function(){if(dead)return;ok[i]=true;count++;active--;var pct=Math.round(count/CT_FRAMES*100);if(pct!==lastPct&&(pct%5===0||pct===100)){lastPct=pct;setLoaded(pct);}if(Math.abs(i-cur)<8)draw(cur);next();};
-     im.onerror=function(){active--;next();};imgs[i]=im;im.src=ctSrc(set,i);})(q.shift());}}
-   next();}
-  function progress(pr){pr=Math.min(1,Math.max(0,pr));cur=Math.round(pr*(CT_FRAMES-1));draw(cur);setChap(pr<0.34?0:pr<0.66?1:2);sec.style.setProperty('--ct-p',pr.toFixed(4));}
-  var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){if(es.some(function(e){return e.isIntersecting;})){start();io.disconnect();}},{rootMargin:'120% 0px'}):null;
-  if(io)io.observe(sec);else start();
-  function nativeProgress(){var r=sec.getBoundingClientRect(),top=80,len=r.height-(window.innerHeight-top);return len>0?(top-r.top)/len:0;}
-  whenMotion(function(has){if(dead)return;
-   if(has){var o={p:nativeProgress()};progress(o.p);
-    tw=window.gsap.to(o,{p:1,ease:'none',onUpdate:function(){progress(o.p);},scrollTrigger:{trigger:sec,start:'top top+=80',end:'bottom bottom',scrub:0.6,invalidateOnRefresh:true}});}
-   else{onScroll=function(){progress(nativeProgress());};window.addEventListener('scroll',onScroll,{passive:true});onScroll();}});
-  return function(){dead=true;if(io)io.disconnect();if(tw){if(tw.scrollTrigger)tw.scrollTrigger.kill();tw.kill();}if(onScroll)window.removeEventListener('scroll',onScroll);};
- },[]);
- var head=h('div',{className:'vfct-head'},h('p',{className:'vfh-label'},'How you get stronger'),h('h2',{id:'vfct-h',className:'vfct-h'},'Built one plate at a time.'));
- var cta=h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:p.onConsult},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'}));
- if(reduceMotion)return h('section',{className:'vfct vfct-still','aria-labelledby':'vfct-h'},
-  h('div',{className:'vfct-pin'},h('img',{className:'vfct-media',src:ctSrc(setRef.current,CT_FRAMES-1),alt:'A loaded barbell with one more small plate added on each side',width:setRef.current==='m'?720:1280,height:setRef.current==='m'?1280:800}),head),
-  h('ol',{className:'vfct-list'},CT_CHAPTERS.map(function(c){return h('li',{key:c[0]},h('span',{className:'n'},c[0]),h('b',null,c[1]),h('p',null,c[2]));})),cta);
- return h('section',{ref:secRef,className:'vfct','aria-labelledby':'vfct-h'},
-  h('div',{className:'vfct-pin'},
-   h('canvas',{ref:canRef,className:'vfct-media',role:'img','aria-label':'A loaded barbell comes apart plate by plate, a new plate is added on each side, and it locks back together.'}),
-   head,
-   loaded<100?h('p',{className:'vfct-load','aria-hidden':'true'},h('span',{className:'tr'},h('span',{style:{width:loaded+'%'}})),loaded+'%'):null,
-   h('div',{className:'vfct-copy'},
-    h('ol',{className:'vfct-chaps'},CT_CHAPTERS.map(function(c,i){return h('li',{key:c[0],className:i===chap?'is-on':'','aria-current':i===chap?'step':null},h('span',{className:'n'},c[0]),h('b',null,c[1]),h('p',null,c[2]));})),
-    h('div',{className:'vfct-foot'},h('div',{className:'vfct-rail','aria-hidden':'true'},h('i',null)),h('div',{className:'vfct-cta'+(chap===2?' is-on':'')},cta)))));
-}
-
 function CinematicLoop(p){
  var a=p.asset,ref=React.useRef(null),vis=React.useRef(false),userPaused=React.useRef(false);
  var ps=React.useState(false),paused=ps[0],setPaused=ps[1];var os=React.useState(false),open=os[0],setOpen=os[1];
@@ -1226,7 +1172,7 @@ function HomePage(props){
  return h('main',{className:'vf26 vfh'},
   h('div',{className:'vfh-split'},
    intro,
-   h('div',{className:'vfh-stage'},routes,h(CinematicTraining,{onConsult:consult}),sceneSec,semiSec,strengthSec,gallery,steps,h(PromoSlider,null))),
+   h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,steps,h(PromoSlider,null))),
   dialog);
 }
 
@@ -2491,9 +2437,11 @@ window.Navigation=Navigation;window.HomePage=HomePage;window.Footer=Footer;
   var PREVENT='[role="dialog"],[role="alertdialog"],[data-lenis-prevent],textarea,select,[style*="overflow-y: auto"],[style*="overflow: auto"]';
   var lenis=null,tick=null,obs=null;
   function reduced(){return !!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}
+  /* Phones and tablets scroll natively: Lenis adds nothing there (syncTouch is off) but kept a per-frame ticker running. */
+  function touchOnly(){return !!(window.matchMedia&&window.matchMedia('(hover: none), (pointer: coarse)').matches);}
   function isPublic(){var seg=(location.pathname.split('/').filter(Boolean)[0]||'').toLowerCase();return PUBLIC.indexOf(seg)>=0;}
   function start(){
-    if(lenis||reduced()||!window.Lenis||!window.gsap)return;
+    if(lenis||reduced()||touchOnly()||!window.Lenis||!window.gsap)return;
     if(window.ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
     lenis=new Lenis({lerp:0.1,smoothWheel:true,syncTouch:false,anchors:{offset:-88},prevent:function(n){return !!(n&&n.closest&&n.closest(PREVENT));}});
     if(window.ScrollTrigger)lenis.on('scroll',ScrollTrigger.update);
@@ -2502,7 +2450,7 @@ window.Navigation=Navigation;window.HomePage=HomePage;window.Footer=Footer;
     obs=new MutationObserver(sync);obs.observe(document.body,{attributes:true,attributeFilter:['style','data-scroll-locked']});obs.observe(document.documentElement,{attributes:true,attributeFilter:['style']});sync();
   }
   /* Section headings and step lists rise in once as they enter (only when Lenis runs, so never under reduced motion). */
-  var REVEAL='.vfh-sec-h:not([data-vfm]),.vfh-steps li:not([data-vfm]),.vfct-h:not([data-vfm])',revealed=[];
+  var REVEAL='.vfh-sec-h:not([data-vfm]),.vfh-steps li:not([data-vfm])',revealed=[];
   function reveal(){if(!lenis||!window.ScrollTrigger)return;
     revealed=revealed.filter(function(t){if(t.el.isConnected)return true;t.tw.scrollTrigger&&t.tw.scrollTrigger.kill();t.tw.kill();return false;});
     document.querySelectorAll(REVEAL).forEach(function(el,i){el.setAttribute('data-vfm','1');
@@ -2510,7 +2458,7 @@ window.Navigation=Navigation;window.HomePage=HomePage;window.Footer=Footer;
   function stop(){revealed.forEach(function(t){t.tw.scrollTrigger&&t.tw.scrollTrigger.kill();t.tw.kill();gsap.set(t.el,{clearProps:'all'});});revealed=[];if(obs)obs.disconnect();obs=null;if(tick&&window.gsap)gsap.ticker.remove(tick);tick=null;if(lenis)lenis.destroy();lenis=null;}
   var last=null;
   function check(){var p=location.pathname;if(p===last)return;last=p;if(isPublic()){start();if(lenis){lenis.scrollTo(window.scrollY,{immediate:true,force:true});lenis.resize();}}else stop();}
-  function boot(){check();setInterval(function(){check();reveal();},400);window.addEventListener('popstate',check);}
+  function boot(){check();setInterval(function(){if(!document.hidden){check();reveal();}},700);window.addEventListener('popstate',check);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
   window.VF26Motion={get lenis(){return lenis;}};
 })();

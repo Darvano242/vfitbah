@@ -14,4 +14,14 @@
 ## Skills installed for this repo (dev only, not deployed)
 `.claude/skills/` holds: the official GreenSock gsap-* skills, CloudAI-X threejs-* skills, LottieFiles motion-design,
 design-dna, and Genjutsu (cast, paint, bunshin, _jutsu). Licences sit next to them (LICENSE-*). `.vercelignore`
-keeps .claude, docs and tests out of deployments. The cinematic section is documented in CINEMATIC_TRAINING.md.
+keeps .claude, docs and tests out of deployments.
+
+## Mobile performance (Nov 8 2026)
+
+- The barbell "Cinematic training" section was removed (frames, component, styles).
+- Tailwind is compiled ahead of time into `site/vf-tw.css` by `scripts/build-tailwind.sh` (the runtime Play CDN recompiled
+  styles in the browser on every DOM change). Run it and commit the CSS after adding new Tailwind class names.
+- Lenis never starts on touch screens; the old full-screen depth-field canvas never runs when hidden or on touch screens.
+- Chart.js and Lucide load with `defer`; `Ico` and `ProgressChart` redraw on the `vf-lib` event when they arrive.
+- Static JS/CSS cache for 1 hour (stale-while-revalidate 1 day), images and video for 1 day, vendor files for a year.
+  HTML, sw.js, manifest and version.json stay no-store.
