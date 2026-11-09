@@ -1492,6 +1492,105 @@ function AdminGroups(){
      h('button',{className:'vf26-btn vf26-btn-outline sm',disabled:busy,onClick:function(){run('adminRemoveWait',{waitId:w.id},'Removed from the waitlist.');}},'Remove'));}))):null);})));
 }
 window.VF26AdminGroups=AdminGroups;
+/* ================= TODAY CHECK-IN (staff) =================
+   "Who did you train today?" One tap logs a session on the client's package: the balance drops by one,
+   a sessionLogs record is written, and when the balance reaches 3 the existing renewal email
+   (sendPackageRenewalReminder) goes out exactly as it does from Log session on the Packages tab.
+   Undo restores the package and removes the log. Opened directly with /admin?today=1. */
+function tdDb(){try{if(typeof db!=='undefined'&&db)return db;}catch(e){}return window.firebase&&firebase.firestore?firebase.firestore():null;}
+function tdTs(){return firebase.firestore.FieldValue.serverTimestamp();}
+function tdDate(v){try{return v&&v.toDate?v.toDate():v?new Date(v):null;}catch(e){return null;}}
+function tdSameDay(a,b){return a&&b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();}
+function tdMine(pkg,u){if(!u)return false;var id=u.uid||u.id;var nm=String(u.name||u.displayName||'').trim().toLowerCase();
+ return (id&&(pkg.assignedTrainerId===id||pkg.assignedById===id))||(nm&&[pkg.assignedTrainerName,pkg.assignedBy,pkg.trainerName].some(function(x){return String(x||'').trim().toLowerCase()===nm;}));}
+function TodayCheckin(p){
+ var u=p.user||{},clients=p.clients||[];
+ var st=React.useState({loading:true,error:'',pkgs:[],logs:[]}),data=st[0],setData=st[1];
+ var sc=React.useState('mine'),scope=sc[0],setScope=sc[1];
+ var fq=React.useState(''),find=fq[0],setFind=fq[1];
+ var bz=React.useState({}),busy=bz[0],setBusy=bz[1];
+ var tt=React.useState(null),toast=tt[0],setToast=tt[1];
+ var timer=React.useRef(null);
+ function load(){var d=tdDb();if(!d){setData({loading:false,error:'The database is not ready. Refresh the page.',pkgs:[],logs:[]});return Promise.resolve();}
+  var since=new Date();since.setDate(since.getDate()-35);since.setHours(0,0,0,0);
+  return Promise.all([d.collection('packages').where('status','==','active').get(),
+   d.collection('sessionLogs').where('createdAt','>=',since).get().catch(function(){return {docs:[]};})])
+  .then(function(r){var pk=r[0].docs.map(function(x){return Object.assign({id:x.id},x.data());});
+   if(clients.length){var ids={};clients.forEach(function(c){ids[c.id]=1;});pk=pk.filter(function(x){return ids[x.clientId];});}
+   var logs=r[1].docs.map(function(x){return Object.assign({id:x.id},x.data());});
+   setData({loading:false,error:'',pkgs:pk,logs:logs});})
+  .catch(function(e){setData({loading:false,error:(e&&e.message)||'Could not load packages.',pkgs:[],logs:[]});});}
+ React.useEffect(function(){load();return function(){clearTimeout(timer.current);};},[]);
+ var now=new Date(),dow=now.getDay();
+ var mineCount=data.pkgs.filter(function(x){return tdMine(x,u);}).length;
+ var useMine=scope==='mine'&&mineCount>0;
+ var rows=data.pkgs.filter(function(x){return !useMine||tdMine(x,u);}).map(function(x){
+  var mylogs=data.logs.filter(function(l){return l.packageId===x.id&&!l.undone;});
+  var today=mylogs.filter(function(l){return tdSameDay(tdDate(l.createdAt),now);}).length;
+  var habit=mylogs.filter(function(l){var d=tdDate(l.createdAt);return d&&d.getDay()===dow&&!tdSameDay(d,now);}).length;
+  var last=tdDate(x.lastSessionAt);if(last&&tdSameDay(last,now)&&!today)today=1;
+  return {pkg:x,today:today,habit:habit,name:x.clientName||'Client',left:x.sessionsRemaining||0};});
+ var needle=find.trim().toLowerCase();
+ if(needle)rows=rows.filter(function(r){return (r.name+' '+(r.pkg.packageName||'')).toLowerCase().indexOf(needle)>=0;});
+ rows.sort(function(a,b){return (b.habit>0)-(a.habit>0)||b.habit-a.habit||a.name.localeCompare(b.name);});
+ var dupe={};rows.forEach(function(r){dupe[r.pkg.clientId]=(dupe[r.pkg.clientId]||0)+1;});
+ var doneToday=rows.filter(function(r){return r.today>0;}).length;
+ function say(t){clearTimeout(timer.current);setToast(t);timer.current=setTimeout(function(){setToast(null);},t.undo?8000:5000);}
+ function log(r){var pkg=r.pkg,d=tdDb();if(busy[pkg.id]||!d)return;
+  var rem=pkg.sessionsRemaining||0,done=pkg.sessionsCompleted||0;
+  if(rem<=0){say({text:r.name+' has 0 sessions left. Add sessions on the Packages tab first.',bad:true});return;}
+  var nr=rem-1,nc=done+1;
+  setBusy(function(b){var n=Object.assign({},b);n[pkg.id]=1;return n;});
+  var upd={sessionsRemaining:nr,sessionsCompleted:nc,lastSessionAt:tdTs(),lastUpdated:tdTs()};
+  if(nr===0){upd.status='completed';upd.completedAt=tdTs();}
+  var logRef=d.collection('sessionLogs').doc(),email=null;
+  d.collection('packages').doc(pkg.id).update(upd)
+  .then(function(){return logRef.set({packageId:pkg.id,clientId:pkg.clientId||null,clientName:r.name,clientEmail:pkg.clientEmail||'',packageName:pkg.packageName||pkg.title||'Training package',
+    loggedBy:u.uid||u.id||null,loggedByName:u.name||u.email||'Staff',loggedByRole:u.role||'staff',source:'today_checkin',previousRemaining:rem,newRemaining:nr,previousCompleted:done,newCompleted:nc,createdAt:tdTs()});})
+  .then(function(){if(rem>3&&nr===3&&typeof sendPackageRenewalReminder==='function'){
+     return sendPackageRenewalReminder(Object.assign({},pkg,{sessionsRemaining:nr}),nr,pkg.id).then(function(x){email=x;},function(e){email={sent:false,reason:(e&&e.message)||'error'};});}})
+  .then(function(){
+   var text=r.name+' logged. '+nr+' session'+(nr===1?'':'s')+' left.';
+   if(nr===0)text+=' Package completed.';
+   if(email)text+=email.sent?' Renewal email sent to '+(pkg.clientEmail||'the client')+'.':' Renewal email NOT sent: '+(email.reason||'unknown reason')+'.';
+   say({text:text,bad:!!(email&&!email.sent),undo:{pkg:pkg,logId:logRef.id,rem:rem,done:done,status:pkg.status||'active',emailed:!!(email&&email.sent)}});
+   return load();})
+  .catch(function(e){say({text:'Could not log '+r.name+': '+((e&&e.message)||e),bad:true});})
+  .then(function(){setBusy(function(b){var n=Object.assign({},b);delete n[pkg.id];return n;});});}
+ function undo(x){var d=tdDb();if(!d)return;clearTimeout(timer.current);setToast({text:'Undoing...'});
+  var back={sessionsRemaining:x.rem,sessionsCompleted:x.done,status:x.status,lastUpdated:tdTs()};
+  if(x.pkg.lastSessionAt!==undefined)back.lastSessionAt=x.pkg.lastSessionAt;else back.lastSessionAt=firebase.firestore.FieldValue.delete();
+  if(x.status!=='completed')back.completedAt=firebase.firestore.FieldValue.delete();
+  d.collection('packages').doc(x.pkg.id).update(back)
+  .then(function(){return d.collection('sessionLogs').doc(x.logId).delete();})
+  .then(function(){say({text:'Undone. '+(x.pkg.clientName||'Client')+' is back to '+x.rem+' sessions.'+(x.emailed?' The renewal email had already gone out.':'')});return load();})
+  .catch(function(e){say({text:'Undo failed: '+((e&&e.message)||e),bad:true});});}
+ var label=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+ return h('section',{className:'vf26-today-ci','aria-labelledby':'vf26-tci-h'},
+  h('div',{className:'head'},
+   h('div',null,h('h2',{id:'vf26-tci-h'},'Who did you train today?'),
+    h('p',null,label+'. Tap a client to log one session. At 3 sessions left the renewal email goes out automatically.')),
+   h('p',{className:'count'},h('b',null,doneToday),' logged today')),
+  h('div',{className:'tools'},
+   h('input',{type:'search',value:find,placeholder:'Find a client',onChange:function(e){setFind(e.target.value);},'aria-label':'Find a client'}),
+   mineCount>0?h('div',{className:'seg',role:'group','aria-label':'Show'},
+    h('button',{type:'button','aria-pressed':scope==='mine',onClick:function(){setScope('mine');}},'My clients'),
+    h('button',{type:'button','aria-pressed':scope==='all',onClick:function(){setScope('all');}},'Everyone')):null),
+  data.loading?h('p',{className:'msg'},'Loading clients...'):
+  data.error?h('p',{className:'msg bad'},data.error,' ',h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:load},'Try again')):
+  !rows.length?h('p',{className:'msg'},needle?'No client matches "'+find+'".':'No active packages yet. Packages you add on the Packages tab show here.'):
+  h('ul',{className:'list'},rows.map(function(r){var on=r.today>0,b=!!busy[r.pkg.id],low=r.left<=3;
+   return h('li',{key:r.pkg.id},h('button',{type:'button',className:'row'+(on?' on':''),disabled:b,'aria-busy':b?'true':undefined,onClick:function(){log(r);},
+     'aria-label':'Log a session for '+r.name+', '+r.left+' left'+(on?', already logged '+r.today+' today':'')},
+    h('span',{className:'av','aria-hidden':'true'},on?LIco('check',18):String(r.name).split(/\s+/).map(function(w){return w.charAt(0);}).join('').slice(0,2).toUpperCase()),
+    h('span',{className:'who'},h('b',null,r.name),h('small',null,(dupe[r.pkg.clientId]>1?(r.pkg.packageName||'Package')+' · ':'')+(r.habit?'Usually trains '+now.toLocaleDateString('en-US',{weekday:'long'})+'s':(r.pkg.assignedTrainerName||r.pkg.assignedBy||'')))),
+    h('span',{className:'left'+(low?' low':'')},h('b',null,r.left),h('small',null,'left')),
+    h('span',{className:'act'},b?'Saving...':on?(r.today>1?r.today+'x today':'Logged'):'Log')));})),
+  toast?h('div',{className:'vf26-tci-toast'+(toast.bad?' bad':''),role:'status','aria-live':'polite'},h('span',null,toast.text),
+   toast.undo?h('button',{type:'button',onClick:function(){undo(toast.undo);}},'Undo'):null):null);
+}
+window.VF26TodayCheckin=TodayCheckin;
+
 
 function PricingPage(props){
  var user=props.user,setCurrentPage=props.setCurrentPage,theme=props.theme||'dark';
@@ -2078,7 +2177,7 @@ function VF26Tabs(p){
      h('p',{className:'n'},firstName(u)),
      h('p',{className:'s'},admin?(u.role==='admin'?'Administrator':'Trainer'):'Client account')),
     h('nav',null,items.map(function(t,i){var on=t.id===active;
-     return h(React.Fragment,{key:t.id},(admin&&(i===6||i===9))?h('div',{className:'vf26-rail-div'}):null,
+     return h(React.Fragment,{key:t.id},(admin&&i>0&&(t.id==='calendar'||t.id==='gallery'))?h('div',{className:'vf26-rail-div'}):null,
       h('button',{type:'button',className:'vf26-rail-item'+(on?' on':''),'aria-current':on?'page':undefined,onClick:pick(t.id)},LIco(t.icon,16),h('span',null,t.label),on?h('i',{className:'dot'}):null));})))),
   h('nav',{className:'vf26-tabstrip','aria-label':admin?'Business management sections':'Client portal sections',ref:stripRef},items.map(function(t){var on=t.id===active;
    return h('button',{key:t.id,type:'button','aria-current':on?'page':undefined,className:on?'on':'',onClick:pick(t.id)},LIco(t.icon,15),t.label);})));

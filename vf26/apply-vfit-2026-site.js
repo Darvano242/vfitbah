@@ -281,6 +281,12 @@ function range(marker,from,until,to){
 once("{id:'appointments',label:'Appointments',icon:'calendar-check'}","{id:'appointments',label:'Appointments',icon:'calendar-check'},{id:'groups',label:'Groups',icon:'users'}");
 once("activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"","activeTab==='groups'&&React.createElement(window.VF26AdminGroups||'div',null),activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"");
 
+// 5e4. "Today" check-in for staff: one tap logs a session (component VF26TodayCheckin in vfit-2026.js).
+//      /admin?today=1 opens straight on it (the daily reminder links there).
+once("{id:'siteDesign',label:'Site Editor',icon:'palette'}","{id:'today',label:'Today',icon:'check-circle'},{id:'siteDesign',label:'Site Editor',icon:'palette'}");
+once("activeTab==='groups'&&React.createElement(window.VF26AdminGroups||'div',null),","activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',{clients:clients,user:user,loadAdminData:loadAdminData}),activeTab==='groups'&&React.createElement(window.VF26AdminGroups||'div',null),");
+once("function AdminPage({user}){const[activeTab,setActiveTab]=useState('clients');","function AdminPage({user}){const[activeTab,setActiveTab]=useState('clients');useEffect(()=>{try{if(new URLSearchParams(location.search).has('today'))setActiveTab('today');}catch(e){}},[]);");
+
 // 5e3. Results page story details: a "Story details" editor next to each gallery photo (component in vfit-2026.js).
 once('/*#__PURE__*/React.createElement("button",{onClick:()=>handleDeleteImage(image.id),','React.createElement(window.VF26StoryEditButton||"span",{image:image,onSaved:loadGallery}),/*#__PURE__*/React.createElement("button",{onClick:()=>handleDeleteImage(image.id),');
 
