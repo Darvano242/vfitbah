@@ -391,6 +391,13 @@ for(const d of fs.readdirSync(here)){
     if(fs.statSync(s).isDirectory())copyDir(s,t);else if(/\.(webp|jpg|json)$/i.test(f))fs.copyFileSync(s,t);}})(path.join(here,d),path.join(outDir,d));
 }
 
+// 6n. Notification Center (admin) and client reminder preferences. Components in vfit-2026.js; the engine runs on the
+//     VFIT backend (siteNotify + workflow "Site Notifications"), reached through /api/notify.
+once("{id:'packages',label:'Packages',icon:'package'}","{id:'packages',label:'Packages',icon:'package'},{id:'notifications',label:'Notifications',icon:'bell'}");
+once("activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',","activeTab==='notifications'&&React.createElement(window.VF26Notifications||'div',null),activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',");
+once("activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),",
+     "activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),activeTab==='overview'&&React.createElement(window.VF26ReminderPrefs||'span',null),");
+
 // 7. Verify: every inline script and the component file must parse.
 const scripts=[...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((code,i)=>{try{new vm.Script(code,{filename:'inline-'+i+'.js'});}catch(e){throw new Error('Inline script '+i+' failed to parse: '+e.message);}});

@@ -1590,6 +1590,203 @@ function TodayCheckin(p){
    toast.undo?h('button',{type:'button',onClick:function(){undo(toast.undo);}},'Undo'):null):null);
 }
 window.VF26TodayCheckin=TodayCheckin;
+/* ================= NOTIFICATION CENTER (admin) =================
+   Bookings, reminders and renewals over WhatsApp, SMS and email. Runs on the VFIT backend (function siteNotify,
+   workflow "Site Notifications" every 15 minutes) so it works with every browser closed. Keys never reach the browser.
+   Nothing reaches a client until live sending is on, which the server only allows with approved templates and a
+   successful test per channel. /api/notify relays requests with the admin's sign-in token. */
+function ncApi(action,extra){
+ var u=null;try{u=window.firebase&&firebase.auth().currentUser;}catch(e){}
+ if(!u)return Promise.reject(new Error('Please sign in again.'));
+ return u.getIdToken().then(function(tok){return fetch('/api/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action:action,idToken:tok},extra||{}))});})
+  .then(function(r){return r.json().catch(function(){return {ok:false,error:'The notification service did not answer.'};});})
+  .then(function(j){if(!j||j.ok!==true){var e=new Error((j&&j.error)||'Something went wrong.');e.data=j;throw e;}return j;});
+}
+var NC_CH={whatsapp:'WhatsApp',sms:'SMS',email:'Email'};
+var NC_ST={held:'Held (test mode)',queued:'Scheduled',sending:'Sending',sent:'Sent',delivered:'Delivered',read:'Read',failed:'Failed',cancelled:'Cancelled',skipped:'Skipped'};
+function ncWhen(v){if(!v)return '';try{return new Date(v).toLocaleString('en-US',{timeZone:'America/Nassau',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}catch(e){return '';}}
+function ncMoney(n){return '$'+(Number(n)||0).toFixed(2);}
+function NotificationCenter(){
+ var tb=React.useState('overview'),tab=tb[0],setTab=tb[1];
+ var ov=React.useState(null),info=ov[0],setInfo=ov[1];
+ var er=React.useState(''),err=er[0],setErr=er[1];
+ var ms=React.useState({text:'',bad:false}),msg=ms[0],setMsg=ms[1];
+ function say(t,bad){setMsg({text:t,bad:!!bad});}
+ function loadOverview(){setErr('');return ncApi('adminOverview').then(setInfo).catch(function(e){setErr(e.message);});}
+ React.useEffect(function(){loadOverview();},[]);
+ var tabs=[['overview','Overview'],['messages','Messages'],['templates','Templates'],['clients','Client preferences'],['automations','Automations'],['send','Send']];
+ return h('section',{className:'vf26-nc','aria-labelledby':'vf26-nc-h'},
+  h('div',{className:'head'},h('div',null,h('h2',{id:'vf26-nc-h'},'Notifications'),
+   h('p',null,'Booking confirmations, changes, cancellations, reminders 24 hours and 2 hours before, and renewal messages, sent automatically over WhatsApp, SMS or email. Runs every 15 minutes, even with this page closed.')),
+   info?h('span',{className:'pill '+(info.settings&&info.settings.live?'live':'test')},info.settings&&info.settings.live?'Live sending on':'Test mode: nothing goes to clients'):null),
+  h('div',{className:'vf26-nc-tabs',role:'tablist','aria-label':'Notification sections'},tabs.map(function(t){return h('button',{key:t[0],type:'button',role:'tab','aria-selected':tab===t[0],className:'vf26-chip'+(tab===t[0]?' on':''),onClick:function(){setTab(t[0]);setMsg({text:'',bad:false});}},t[1]);})),
+  msg.text?h('p',{className:'vf26-nc-msg'+(msg.bad?' bad':''),role:'status'},msg.text):null,
+  err?h('p',{className:'vf26-nc-msg bad'},err,' ',h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:loadOverview},'Try again')):
+  !info?h('p',{className:'vf26-nc-dim'},'Loading...'):
+  tab==='overview'?h(NcOverview,{info:info,reload:loadOverview,say:say,go:setTab}):
+  tab==='messages'?h(NcMessages,{info:info,say:say}):
+  tab==='templates'?h(NcTemplates,{info:info,say:say,reload:loadOverview}):
+  tab==='clients'?h(NcClients,{info:info,say:say}):
+  tab==='automations'?h(NcAutomations,{info:info,say:say,reload:loadOverview}):
+  h(NcSend,{info:info,say:say}));
+}
+function NcOverview(p){
+ var i=p.info,c=i.count||{},pv=i.providers||{};
+ var rb=React.useState(false),busy=rb[0],setBusy=rb[1];
+ function run(){setBusy(true);ncApi('adminRunNow').then(function(j){var s=j.summary||{};p.say('Checked bookings: '+(s.planned||0)+' new messages ('+(s.held||0)+' held), '+(s.sent||0)+' sent, '+(s.failed||0)+' failed'+(s.errors&&s.errors.length?'. '+s.errors.join(' '):'.'),!!(s.errors&&s.errors.length));return p.reload();}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy(false);});}
+ function stat(label,n,tone){return h('div',{className:'stat '+(tone||'')},h('b',null,n||0),h('span',null,label));}
+ var setup=[['firebase','Read bookings and packages','FIREBASE_SERVICE_ACCOUNT'],['email','Email (Resend)','RESEND_API_KEY and NOTIFY_EMAIL_FROM'],['emailWebhook','Email delivery tracking','RESEND_WEBHOOK_SECRET'],['whatsapp','WhatsApp (Twilio)','TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM'],['sms','SMS (Twilio)','TWILIO_MESSAGING_SERVICE_SID or TWILIO_SMS_FROM']];
+ var lr=i.lastRun||{};
+ return h('div',{className:'vf26-nc-body'},
+  h('div',{className:'vf26-nc-stats'},stat('Scheduled',c.queued),stat('Sent',c.sent),stat('Delivered',(c.delivered||0)+(c.read||0),'good'),stat('Failed',c.failed,'bad'),stat('Held',c.held),stat('Cancelled',c.cancelled),stat('Skipped',c.skipped)),
+  h('p',{className:'vf26-nc-dim'},'Last 30 days. Cost: about '+ncMoney(i.cost&&i.cost.estimate)+' estimated, '+ncMoney(i.cost&&i.cost.actual)+' charged by the provider so far.'),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Status'),
+   h('p',null,'Last check: '+(i.lastRunAt?ncWhen(i.lastRunAt):'not yet')+(lr.errors&&lr.errors.length?'. '+lr.errors.join(' '):'')),
+   h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy,'aria-busy':busy?'true':undefined,onClick:run},busy?'Checking...':'Check bookings now')),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Connections'),
+   h('ul',{className:'vf26-nc-setup'},setup.map(function(s){var on=!!pv[s[0]];return h('li',{key:s[0],className:on?'on':''},h('span',{className:'dot','aria-hidden':'true'}),h('b',null,s[1]),h('span',null,on?'Connected':'Not set up: add '+s[2]+' as a secret in the VFIT app (Base44) settings'));})),
+   h('p',{className:'vf26-nc-dim'},'Provider callback address (Twilio status callback and incoming messages, Resend webhook): ',h('code',null,i.hookUrl+'?src=twilio'),', ',h('code',null,i.hookUrl+'?src=twilio-in'),', ',h('code',null,i.hookUrl+'?src=resend'))),
+  !i.settings.live?h('div',{className:'vf26-nc-card'},h('h3',null,'Before live sending'),
+   h('ul',{className:'vf26-nc-list'},(i.readiness&&i.readiness.missing||[]).slice(0,8).map(function(m,k){return h('li',{key:k},m);}),(i.readiness&&i.readiness.missing||[]).length>8?h('li',null,'and '+(i.readiness.missing.length-8)+' more'):null),
+   h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){p.go('templates');}},'Review templates')):null,
+  (i.replies||[]).length?h('div',{className:'vf26-nc-card'},h('h3',null,'Client replies'),h('ul',{className:'vf26-nc-list'},i.replies.map(function(r){return h('li',{key:r.id},h('b',null,(r.clientName||r.from)+' ('+(NC_CH[r.channel]||r.channel)+'): '),r.body,' ',h('small',null,ncWhen(r.receivedAt)));}))):null);
+}
+function NcMessages(p){
+ var fs=React.useState({status:'',channel:'',kind:''}),f=fs[0],setF=fs[1];
+ var ls=React.useState(null),rows=ls[0],setRows=ls[1];
+ var os=React.useState(null),open=os[0],setOpen=os[1];
+ function load(){setRows(null);ncApi('adminMessages',{filter:f}).then(function(j){setRows(j.messages||[]);}).catch(function(e){p.say(e.message,true);setRows([]);});}
+ React.useEffect(load,[f.status,f.channel,f.kind]);
+ function act(a,m){ncApi(a,{id:m.id}).then(function(j){p.say(a==='adminCancel'?'Cancelled.':(j.result==='sent'?'Sent again.':'Queued.'));load();}).catch(function(e){p.say(e.message,true);});}
+ function sel(k,opts,label){return h('label',{className:'vf26-adm-field'},h('span',null,label),h('select',{value:f[k],onChange:function(e){var n=Object.assign({},f);n[k]=e.target.value;setF(n);}},h('option',{value:''},'All'),Object.keys(opts).map(function(o){return h('option',{key:o,value:o},opts[o].label||opts[o]);})));}
+ return h('div',{className:'vf26-nc-body'},
+  h('div',{className:'vf26-nc-filters'},sel('status',NC_ST,'Status'),sel('channel',NC_CH,'Channel'),sel('kind',p.info.kinds||{},'Type')),
+  rows===null?h('p',{className:'vf26-nc-dim'},'Loading...'):!rows.length?h('p',{className:'vf26-nc-dim'},'No messages yet. They appear here as bookings come in.'):
+  h('ul',{className:'vf26-nc-msgs'},rows.map(function(m){var o=open===m.id;return h('li',{key:m.id,className:'st-'+m.status},
+   h('button',{type:'button',className:'row','aria-expanded':o,onClick:function(){setOpen(o?null:m.id);}},
+    h('span',{className:'st'},NC_ST[m.status]||m.status),h('span',{className:'who'},h('b',null,m.clientName||'Client'),h('small',null,((p.info.kinds||{})[m.kind]||{}).label||m.kind)),
+    h('span',{className:'ch'},NC_CH[m.channel]||'No channel'),h('span',{className:'when'},ncWhen(m.sentAt||m.createdAt))),
+   o?h('div',{className:'detail'},m.test?h('p',null,h('b',null,'Test message')):null,m.to?h('p',null,'To: '+m.to+(m.fallback?' (fallback channel)':'')):null,m.subject?h('p',null,h('b',null,m.subject)):null,m.body?h('p',{className:'body'},m.body):null,
+    m.reason?h('p',{className:'vf26-nc-dim'},m.reason):null,m.error?h('p',{className:'bad'},m.error):null,
+    h('p',{className:'vf26-nc-dim'},'Cost: '+(m.costActual!=null?ncMoney(m.costActual)+' charged':m.costEstimate?'about '+ncMoney(m.costEstimate):'n/a')+(m.attempts?' · attempts '+m.attempts:'')),
+    (m.history||[]).length?h('ol',{className:'hist'},m.history.map(function(x,k){return h('li',{key:k},ncWhen(x.at)+': '+(NC_ST[x.status]||x.status)+(x.detail?' ('+x.detail+')':''));})):null,
+    h('div',{className:'acts'},['held','queued'].indexOf(m.status)>=0?h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){act('adminCancel',m);}},'Cancel'):null,
+     ['failed','held','skipped','cancelled'].indexOf(m.status)>=0&&m.channel?h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){act('adminResend',m);}},'Send now'):null)):null);})));
+}
+function NcTemplates(p){
+ var ls=React.useState(null),rows=ls[0],setRows=ls[1];
+ var es=React.useState(null),edit=es[0],setEdit=es[1];
+ var cs=React.useState('email'),ch=cs[0],setCh=cs[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ function load(){ncApi('adminTemplates').then(function(j){setRows(j.templates||[]);}).catch(function(e){p.say(e.message,true);});}
+ React.useEffect(load,[]);
+ function save(approveNow){setBusy(true);ncApi('adminSaveTemplate',{template:Object.assign({},edit,{approveNow:approveNow})}).then(function(){p.say(approveNow?'Template approved.':'Saved. Approve it when the wording is right.');setEdit(null);load();p.reload();}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy(false);});}
+ function test(t){setBusy(true);ncApi('adminTest',{channel:t.channel,kind:t.kind}).then(function(j){p.say('Test sent to '+(j.message&&j.message.to)+'. Check it arrived before going live.');p.reload();}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy(false);});}
+ if(!rows)return h('p',{className:'vf26-nc-dim'},'Loading...');
+ var kinds=p.info.kinds||{};
+ return h('div',{className:'vf26-nc-body'},
+  h('p',{className:'vf26-nc-dim'},'Placeholders: {{firstName}} {{date}} {{time}} {{trainer}} {{package}} {{sessionsLeft}} {{bookLink}} {{note}}. Editing a template clears its approval. WhatsApp reminders to clients who have not messaged you in 24 hours need a template approved by Meta in Twilio: paste its Content SID.'),
+  h('div',{className:'vf26-nc-tabs',role:'tablist','aria-label':'Channel'},['email','whatsapp','sms'].map(function(c){return h('button',{key:c,type:'button',role:'tab','aria-selected':ch===c,className:'vf26-chip'+(ch===c?' on':''),onClick:function(){setCh(c);setEdit(null);}},NC_CH[c]);})),
+  h('ul',{className:'vf26-nc-tpls'},rows.filter(function(t){return t.channel===ch;}).map(function(t){var k=t.kind+':'+t.channel,isE=edit&&edit.kind===t.kind&&edit.channel===t.channel;
+   return h('li',{key:k},h('div',{className:'top'},h('b',null,(kinds[t.kind]||{}).label||t.kind),h('span',{className:'pill '+(t.approved?'live':'test')},t.approved?'Approved':'Needs approval')),
+    isE?h('div',{className:'edit'},
+      ch==='email'?h('label',{className:'vf26-adm-field'},h('span',null,'Subject'),h('input',{value:edit.subject||'',maxLength:160,onChange:function(e){setEdit(Object.assign({},edit,{subject:e.target.value}));}})):null,
+      h('label',{className:'vf26-adm-field'},h('span',null,'Message'),h('textarea',{rows:4,value:edit.body||'',maxLength:1200,onChange:function(e){setEdit(Object.assign({},edit,{body:e.target.value}));}})),
+      ch==='whatsapp'?h('label',{className:'vf26-adm-field'},h('span',null,'WhatsApp Content SID (optional)'),h('input',{value:edit.whatsappContentSid||'',maxLength:64,placeholder:'HX...',onChange:function(e){setEdit(Object.assign({},edit,{whatsappContentSid:e.target.value}));}})):null,
+      h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,onClick:function(){save(true);}},'Save and approve'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy,onClick:function(){save(false);}},'Save draft'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setEdit(null);}},'Close'))):
+    h('div',null,t.subject&&ch==='email'?h('p',null,h('b',null,t.subject)):null,h('p',{className:'body'},t.body),
+     h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setEdit(Object.assign({},t));}},'Edit'),
+      !t.approved?h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,onClick:function(){ncApi('adminSaveTemplate',{template:Object.assign({},t,{approveNow:true})}).then(function(){p.say('Approved.');load();p.reload();}).catch(function(e){p.say(e.message,true);});}},'Approve'):null,
+      h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy,onClick:function(){test(t);}},'Send me a test'))));})));
+}
+function NcClients(p){
+ var ls=React.useState(null),rows=ls[0],setRows=ls[1];
+ var fq=React.useState(''),q=fq[0],setQ=fq[1];
+ var es=React.useState(null),edit=es[0],setEdit=es[1];
+ function load(){ncApi('adminClients').then(function(j){setRows(j.clients||[]);}).catch(function(e){p.say(e.message,true);setRows([]);});}
+ React.useEffect(load,[]);
+ function save(){ncApi('adminSavePref',{uid:edit.uid,name:edit.name,email:edit.email,prefs:edit}).then(function(){p.say('Saved for '+edit.name+'. Only record consent the client actually gave you.');setEdit(null);load();}).catch(function(e){p.say(e.message,true);});}
+ if(!rows)return h('p',{className:'vf26-nc-dim'},'Loading...');
+ var n=q.trim().toLowerCase(),list=rows.filter(function(r){return !n||(r.name+' '+r.email+' '+r.phone).toLowerCase().indexOf(n)>=0;});
+ function box(k,label){return h('label',{className:'vf26-chipbox'+(edit[k]?' on':'')},h('input',{type:'checkbox',checked:!!edit[k],onChange:function(e){var x=Object.assign({},edit);x[k]=e.target.checked;setEdit(x);}}),label);}
+ return h('div',{className:'vf26-nc-body'},
+  h('p',{className:'vf26-nc-dim'},'Each client picks how to get reminders from their own dashboard. WhatsApp and SMS need the client\'s own yes, recorded separately. Reminders are transactional; promotions are never sent from here.'),
+  h('input',{type:'search',className:'vf26-nc-search',placeholder:'Find a client',value:q,onChange:function(e){setQ(e.target.value);},'aria-label':'Find a client'}),
+  !list.length?h('p',{className:'vf26-nc-dim'},'No clients found.'):
+  h('ul',{className:'vf26-nc-clients'},list.slice(0,200).map(function(r){var isE=edit&&edit.uid===r.uid;
+   return h('li',{key:r.uid},h('div',{className:'top'},h('b',null,r.name),h('span',{className:'vf26-nc-dim'},r.optedOut?'Opted out':(NC_CH[r.channel]||'Email')+(r.consentWhatsapp?' · WhatsApp ok':'')+(r.consentSms?' · SMS ok':'')+(r.consentEmail?'':' · no email')),
+     !isE?h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setEdit(Object.assign({},r));}},'Edit'):null),
+    isE?h('div',{className:'edit'},
+     h('label',{className:'vf26-adm-field'},h('span',null,'Preferred channel'),h('select',{value:edit.channel,onChange:function(e){setEdit(Object.assign({},edit,{channel:e.target.value}));}},h('option',{value:'email'},'Email'),h('option',{value:'whatsapp'},'WhatsApp'),h('option',{value:'sms'},'SMS'))),
+     h('label',{className:'vf26-adm-field'},h('span',null,'Mobile number'),h('input',{value:edit.phone||'',placeholder:'242 555 1234',onChange:function(e){setEdit(Object.assign({},edit,{phone:e.target.value}));}})),
+     h('div',{className:'vf26-adm-days'},box('consentWhatsapp','Agreed to WhatsApp'),box('consentSms','Agreed to SMS'),box('consentEmail','Email allowed'),box('optedOut','Stop all messages')),
+     h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:save},'Save'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setEdit(null);}},'Cancel'))):null);})));
+}
+function NcAutomations(p){
+ var S=p.info.settings||{},kinds=p.info.kinds||{};
+ var fs=React.useState(JSON.parse(JSON.stringify(S))),f=fs[0],setF=fs[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ function save(extra){setBusy(true);ncApi('adminSaveSettings',{settings:Object.assign({},f,extra||{})}).then(function(j){setF(j.settings);p.say(extra&&'live' in extra?(extra.live?'Live sending is on. Clients now get messages.':'Live sending is off. Messages are held.'):'Saved.');p.reload();}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy(false);});}
+ function setK(k,v){var x=JSON.parse(JSON.stringify(f));x.kinds[k]=v;setF(x);}
+ function fld(k,label,type,ph){return h('label',{className:'vf26-adm-field'},h('span',null,label),h('input',{type:type||'text',value:f[k]||'',placeholder:ph||'',onChange:function(e){var x=Object.assign({},f);x[k]=e.target.value;setF(x);}}));}
+ return h('div',{className:'vf26-nc-body'},
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Live sending'),
+   h('p',null,S.live?'On since '+ncWhen(S.liveSince)+(S.liveBy?' by '+S.liveBy:'')+'. Clients receive messages.':'Off. Every message is prepared and held so you can review it. Turning it on needs every active template approved and a successful test on each channel in use.'),
+   h('button',{type:'button',className:'vf26-btn '+(S.live?'vf26-btn-outline':'vf26-btn-primary'),disabled:busy,onClick:function(){if(S.live||window.confirm('Turn on live sending? Clients will start receiving booking, reminder and renewal messages.'))save({live:!S.live});}},S.live?'Turn live sending off':'Turn on live sending')),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Automations'),
+   h('ul',{className:'vf26-nc-toggles'},Object.keys(kinds).filter(function(k){return kinds[k].group!=='manual';}).map(function(k){return h('li',{key:k},h('label',{className:'vf26-chipbox'+(f.kinds[k]!==false?' on':'')},h('input',{type:'checkbox',checked:f.kinds[k]!==false,onChange:function(e){setK(k,e.target.checked);}}),kinds[k].label));}))),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Delivery'),
+   h('label',{className:'vf26-chipbox'+(f.smsFallback?' on':'')},h('input',{type:'checkbox',checked:!!f.smsFallback,onChange:function(e){setF(Object.assign({},f,{smsFallback:e.target.checked}));}}),'Use SMS when WhatsApp cannot deliver (only for clients who agreed to SMS)'),
+   h('div',{className:'grid'},fld('quietStart','Quiet hours start','time'),fld('quietEnd','Quiet hours end','time'),fld('testEmail','Your test email','email','you@example.com'),fld('testPhone','Your test mobile','tel','242 555 1234')),
+   h('p',{className:'vf26-nc-dim'},'Times are Nassau time. Messages due in quiet hours wait until the morning; a 2 hour reminder that falls in quiet hours is skipped.'),
+   h('div',{className:'grid'},['whatsapp','sms','email'].map(function(c){return h('label',{key:c,className:'vf26-adm-field'},h('span',null,NC_CH[c]+' cost per message (estimate, USD)'),h('input',{type:'number',step:'0.001',min:'0',value:(f.costs||{})[c],onChange:function(e){var x=JSON.parse(JSON.stringify(f));x.costs[c]=e.target.value;setF(x);}}));}))),
+  h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,onClick:function(){save();}},busy?'Saving...':'Save settings'));
+}
+function NcSend(p){
+ var ks=React.useState('schedule_change'),kind=ks[0],setKind=ks[1];
+ var fs=React.useState({trainer:'',date:'',note:'',uids:[]}),f=fs[0],setF=fs[1];
+ var cl=React.useState(null),clients=cl[0],setClients=cl[1];
+ var rs=React.useState(null),res=rs[0],setRes=rs[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ React.useEffect(function(){if(kind==='custom'&&!clients)ncApi('adminClients').then(function(j){setClients(j.clients||[]);}).catch(function(e){p.say(e.message,true);setClients([]);});},[kind]);
+ function send(){setBusy(true);setRes(null);ncApi('adminSend',Object.assign({kind:kind},f)).then(function(j){setRes(j.results||[]);p.say('Done.');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy(false);});}
+ return h('div',{className:'vf26-nc-body'},
+  h('div',{className:'vf26-nc-tabs',role:'tablist','aria-label':'Message type'},[['schedule_change','Trainer schedule change'],['custom','Message to clients']].map(function(t){return h('button',{key:t[0],type:'button',role:'tab','aria-selected':kind===t[0],className:'vf26-chip'+(kind===t[0]?' on':''),onClick:function(){setKind(t[0]);setRes(null);}},t[1]);})),
+  kind==='schedule_change'?h('div',{className:'grid'},
+   h('label',{className:'vf26-adm-field'},h('span',null,'Trainer'),h('input',{value:f.trainer,placeholder:'Darvano',onChange:function(e){setF(Object.assign({},f,{trainer:e.target.value}));}})),
+   h('label',{className:'vf26-adm-field'},h('span',null,'Date'),h('input',{type:'date',value:f.date,onChange:function(e){setF(Object.assign({},f,{date:e.target.value}));}}))):
+  h('div',null,!clients?h('p',{className:'vf26-nc-dim'},'Loading clients...'):h('select',{multiple:true,className:'vf26-nc-multi','aria-label':'Clients',value:f.uids,onChange:function(e){setF(Object.assign({},f,{uids:[].slice.call(e.target.selectedOptions).map(function(o){return o.value;})}));}},clients.map(function(c){return h('option',{key:c.uid,value:c.uid},c.name);}))),
+  h('label',{className:'vf26-adm-field'},h('span',null,kind==='schedule_change'?'What changed (sent to everyone booked with that trainer that day)':'Message'),h('textarea',{rows:3,maxLength:600,value:f.note,onChange:function(e){setF(Object.assign({},f,{note:e.target.value}));}})),
+  h('p',{className:'vf26-nc-dim'},p.info.settings&&p.info.settings.live?'Messages go out now over each client\'s chosen channel.':'Test mode: messages are prepared and held, not sent.'),
+  h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy||!f.note.trim(),onClick:send},busy?'Sending...':'Send'),
+  res?h('ul',{className:'vf26-nc-list'},res.map(function(r,k){return h('li',{key:k},(r.name||'Client')+': '+(NC_ST[r.status]||r.status)+(r.channel?' by '+(NC_CH[r.channel]||r.channel):'')+(r.reason?' ('+r.reason+')':''));})):null);
+}
+window.VF26Notifications=NotificationCenter;
+
+/* Client side: how I get reminders (shown on the client dashboard). Consent for WhatsApp and SMS is separate. */
+function ReminderPrefs(){
+ var st=React.useState(null),p=st[0],setP=st[1];
+ var ms=React.useState(''),msg=ms[0],setMsg=ms[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ var ws=React.useState(false),wa=ws[0],setWa=ws[1];
+ React.useEffect(function(){ncApi('myPrefs').then(function(j){setP(j.prefs);setWa(!!j.whatsapp);}).catch(function(){setP(false);});},[]);
+ if(p===false||p===null)return null;
+ function set(k,v){var x=Object.assign({},p);x[k]=v;if(k==='channel'&&v==='whatsapp')x.consentWhatsapp=true;if(k==='channel'&&v==='sms')x.consentSms=true;setP(x);}
+ function save(){if((p.channel!=='email'||p.consentSms||p.consentWhatsapp)&&!p.phone){setMsg('Add your mobile number for WhatsApp or text reminders.');return;}
+  setBusy(true);setMsg('');ncApi('savePrefs',{prefs:p}).then(function(j){setP(j.prefs);setMsg('Saved.');}).catch(function(e){setMsg(e.message);}).then(function(){setBusy(false);});}
+ return h('section',{className:'vf26-rp','aria-labelledby':'vf26-rp-h'},
+  h('h3',{id:'vf26-rp-h'},'Session reminders'),
+  h('p',null,'We send booking confirmations, a reminder the day before and 2 hours before, and a note when your package is running low. No promotions.'),
+  h('div',{className:'vf26-nc-tabs',role:'radiogroup','aria-label':'How should we reach you?'},[['email','Email'],wa?['whatsapp','WhatsApp']:null,['sms','Text message']].filter(Boolean).map(function(c){return h('button',{key:c[0],type:'button',role:'radio','aria-checked':p.channel===c[0],className:'vf26-chip'+(p.channel===c[0]?' on':''),onClick:function(){set('channel',c[0]);}},c[1]);})),
+  p.channel!=='email'||p.consentSms||p.consentWhatsapp?h('label',{className:'vf26-adm-field'},h('span',null,'Mobile number'),h('input',{type:'tel',value:p.phone||'',placeholder:'242 555 1234',onChange:function(e){set('phone',e.target.value);}})):null,
+  h('div',{className:'vf26-adm-days'},
+   wa?h('label',{className:'vf26-chipbox'+(p.consentWhatsapp?' on':'')},h('input',{type:'checkbox',checked:!!p.consentWhatsapp,onChange:function(e){set('consentWhatsapp',e.target.checked);}}),'I agree to WhatsApp reminders'):null,
+   h('label',{className:'vf26-chipbox'+(p.consentSms?' on':'')},h('input',{type:'checkbox',checked:!!p.consentSms,onChange:function(e){set('consentSms',e.target.checked);}}),'I agree to text reminders (message rates may apply; reply STOP to end)'),
+   h('label',{className:'vf26-chipbox'+(p.optedOut?' on':'')},h('input',{type:'checkbox',checked:!!p.optedOut,onChange:function(e){set('optedOut',e.target.checked);}}),'Stop all reminders')),
+  h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,onClick:save},busy?'Saving...':'Save'),msg?h('span',{role:'status',className:'vf26-nc-dim'},msg):null));
+}
+window.VF26ReminderPrefs=ReminderPrefs;
+
 
 
 function PricingPage(props){
@@ -2161,7 +2358,7 @@ function pkgTotal(p){return p.sessionsTotal||p.sessions||((p.sessionsRemaining||
 
 function VF26Tabs(p){
  var admin=p.kind==='admin',active=p.active;
- var HIDE=admin?{workouts:1,mealplans:1,checkins:1,buttonqa:1}:{workouts:1,meals:1,progress:1,checkin:1,chat:1};
+ var HIDE=admin?{workouts:1,mealplans:1,checkins:1,buttonqa:1}:{workouts:1,meals:1,progress:1,checkin:1,chat:1};if(admin&&!(p.user&&p.user.role==='admin'))HIDE.notifications=1;
  var LABEL=admin?{siteDesign:'Website',clientManagement:'Client Records',analytics:'Reports',auditTrail:'Activity Log',appointments:'Bookings'}:{overview:'Overview',sessions:'Sessions',invoices:'Invoices & Payments',coach:'Messages'};
  var ICON=admin?{}:{invoices:'receipt',coach:'message-circle'};
  var items=(p.items||[]).filter(function(t){return !HIDE[t.id];}).map(function(t){return {id:t.id,label:LABEL[t.id]||t.label,icon:ICON[t.id]||t.icon};});
