@@ -1571,6 +1571,7 @@ function TodayCheckin(p){
    h('div',null,h('h2',{id:'vf26-tci-h'},'Who did you train today?'),
     h('p',null,label+'. Tap a client to log one session. At 3 sessions left the renewal email goes out automatically.')),
    h('p',{className:'count'},h('b',null,doneToday),' logged today')),
+  h(BookClient,{user:u,clients:clients,onBooked:p.loadAdminData}),
   h('div',{className:'tools'},
    h('input',{type:'search',value:find,placeholder:'Find a client',onChange:function(e){setFind(e.target.value);},'aria-label':'Find a client'}),
    mineCount>0?h('div',{className:'seg',role:'group','aria-label':'Show'},
@@ -1590,6 +1591,84 @@ function TodayCheckin(p){
    toast.undo?h('button',{type:'button',onClick:function(){undo(toast.undo);}},'Undo'):null):null);
 }
 window.VF26TodayCheckin=TodayCheckin;
+/* ================= BOOK A CLIENT (staff only) =================
+   The trainer is whoever is signed in, so a booking made from Darvano's account is with Darvano.
+   Pick the client, day, time and length; optionally repeat on chosen weekdays for a number of weeks.
+   Warns before double booking the trainer and when the client's package has fewer sessions left than are booked.
+   Saves confirmed appointments (with a check-in code); the Notifications job then sends the confirmation and reminders. */
+function bkTitle(n){n=String(n||'').trim();if(!n)return 'Coach';return n===n.toUpperCase()?n.toLowerCase().replace(/\b\w/g,function(c){return c.toUpperCase();}):n;}
+function bkCode(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',o='';for(var i=0;i<6;i++)o+=c.charAt(Math.floor(Math.random()*c.length));return o;}
+function bkYmd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+var BK_DAYS=[['1','Mon'],['2','Tue'],['3','Wed'],['4','Thu'],['5','Fri'],['6','Sat'],['0','Sun']];
+function BookClient(p){
+ var u=p.user||{},clients=(p.clients||[]).filter(function(c){return c&&c.id;});
+ var os=React.useState(false),open=os[0],setOpen=os[1];
+ var today=bkYmd(new Date());
+ var fs=React.useState({clientId:'',date:today,time:'17:00',minutes:60,repeat:false,days:[],weeks:4,note:''}),f=fs[0],setF=fs[1];
+ var qs=React.useState(''),q=qs[0],setQ=qs[1];
+ var cs=React.useState(null),check=cs[0],setCheck=cs[1];
+ var bs=React.useState(false),busy=bs[0],setBusy=bs[1];
+ var ms=React.useState({text:'',bad:false}),msg=ms[0],setMsg=ms[1];
+ var trainerName=bkTitle(u.name||u.displayName||(u.email||'').split('@')[0]);
+ function set(k,v){var n=Object.assign({},f);n[k]=v;setF(n);setCheck(null);}
+ function slots(){ // every start time this booking creates
+  var out=[],start=new Date(f.date+'T'+f.time+':00');if(isNaN(start))return out;
+  if(!f.repeat||!f.days.length)return [start];
+  var weeks=Math.max(1,Math.min(26,Number(f.weeks)||1));var end=new Date(start);end.setDate(end.getDate()+weeks*7);
+  for(var d=new Date(start);d<end;d.setDate(d.getDate()+1)){if(f.days.indexOf(String(d.getDay()))>=0){var x=new Date(d);x.setHours(start.getHours(),start.getMinutes(),0,0);out.push(x);}}
+  return out.slice(0,60);}
+ function review(){
+  var c=clients.find(function(x){return x.id===f.clientId;});if(!c){setMsg({text:'Pick a client.',bad:true});return;}
+  var list=slots();if(!list.length){setMsg({text:'Pick a date and time'+(f.repeat?' and at least one weekday':'')+'.',bad:true});return;}
+  if(list[0]<new Date(Date.now()-5*60e3)){setMsg({text:'That time has already passed.',bad:true});return;}
+  setBusy(true);setMsg({text:'',bad:false});var d=tdDb();
+  Promise.all([d.collection('appointments').where('trainerId','==',u.uid||u.id).get(),d.collection('packages').where('clientId','==',c.id).get()]).then(function(r){
+   var mine=r[0].docs.map(function(x){return x.data();}).filter(function(a){return ['cancelled','declined'].indexOf(String(a.status))<0;});
+   var len=(Number(f.minutes)||60)*60e3;
+   var clashes=list.filter(function(s){return mine.some(function(a){var t=tdDate(a.date);if(!t)return false;var al=(Number(a.durationMin)||60)*60e3;return t<new Date(+s+len)&&new Date(+t+al)>s;});});
+   var pk=r[1].docs.map(function(x){return x.data();}).filter(function(x){return x.status==='active';});
+   var left=pk.reduce(function(n,x){return n+(Number(x.sessionsRemaining)||0);},0);
+   setCheck({client:c,list:list,clashes:clashes,left:left,hasPackage:pk.length>0});})
+  .catch(function(e){setMsg({text:'Could not check the calendar: '+e.message,bad:true});}).then(function(){setBusy(false);});}
+ function save(){var c=check.client,d=tdDb();setBusy(true);
+  var series=check.list.length>1?('s'+Date.now().toString(36)):null,batch=d.batch();
+  check.list.forEach(function(s,i){var ref=d.collection('appointments').doc();batch.set(ref,{clientId:c.id,clientName:c.name||c.displayName||c.email||'Client',clientEmail:c.email||'',
+   trainerId:u.uid||u.id,trainerName:trainerName,trainerEmail:u.email||'',date:firebase.firestore.Timestamp.fromDate(s),dateString:bkYmd(s),time:String(s.getHours()).padStart(2,'0')+':'+String(s.getMinutes()).padStart(2,'0'),
+   durationMin:Number(f.minutes)||60,status:'confirmed',checkInCode:bkCode(),checkedIn:false,note:f.note.trim().slice(0,300),source:'staff_booking',seriesId:series,seriesIndex:series?i+1:null,
+   createdBy:u.uid||u.id,createdByName:trainerName,createdAt:firebase.firestore.FieldValue.serverTimestamp()});});
+  batch.commit().then(function(){var n=check.list.length;setMsg({text:(n===1?'Booked: ':'Booked '+n+' sessions: ')+(c.name||'the client')+' with '+trainerName+'. The confirmation goes out within 15 minutes and reminders follow automatically.',bad:false});
+   setCheck(null);setF({clientId:'',date:today,time:f.time,minutes:f.minutes,repeat:false,days:[],weeks:4,note:''});setQ('');if(p.onBooked)p.onBooked();})
+  .catch(function(e){setMsg({text:'Could not save the booking: '+e.message,bad:true});}).then(function(){setBusy(false);});}
+ var fmt=function(s){return s.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})+', '+s.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});};
+ var needle=q.trim().toLowerCase();
+ var shown=clients.filter(function(c){return !needle||(String(c.name||'')+' '+String(c.email||'')).toLowerCase().indexOf(needle)>=0;}).sort(function(a,b){return String(a.name||'').localeCompare(String(b.name||''));}).slice(0,50);
+ if(!open)return h('div',{className:'vf26-bk-launch'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){setOpen(true);setMsg({text:'',bad:false});}},LIco('calendar-plus',16),'Book a client'),
+  msg.text?h('p',{className:'vf26-bk-msg'+(msg.bad?' bad':''),role:'status'},msg.text):null);
+ return h('section',{className:'vf26-bk','aria-labelledby':'vf26-bk-h'},
+  h('div',{className:'head'},h('h2',{id:'vf26-bk-h'},'Book a client'),h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setOpen(false);setCheck(null);}},'Close')),
+  h('p',{className:'vf26-nc-dim'},'Trainer: ',h('b',null,trainerName),' (your account).'),
+  h('label',{className:'vf26-adm-field'},h('span',null,'Client'),h('input',{type:'search',placeholder:'Search your clients',value:q,onChange:function(e){setQ(e.target.value);}})),
+  h('div',{className:'vf26-bk-clients',role:'listbox','aria-label':'Clients'},shown.length?shown.map(function(c){var on=f.clientId===c.id;return h('button',{key:c.id,type:'button',role:'option','aria-selected':on,className:'vf26-chip'+(on?' on':''),onClick:function(){set('clientId',c.id);}},c.name||c.email||'Client');}):h('p',{className:'vf26-nc-dim'},'No clients match.')),
+  h('div',{className:'grid'},
+   h('label',{className:'vf26-adm-field'},h('span',null,f.repeat?'First day':'Day'),h('input',{type:'date',min:today,value:f.date,onChange:function(e){set('date',e.target.value);}})),
+   h('label',{className:'vf26-adm-field'},h('span',null,'Time'),h('input',{type:'time',step:900,value:f.time,onChange:function(e){set('time',e.target.value);}})),
+   h('label',{className:'vf26-adm-field'},h('span',null,'Length'),h('select',{value:f.minutes,onChange:function(e){set('minutes',Number(e.target.value));}},[30,45,60,75,90].map(function(m){return h('option',{key:m,value:m},m+' minutes');})))),
+  h('label',{className:'vf26-chipbox'+(f.repeat?' on':'')},h('input',{type:'checkbox',checked:f.repeat,onChange:function(e){set('repeat',e.target.checked);}}),'Repeat every week'),
+  f.repeat?h('div',{className:'vf26-bk-repeat'},
+   h('div',{className:'vf26-adm-days',role:'group','aria-label':'Weekdays'},BK_DAYS.map(function(d){var on=f.days.indexOf(d[0])>=0;return h('label',{key:d[0],className:'vf26-chipbox'+(on?' on':'')},h('input',{type:'checkbox',checked:on,onChange:function(){set('days',on?f.days.filter(function(x){return x!==d[0];}):f.days.concat([d[0]]));}}),d[1]);})),
+   h('label',{className:'vf26-adm-field'},h('span',null,'For how many weeks'),h('input',{type:'number',min:1,max:26,value:f.weeks,onChange:function(e){set('weeks',e.target.value);}}))):null,
+  h('label',{className:'vf26-adm-field'},h('span',null,'Note (optional, for you)'),h('input',{value:f.note,maxLength:300,onChange:function(e){set('note',e.target.value);}})),
+  msg.text?h('p',{className:'vf26-bk-msg'+(msg.bad?' bad':''),role:'status'},msg.text):null,
+  !check?h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,'aria-busy':busy?'true':undefined,onClick:review},busy?'Checking...':'Review booking'):
+  h('div',{className:'vf26-bk-review'},
+   h('p',null,h('b',null,check.client.name||'Client'),' with ',h('b',null,trainerName),', '+check.list.length+' session'+(check.list.length===1?'':'s')+' of '+f.minutes+' minutes:'),
+   h('ul',null,check.list.slice(0,12).map(function(s,i){var clash=check.clashes.indexOf(s)>=0;return h('li',{key:i,className:clash?'bad':''},fmt(s)+(clash?'  (you already have a session then)':''));}),check.list.length>12?h('li',null,'and '+(check.list.length-12)+' more'):null),
+   !check.hasPackage?h('p',{className:'warn'},'This client has no active package.'):check.left<check.list.length?h('p',{className:'warn'},'Their package has '+check.left+' session'+(check.left===1?'':'s')+' left, fewer than you are booking.'):h('p',{className:'vf26-nc-dim'},check.left+' sessions left on their package.'),
+   h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy,'aria-busy':busy?'true':undefined,onClick:save},busy?'Saving...':check.clashes.length?'Book anyway':'Confirm booking'),
+    h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy,onClick:function(){setCheck(null);}},'Change'))));
+}
+window.VF26BookClient=BookClient;
+
 /* ================= NOTIFICATION CENTER (admin) =================
    Bookings, reminders and renewals over WhatsApp, SMS and email. Runs on the VFIT backend (function siteNotify,
    workflow "Site Notifications" every 15 minutes) so it works with every browser closed. Keys never reach the browser.

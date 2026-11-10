@@ -394,6 +394,7 @@ for(const d of fs.readdirSync(here)){
 // 6n. Notification Center (admin) and client reminder preferences. Components in vfit-2026.js; the engine runs on the
 //     VFIT backend (siteNotify + workflow "Site Notifications"), reached through /api/notify.
 once("{id:'packages',label:'Packages',icon:'package'}","{id:'packages',label:'Packages',icon:'package'},{id:'notifications',label:'Notifications',icon:'bell'}");
+once("activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"","activeTab==='appointments'&&React.createElement(window.VF26BookClient||'span',{user:user,clients:clients,onBooked:loadAdminData}),activeTab==='appointments'&&/*#__PURE__*/React.createElement(\"div\"");
 once("activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',","activeTab==='notifications'&&React.createElement(window.VF26Notifications||'div',null),activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',");
 once("activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),",
      "activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),activeTab==='overview'&&React.createElement(window.VF26ReminderPrefs||'span',null),");
