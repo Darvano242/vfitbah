@@ -123,7 +123,7 @@ const fontHref='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@6
 const head=`
     <!-- ${MARK} -->
     <link rel="stylesheet" href="${fontHref}">
-    <script>(function(){var r=document.documentElement;r.setAttribute('data-vf26','1');try{r.setAttribute('data-vf-theme',localStorage.getItem('vfitness-theme')==='dark'?'dark':'light');}catch(e){r.setAttribute('data-vf-theme','light');}})();</script>
+    <script>(function(){var r=document.documentElement;r.setAttribute('data-vf26','1');try{r.setAttribute('data-vf-theme',localStorage.getItem('vfitness-theme')==='light'?'light':'dark');}catch(e){r.setAttribute('data-vf-theme','dark');}})();</script>
     <link rel="stylesheet" href="/vf26/vfit-2026.css?v=${VERSION}" data-vf26-css>
     <link rel="icon" type="image/png" href="/vf26/vfit-app-icon-180.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/vf26/vfit-app-icon-180.png">

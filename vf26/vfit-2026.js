@@ -262,7 +262,7 @@ function Navigation(props){
  var ms=React.useState(false),open=ms[0],setOpen=ms[1];
  window.__vf26SetPage=setCurrentPage;
  useRouter(currentPage,setCurrentPage);
- React.useEffect(function(){root.setAttribute('data-vf-theme',theme==='light'?'light':'dark');try{document.querySelector('meta[name="theme-color"]')&&document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='light'?'#f7f6f2':'#0c0d10');}catch(e){}},[theme]);
+ React.useEffect(function(){root.setAttribute('data-vf-theme',theme==='light'?'light':'dark');try{document.querySelector('meta[name="theme-color"]')&&document.querySelector('meta[name="theme-color"]').setAttribute('content',theme==='light'?'#f5f5f9':'#0f1115');}catch(e){}},[theme]);
  React.useEffect(function(){try{document.body.classList.toggle('vf26-member',!!(user&&!isAdmin));}catch(e){}},[user,isAdmin]);
  React.useEffect(function(){setOpen(false);},[currentPage]);
  /* Signed in routing guard: admins and trainers belong on the admin page, and a signed in person never stays on login or signup. */
@@ -1169,78 +1169,11 @@ function HomePage(props){
    h('div',null,h('h3',null,'Human coaching'),h('p',null,'Elite Online Coaching ($197 a month) adds a VFITNESS coach who reviews your progress and messages you in the app.'))),
   h('p',{className:'vfh-note'},'The VFIT app runs at vfitnow.app, separate from this website. App screens on this page show sample data.'));
 
- /* 2027 redesign: photo-led, one idea per screen, real VFITNESS photographs only. */
- var pic=function(name,alt,eager,sizes){return h('img',{src:'/vf26/'+name+'.webp',srcSet:'/vf26/'+name+'-sm.webp 900w, /vf26/'+name+'.webp 1600w',sizes:'(max-width: 560px) 70vw, '+(sizes||'100vw'),alt:alt||'',width:1600,height:1200,loading:eager?'eager':'lazy',decoding:'async',fetchpriority:eager?'high':undefined});};
- var arrow=icon('arrow',16,{className:'vf26-arrow'});
- var h7hero=h('section',{className:'h7-hero','aria-labelledby':'h7-h1','data-enter':''},
-  h('div',{className:'h7-hero-media'},pic('pbb26-3-leading','A VFITNESS coach leading a group workout outdoors in Nassau',true)),
-  h('div',{className:'h7-wrap h7-hero-in'},
-   h('p',{className:'h7-eyebrow'},icon('pin',14),'Personal training in Nassau, The Bahamas'),
-   h('h1',{id:'h7-h1',className:'h7-h1'},'Build strength.',h('span',null,'See your progress.')),
-   h('p',{className:'h7-lead'},'Coached sessions in groups of up to four, 60 minutes each, from $16.25 a session. Or train online with the VFIT app and a real coach when you want one.'),
-   h('div',{className:'h7-acts'},
-    h('button',{type:'button',className:'vf26-btn vf26-btn-primary h7-btn',onClick:consult},'Request my free consultation',arrow),
-    h('a',{className:'vf26-btn h7-btn-ghost',href:waLink('home'),target:'_blank',rel:'noopener noreferrer',onClick:function(){vfTrack('whatsapp_clicked',{path:'home'});}},icon('chat',16),'Message us on WhatsApp')),
-   h('dl',{className:'h7-facts'},
-    h('div',null,h('dt',null,'Clients served'),h('dd',null,'2,000+')),
-    h('div',null,h('dt',null,'Coaching since'),h('dd',null,'2018')),
-    h('div',null,h('dt',null,'Group size'),h('dd',null,'Up to 4')),
-    h('div',null,h('dt',null,'Nassau locations'),h('dd',null,'3')))));
-
- var h7ways=h('section',{className:'h7-sec h7-ways','aria-labelledby':'h7-ways-h'},h('div',{className:'h7-wrap'},
-  h('div',{className:'h7-head'},h('p',{className:'h7-kicker'},'Two ways to train'),h('h2',{id:'h7-ways-h',className:'h7-h2'},'In the room with a coach, or on your phone.')),
-  h('div',{className:'h7-ways-grid'},
-   h('button',{type:'button',className:'h7-way',onClick:route('Train in Nassau','vf26-packages')},
-    h('span',{className:'h7-way-media'},pic('pbb26-5-circuit','Clients moving through a coached circuit',false,'(min-width: 900px) 50vw, 100vw')),
-    h('span',{className:'h7-way-body'},h('span',{className:'h7-kicker'},'Train in Nassau'),h('span',{className:'h7-way-t'},'Semi private coaching'),
-     h('span',{className:'h7-way-p'},'12 sessions for $195 per person. A coach for every set, up to four people per session.'),h('span',{className:'h7-link'},'See Nassau packages',arrow))),
-   h('button',{type:'button',className:'h7-way h7-way-app',onClick:route('Train online','vf26-remote')},
-    h('span',{className:'h7-way-media h7-phones'},h('img',{src:'/vf26/wt-3-train.webp',alt:'',width:420,height:840,loading:'lazy'}),h('img',{src:'/vf26/wt-5-progress.webp',alt:'',width:420,height:840,loading:'lazy'})),
-    h('span',{className:'h7-way-body'},h('span',{className:'h7-kicker'},'Train online'),h('span',{className:'h7-way-t'},'The VFIT app'),
-     h('span',{className:'h7-way-p'},'From $19.99 a month. Guided workouts, food logging and progress, with a VFITNESS coach if you want one.'),h('span',{className:'h7-link'},'Compare online plans',arrow))))));
-
- var h7semi=h('section',{className:'h7-sec h7-semi','aria-labelledby':'h7-semi-h'},h('div',{className:'h7-wrap h7-split'},
-  h('figure',{className:'h7-frame h7-frame-tall'},pic('pbb26-13-kettlebell','A coach correcting kettlebell technique during a session',false,'(min-width: 900px) 50vw, 100vw')),
-  h('div',{className:'h7-split-copy'},
-   h('p',{className:'h7-kicker'},'Semi private coaching'),
-   h('h2',{id:'h7-semi-h',className:'h7-h2'},'Personal coaching with three others beside you.'),
-   h('p',{className:'h7-body'},'Your coach sets the plan, checks every rep and adjusts each exercise to your level. You get individual guidance and a group that keeps you showing up.'),
-   h('ul',{className:'h7-ticks'},['A written plan for every session','Technique and weight checked set by set','Matched to a group at your level','Every session tracked in your client portal'].map(function(t){return h('li',{key:t},icon('check',16),t);})),
-   h('p',{className:'h7-price'},h('b',null,'$195'),h('span',null,'12 coached sessions per person, $16.25 a session. Gym membership is separate.')),
-   h('div',{className:'h7-acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Request my free consultation',arrow),
-    h('button',{type:'button',className:'h7-link',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',arrow)))));
-
- var STEP3=[['pbb26-15-warmup','Warm up together','Mobility and a warm up set for the work ahead, led by your coach.'],['pbb26-18-goblet','Coached working sets','One clear cue at a time. Your coach adjusts the load as you get stronger.'],['pbb26-19-stronger','Finish and track','Your session is logged, so you and your coach can see what changed week to week.']];
- var h7session=h('section',{className:'h7-sec h7-session','aria-labelledby':'h7-ses-h'},h('div',{className:'h7-wrap'},
-  h('div',{className:'h7-head'},h('p',{className:'h7-kicker'},'Inside a session'),h('h2',{id:'h7-ses-h',className:'h7-h2'},'Sixty minutes, with a plan for every one of them.')),
-  h('ol',{className:'h7-steps'},STEP3.map(function(x,i){return h('li',{key:x[0]},h('figure',{className:'h7-frame'},pic(x[0],'',false,'(min-width: 900px) 33vw, 100vw')),h('span',{className:'n'},'0'+(i+1)),h('b',null,x[1]),h('p',null,x[2]));}))));
-
- var h7team=h('section',{className:'h7-sec h7-team','aria-labelledby':'h7-team-h'},h('div',{className:'h7-wrap h7-split h7-split-rev'},
-  h('div',{className:'h7-split-copy'},
-   h('p',{className:'h7-kicker'},'Your coaches'),
-   h('h2',{id:'h7-team-h',className:'h7-h2'},'Four coaches. One standard.'),
-   h('p',{className:'h7-body'},'Founded by Darvano Andrews in 2018. Every VFITNESS coach works from a written plan and tracks your progress the same way.'),
-   h('ul',{className:'h7-people'},COACHES.map(function(c){return h('li',{key:c.name},h('b',null,c.name),h('span',null,c.role));})),
-   navA('trainers',go(setCurrentPage,'trainers'),{className:'vf26-btn vf26-btn-outline'},h(React.Fragment,null,'Meet the coaching team',arrow))),
-  h('div',{className:'h7-duo'},
-   h('figure',{className:'h7-frame h7-frame-tall'},h('img',{src:'/vf26/darvano-andrews.webp',alt:'Darvano Andrews, founder and head coach of VFITNESS',width:720,height:900,loading:'lazy',decoding:'async'})),
-   h('figure',{className:'h7-frame'},pic('team-four-2026','The four VFITNESS coaches together',false,'(min-width: 900px) 30vw, 100vw')))));
-
- var MOS=['pbb26-23-crowd','pbb26-4-signs','pbb26-14-plank','pbb26-9-friends','pbb26-16-swings'];
- var h7event=h('section',{className:'h7-sec h7-event','aria-labelledby':'h7-ev-h'},h('div',{className:'h7-wrap'},
-  h('div',{className:'h7-head h7-head-row'},h('div',null,h('p',{className:'h7-kicker h7-pink'},'Pink Beach Burn, October 31, 2026'),h('h2',{id:'h7-ev-h',className:'h7-h2'},'Nassau showed up in pink.')),
-   navA('pinkbeachburn',go(setCurrentPage,'pinkbeachburn'),{className:'h7-link'},h(React.Fragment,null,'Read the story',arrow))),
-  h('div',{className:'h7-mosaic'},MOS.map(function(n,i){return navA('pinkbeachburn',go(setCurrentPage,'pinkbeachburn'),{key:n,className:'h7-tile t'+i,'aria-label':i===0?'Pink Beach Burn photographs':undefined,tabIndex:i===0?undefined:-1},pic(n,'',false,i===0?'(min-width: 900px) 50vw, 100vw':'(min-width: 900px) 25vw, 50vw'));}))));
-
- var h7close=h('section',{className:'h7-sec h7-close','aria-labelledby':'h7-close-h'},h('div',{className:'h7-wrap'},
-  h('div',{className:'h7-band'},
-   h('div',null,h('p',{className:'h7-kicker'},'Free consultation'),h('h2',{id:'h7-close-h',className:'h7-h2'},'Tell us your goal. A coach takes it from there.')),
-   h('ol',{className:'h7-next'},HOW3.map(function(x,i){return h('li',{key:x[0]},h('span',{className:'n'},'0'+(i+1)),h('b',null,x[0]),h('p',null,x[1]));})),
-   h('div',{className:'h7-acts'},h('button',{type:'button',className:'vf26-btn h7-btn-light',onClick:consult},'Request my free consultation',arrow),
-    h('a',{className:'vf26-btn h7-btn-ghost',href:waLink('home-close'),target:'_blank',rel:'noopener noreferrer'},icon('chat',16),'WhatsApp 242 454 9063')))),
-  h('div',{className:'h7-wrap'},h(PromoSlider,null)));
-
- return h('main',{className:'vf26 vfh7'},h7hero,h7ways,h7semi,h7session,h7team,h7event,h7close,dialog);
+ return h('main',{className:'vf26 vfh'},
+  h('div',{className:'vfh-split'},
+   intro,
+   h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,steps,h(PromoSlider,null))),
+  dialog);
 }
 
 /* ================= FOOTER ================= */
@@ -1287,18 +1220,17 @@ function waLink(ctx){try{if(typeof window.vfWa==='function')return window.vfWa(c
 function useTop(){React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);}
 function scrollToId(id){return function(){var el=document.getElementById(id);if(el){var y=el.getBoundingClientRect().top+window.pageYOffset-96;window.scrollTo({top:y,behavior:reduceMotion?'auto':'smooth'});}};}
 
-var V7_HERO_PHOTO={'Services and pricing':['pbb26-6-kettlebells','Clients training with kettlebells at a coached VFITNESS session'],'Team':['team-four-2026','The four VFITNESS coaches together'],'Client results':['pbb26-21-lineup','Clients lined up mid workout at a VFITNESS session'],'Contact':['pbb26-10-banner','VFITNESS coaches and clients at the VFITNESS tent'],'Company':['pbb26-7-briefing','A VFITNESS coach briefing clients before a session']};
 function PageHero(p){
- var ph=p.photo||V7_HERO_PHOTO[p.eyebrow];
- var media=p.media||(ph?h('img',{src:'/vf26/'+ph[0]+'.webp',srcSet:'/vf26/'+ph[0]+'-sm.webp 900w, /vf26/'+ph[0]+'.webp 1600w',sizes:'(min-width: 900px) 46vw, 100vw',alt:ph[1],width:1600,height:1200,loading:'eager',decoding:'async',fetchpriority:'high'}):null);
- return h('section',{className:'v7-phero'+(media?' has-media':'')+(p.center?' center':''),'data-enter':''},
-  h('div',{className:'v7-wrap v7-phero-in'},
-   h('div',{className:'v7-phero-copy'},
-    h('p',{className:'v7-kicker'},p.eyebrow),
-    h('h1',{className:'v7-h1'},p.title,p.accent?h('span',null,' ',p.accent):null),
-    p.lead?h('p',{className:'v7-lead'},p.lead):null,
-    p.actions?h('div',{className:'v7-acts'},p.actions):null),
-   media?h('figure',{className:'v7-phero-media'},media):null));
+ return h('section',{className:'vf26-phero vf26-phero-corp'+(p.center?' center':'')+(p.media?' has-media':'')},
+  h('div',{className:'vf26-phero-glow','aria-hidden':'true'}),
+  h('div',{className:'vf26-wrap vf26-phero-in'},
+   h('div',{className:'vf26-phero-copy'},
+    h('div',{className:'vf26-eyebrow vf26-enter'},h('i'),p.eyebrow),
+    h('h1',{className:'vf26-ph1 vf26-enter',style:{'--d':'40ms'}},p.title,p.accent?h('span',null,p.accent):null),
+    p.lead?h('p',{className:'vf26-lead vf26-enter',style:{'--d':'100ms'}},p.lead):null,
+    p.actions?h('div',{className:'vf26-hero-cta vf26-enter',style:{'--d':'160ms'}},p.actions):null,
+    null),
+   p.media?h('figure',{className:'vf26-phero-media vf26-enter',style:{'--d':'140ms'}},p.media):null));
 }
 function SectionHead(p){
  return h(Reveal,{className:p.row?'vf26-head-row':'vf26-head'},
@@ -1307,14 +1239,15 @@ function SectionHead(p){
 }
 function FinalCTA(p){
  var setCurrentPage=p.setCurrentPage;
- return h('section',{className:'v7-close','aria-label':p.kicker||'Free consultation'},h('div',{className:'v7-wrap'},
-  h('div',{className:'v7-band'},
-   h('div',null,h('p',{className:'v7-kicker'},p.kicker||'Free consultation'),
-    h('h2',{className:'v7-band-h'},p.title||'Book your free consultation.'),
-    h('p',{className:'v7-band-p'},p.lead||'Create your account, tell us your goal and a coach will confirm your consultation and starting plan.')),
-   h('div',{className:'v7-acts'},
-    h('button',{className:'vf26-btn v7-btn-light',onClick:lead(setCurrentPage,p.kv||{})},p.primaryLabel||'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
-    h('button',{className:'vf26-btn v7-btn-ghost',onClick:go(setCurrentPage,p.secondaryPage||'pricing')},p.secondaryLabel||'See pricing')))));
+ return h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
+  h(Reveal,{className:'vf26-command',style:{textAlign:'center'}},
+   h('div',{style:{position:'relative',zIndex:1,maxWidth:'40rem',margin:'0 auto'}},
+    h('p',{className:'vf26-kicker'},p.kicker||'Free consultation'),
+    h('h2',{className:'vf26-h2'},p.title||'Book your free consultation.'),
+    h('p',{className:'vf26-lead',style:{marginLeft:'auto',marginRight:'auto'}},p.lead||'Create your account, tell us your goal and a coach will confirm your consultation and starting plan.')),
+   h('div',{className:'vf26-cta-row',style:{justifyContent:'center'}},
+    h('button',{className:'vf26-btn vf26-btn-primary',onClick:lead(setCurrentPage,p.kv||{})},p.primaryLabel||'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
+    h('button',{className:'vf26-btn vf26-btn-outline',onClick:go(setCurrentPage,p.secondaryPage||'pricing')},p.secondaryLabel||'See pricing')))));
 }
 var HOW=[['Apply','Tell us your goal in the Start Here flow. It takes about two minutes.'],['Consultation','We talk through goals, schedule, injuries and the right starting point.'],['Goal assessment','Baseline measurements, photos and targets are recorded in your account.'],['Program match','You are matched to the right program, coach and location.'],['Start training','Structured sessions begin and every session is logged.'],['Weekly tracking','Check ins, photos and adjustments keep the results moving.']];
 function HowItWorks(){
@@ -2354,7 +2287,7 @@ function AboutPage(props){
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau coaching team delivering personal training across three locations and online coaching through the VFIT app.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-about2'},
-   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/pbb26-1-group.webp',srcSet:'/vf26/pbb26-1-group-sm.webp 900w, /vf26/pbb26-1-group.webp 1600w',sizes:'(min-width: 900px) 40vw, 100vw',alt:'VFITNESS clients and coaches together after a community session in Nassau',loading:'lazy'})),
+   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/welcome-glute-v1.webp',alt:'A VFitness client training in a Nassau gym',loading:'lazy'})),
    h(Reveal,{className:'vf26-about2-copy',delay:80},
     h('p',{className:'vf26-kicker'},'Our story'),
     h('h2',{className:'vf26-h2'},'One team. One coaching standard.'),
