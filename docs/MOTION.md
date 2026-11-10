@@ -25,3 +25,11 @@ keeps .claude, docs and tests out of deployments.
 - Chart.js and Lucide load with `defer`; `Ico` and `ProgressChart` redraw on the `vf-lib` event when they arrive.
 - Static JS/CSS cache for 1 hour (stale-while-revalidate 1 day), images and video for 1 day, vendor files for a year.
   HTML, sw.js, manifest and version.json stay no-store.
+
+## Website design skills (Nov 10 2026)
+
+Added in `.claude/skills/` (dev only, MIT): design-taste-frontend (taste-skill 2.5 with shader effects, scenes and a browser finish
+gate), tailwind-design-system, design-motion-principles, modern-web-design, motion-framer, lightweight-3d-effects,
+scroll-reveal-libraries. VFitness brand rules win over the skills: Geist type, azure to violet brand, no dashes in copy, real contact
+details (taste-skill's ".example contacts" rule is for demo sites), never "our gyms", keep "Build strength. See your progress."
+Keep the mobile performance rules above: effects and scenes are desktop only and never under reduced motion.
