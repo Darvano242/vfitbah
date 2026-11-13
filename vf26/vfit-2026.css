@@ -2098,6 +2098,10 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vf26-commit p{margin:0;color:var(--vf-dim);font-size:.95rem;line-height:1.55;max-width:62ch;}
 .vf26-commit .c-act{display:flex;flex-direction:column;gap:.6rem;align-items:flex-start;}
 .vf26-commit .amt{font-size:2rem;font-weight:800;letter-spacing:-.03em;color:var(--vf-text);line-height:1;}
+.vf26-commit .who{margin-top:.5rem;color:var(--vf-text);font-weight:600;}
+.vf26-commit .c-act{max-width:22rem;}
+.vf26-commit .c-msg{margin:0;font-size:.88rem;color:#f97066;}
+.vf26-commit .c-msg:empty{display:none;}
 .vfh-offer{margin-top:-2px;}
 /* Homepage: coaches by name and more client results */
 .vfh-coaches .vfh-people{margin-bottom:14px;grid-template-columns:1fr 1fr;}

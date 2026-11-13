@@ -72,7 +72,7 @@ if(!html.includes('vf-package-action-premium-styles'))html=html.replace('</head>
 
 // New packages receive 45 days immediately.
 const expiryMarker='expiryDate:null});';
-if(html.includes(expiryMarker))html=html.replace(expiryMarker,"expiryDays:(sessionCount===36?135:45),expiryDate:firebase.firestore.Timestamp.fromDate(new Date(Date.now()+(sessionCount===36?135:45)*86400000))});");
+if(html.includes(expiryMarker))html=html.replace(expiryMarker,"expiryDays:(sessionCount===36?105:45),expiryDate:firebase.firestore.Timestamp.fromDate(new Date(Date.now()+(sessionCount===36?105:45)*86400000))});");
 html=html.replaceAll('30-day','45-day').replaceAll('30 days','45 days').replaceAll('30*DAY','45*DAY');
 
 fs.writeFileSync(file,html);

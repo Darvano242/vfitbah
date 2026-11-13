@@ -60,13 +60,14 @@ inquiry and an approved test purchase.
 
 ## Pricing and retention update (Nov 13, 2026)
 
-Decisions from Darvano on Nov 13, 2026: semi private is now 1 for $35, 4 for $110, 6 for $140, 8 for $180 and 12 for $200
+Decisions from Darvano on Nov 13, 2026: semi private is now 1 for $35, 4 for $110, 6 for $140, 8 for $180 and 12 for $215
 (was $22, $87, $130, $173, $195); 1 on 1 packages unchanged with the single session at $50;
-3 month commitment of 36 semi private sessions for $495 paid up front, offered until December 20, 2026.
+3 month commitment of 36 semi private sessions for $495 paid up front, used within 105 days, for new clients and
+clients returning after 30 days or more away, offered until December 20, 2026.
 
 | Item | Status | Notes |
 |---|---|---|
 | Single session prices | RUNTIME VERIFIED (stand-in data) | Services page, admin Add Package form and legacy lists. Savings badges are computed from the single price, so they now read against $35 and $50. |
-| 3 month commitment | RUNTIME VERIFIED (stand-in data) / NEEDS TESTING (payment) | Services page card, home page line, terms row, admin form option. 135 day validity is written on the package at purchase and kept by the expiry migration and by pause and resume. Everything hides itself after December 20, 2026 23:59 Nassau time. No live PayPal purchase was run. |
+| 3 month commitment | RUNTIME VERIFIED (stand-in data) / NEEDS TESTING (payment) | Services page card, home page line, terms row, admin form option. 105 day validity is written on the package at purchase and kept by the expiry migration and by pause and resume. The Services page checks the signed-in client's own packages before checkout; staff are asked to confirm before assigning it to a client who is neither new nor returning. Everything hides itself after December 20, 2026 23:59 Nassau time. No live PayPal purchase was run. |
 | Retention tab | RUNTIME VERIFIED (stand-in data) | Business dashboard > Retention: renewals due (2 or fewer left, or expiring within 7 days), lapsed clients (recent first), open group places. Read only; messages open in WhatsApp or email for the coach to send. Not yet opened with a real staff login. |
 | Homepage coaches and results | RUNTIME VERIFIED (stand-in data) | Coach names and roles on the page, and up to three more published gallery photos (section hidden when there are fewer than two). Headshots still wanted. |
