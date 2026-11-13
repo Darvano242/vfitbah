@@ -1091,7 +1091,7 @@ function HomePage(props){
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
     h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
-    commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. New and returning clients.'):null,
+    commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. $'+COMMIT3.activePrice+' for active clients.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train online'),
@@ -1357,10 +1357,12 @@ var PKG={
 };
 /* 3 month commitment: 36 semi private sessions paid up front, used within 105 days.
    Sold as the Black Friday and Christmas flash sale until the end of December 13, 2026, Nassau time. After that it disappears from the site and the admin form.
-   For new clients and clients returning after COMMIT_AWAY_DAYS or more away, so it brings people in or back
-   instead of discounting clients who are already training. */
-var COMMIT3={sessions:36,price:500,title:'3 Month Commitment, 36 Sessions',expiryDays:105,months:3,ends:'2026-12-14T04:59:59Z',endsLabel:'December 13'};
-var COMMIT_AWAY_DAYS=30,COMMIT_WHO='For new clients and clients returning after '+COMMIT_AWAY_DAYS+' days or more away.';
+   Two prices (decision from Darvano, Nov 13, 2026): COMMIT3.price for new clients and clients returning after
+   COMMIT_AWAY_DAYS or more away, COMMIT3.activePrice for active clients (a package in use, or one bought, trained on
+   or finished in the last COMMIT_AWAY_DAYS days). commitCheck(...).ok === true means the new client price applies. */
+var COMMIT3={sessions:36,price:500,activePrice:450,title:'3 Month Commitment, 36 Sessions',expiryDays:105,months:3,ends:'2026-12-14T04:59:59Z',endsLabel:'December 13'};
+var COMMIT_AWAY_DAYS=30,COMMIT_WHO='$'+COMMIT3.price+' for new clients. $'+COMMIT3.activePrice+' for active clients.';
+function commitFor(active){return active?Object.assign({},COMMIT3,{price:COMMIT3.activePrice,active:true}):COMMIT3;}
 /* Decide from a client's own packages. New: no packages. Returning: no package in use and nothing bought, trained or
    finished in the last COMMIT_AWAY_DAYS days. */
 function commitCheck(pkgs,now){now=now||Date.now();if(!pkgs||!pkgs.length)return {ok:true,reason:''};
@@ -1369,7 +1371,7 @@ function commitCheck(pkgs,now){now=now||Date.now();if(!pkgs||!pkgs.length)return
  var last=0;pkgs.forEach(function(x){[x.purchaseDate,x.createdAt,x.completedAt,x.lastSessionAt].forEach(function(v){var t=tdDate(v);if(t&&t.getTime()>last)last=t.getTime();});});
  if(last&&now-last<COMMIT_AWAY_DAYS*86400000)return {ok:false,reason:'This client bought, trained or finished a package in the last '+COMMIT_AWAY_DAYS+' days.'};
  return {ok:true,reason:''};}
-/* If the lookup fails the offer is allowed: a coach confirms every package before training starts. */
+/* If the lookup fails the new client price applies; staff can still set the active client price in the admin form. */
 function commitEligible(clientId){var d=tdDb();if(!d||!clientId)return Promise.resolve({ok:true,reason:''});
  try{return d.collection('packages').where('clientId','==',clientId).get().then(function(s){return commitCheck(s.docs.map(function(x){return Object.assign({id:x.id},x.data());}));}).catch(function(){return {ok:true,reason:''};});}
  catch(e){return Promise.resolve({ok:true,reason:''});}}
@@ -1395,7 +1397,7 @@ function SemiTerms(){
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
   ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')],
   ['VFIT app included',APP_INCLUDED+' Use it in your phone browser at vfitnow.app.']].concat(commitLive()?[
-  ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. '+COMMIT_WHO+' It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
+  ['3 month flash sale','36 sessions, paid up front: $'+COMMIT3.price+' per person for new clients and $'+COMMIT3.activePrice+' for active clients. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. Active means you have a package in use, or bought, trained on or finished one in the last '+COMMIT_AWAY_DAYS+' days. It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
   ['Cancellations','Sessions cancelled with less than 24 hours notice may be forfeited.'],
@@ -2044,8 +2046,7 @@ function PricingPage(props){
  var lg=React.useState(false),legacy=lg[0],setLegacy=lg[1];var uid=user?(user.uid||user.id):null;
  React.useEffect(function(){var on=true;setLegacy(false);if(uid)legacyEligible(uid).then(function(r){if(on)setLegacy(!!r);});return function(){on=false;};},[uid]);
  function selectCommit(){if(!user){select(COMMIT3);return;}if(commit.busy)return;setCommit({busy:true,msg:''});
-  commitEligible(user.uid||user.id).then(function(r){if(r.ok){setCommit({busy:false,msg:''});select(COMMIT3);}
-   else setCommit({busy:false,msg:'This offer is for new clients and clients returning after '+COMMIT_AWAY_DAYS+' days or more away. Your account shows recent training with us, so please choose a package below.'});});}
+  commitEligible(user.uid||user.id).then(function(r){setCommit({busy:false,msg:r.ok?'':'Active client price applied: $'+COMMIT3.activePrice+'.'});select(commitFor(!r.ok));});}
  function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}vfTrack('package_checkout_started',{path:tab+' '+pkg.sessions});setSelected(pkg);setShowModal(true);}
  React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=(PKG[it.tab]||PKG.one).concat(it.tab==='semi'&&commitLive()?[COMMIT3]:[]);var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setTimeout(scrollToId('vf26-packages'),300);if(pkg===COMMIT3){selectCommit();return;}
   if(it.tab==='semi'&&pkg.sessions===LEGACY12.sessions){legacyEligible(user.uid||user.id).then(function(r){setSelected(r?legacyList([pkg])[0]:pkg);setShowModal(true);});return;}
@@ -2084,9 +2085,8 @@ function PricingPage(props){
    tab==='semi'&&commitLive()?h('div',{className:'vf26-commit'},
     h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'Black Friday and Christmas flash sale · ends '+COMMIT3.endsLabel),
      h('h3',null,COMMIT3.sessions+' sessions for $'+COMMIT3.price),
-     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. Includes full access to the VFIT app. Per person, gym membership separate.'),
-     h('p',{className:'who'},COMMIT_WHO)),
-    h('div',{className:'c-act'},h('div',{className:'amt'},'$'+COMMIT3.price),
+     h('p',null,'Three months of semi private coaching, paid up front. New clients pay $'+COMMIT3.price+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Active clients pay $'+COMMIT3.activePrice+'. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. Includes full access to the VFIT app. Per person, gym membership separate.'),),
+    h('div',{className:'c-act'},h('div',{className:'amt'},'$'+COMMIT3.price,h('small',null,' new clients')),h('div',{className:'amt alt'},'$'+COMMIT3.activePrice,h('small',null,' active clients')),
      h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:commit.busy,'aria-busy':commit.busy?'true':undefined,onClick:selectCommit},commit.busy?'Checking...':'Choose 3 months',commit.busy?null:icon('arrow',16,{className:'vf26-arrow'})),
      h('p',{className:'c-msg',role:'status','aria-live':'polite'},commit.msg))):null,
    h('div',tabPanel('vf26-pkgtabs',tab,{className:'vf26-pkg-grid',key:tab}),list.map(function(pkg,i){var s=pkgSavings(pkg,base);var per=s.per;var save=s.amount;var best=pkg===bestPkg;

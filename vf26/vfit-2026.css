@@ -2100,7 +2100,9 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vf26-commit .amt{font-size:2rem;font-weight:800;letter-spacing:-.03em;color:var(--vf-text);line-height:1;}
 .vf26-commit .who{margin-top:.5rem;color:var(--vf-text);font-weight:600;}
 .vf26-commit .c-act{max-width:22rem;}
-.vf26-commit .c-msg{margin:0;font-size:.88rem;color:#f97066;}
+.vf26-commit .c-msg{margin:0;font-size:.88rem;color:var(--vf-teal);}
+.vf26-commit .amt small{font-size:.9rem;font-weight:600;letter-spacing:0;color:var(--vf-dim);}
+.vf26-commit .amt.alt{font-size:1.5rem;}
 .vf26-commit .c-msg:empty{display:none;}
 .vfh-offer{margin-top:-2px;}
 /* Homepage: coaches by name and more client results */

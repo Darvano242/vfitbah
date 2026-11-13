@@ -76,3 +76,5 @@ clients returning after 30 days or more away, offered until December 20, 2026.
 
 Update later on Nov 13, 2026: the 3 month commitment is sold as the Black Friday and Christmas flash sale: 36 sessions for $500,
 ends December 13, 2026. Clients can start when they are ready; the package expires 105 days after purchase.
+Two prices: $500 for new clients (and clients returning after 30 days or more away), $450 for active clients. The Services page and
+the admin Add Package form pick the price from the client's own packages.
