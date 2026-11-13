@@ -390,6 +390,8 @@ function Faq(){
 
 /* ================= ONLINE TRAINING (VFIT app plans) ================= */
 var VF_APP_URL='https://vfitnow.app/';window.VF_APP_URL=VF_APP_URL;
+/* Decision from Darvano, Nov 13, 2026: every in person training package includes the VFIT app. */
+var APP_INCLUDED='All package holders have full access to the VFIT app: nutrition planning, weight tracking and online training.';
 var VF_START_URL='https://vfitnow.app/start';window.VF_START_URL=VF_START_URL;
 var VF_SHRED_URL='https://vfitnow.app/shred';
 var APP_PLANS=[
@@ -403,7 +405,7 @@ function toOnlinePlans(setCurrentPage){return function(){go(setCurrentPage,'pric
 function FitTogether(){
  var rows=[
   ['globe','This website','Where you register, buy in person training packages, see your sessions and pay invoices.'],
-  ['dumbbell','The VFIT app','Your workouts, food logging and progress. Use it in your phone browser at vfitnow.app today. App Store and Google Play versions are coming soon.'],
+  ['dumbbell','The VFIT app','Your workouts, food logging and progress. Use it in your phone browser at vfitnow.app today. App Store and Google Play versions are coming soon. Included with every in person training package.'],
   ['spark','VFIT Autopilot (software)','Reviews your weigh ins, food and training each morning and suggests changes. Nothing changes unless you approve it.'],
   ['user','Your coach (a real person)','Elite Online Coaching and the Shred add a VFitness coach who reviews your progress, answers your questions and approves plan changes.']];
  return h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap'},
@@ -414,7 +416,7 @@ function FitTogether(){
 function OnlinePlans(){
  var cs=React.useState('mo'),cyc=cs[0],setCyc=cs[1];
  return h('section',{className:'vf26-section tight',id:'vf26-remote'},h('div',{className:'vf26-wrap'},
-  h(SectionHead,{row:true,kicker:'Online training',title:'Train anywhere with the VFIT app.',lead:'VFIT App gives you every tool. VFIT Autopilot reviews your plan every morning and suggests changes you approve. The Shred and Elite Online Coaching add a VFitness coach.',right:h(TabList,{id:'vf26-billing',label:'Billing period',value:cyc,onChange:setCyc,options:[{value:'mo',label:'Monthly'},{value:'yr',label:'Annual'}]})}),
+  h(SectionHead,{row:true,kicker:'Online training',title:'Train anywhere with the VFIT app.',lead:'VFIT App gives you every tool. VFIT Autopilot reviews your plan every morning and suggests changes you approve. The Shred and Elite Online Coaching add a VFitness coach. If you hold an in person training package, the VFIT app is already included.',right:h(TabList,{id:'vf26-billing',label:'Billing period',value:cyc,onChange:setCyc,options:[{value:'mo',label:'Monthly'},{value:'yr',label:'Annual'}]})}),
   h('div',tabPanel('vf26-billing',cyc,{className:'vf26-app-grid'}),APP_PLANS.map(function(pl,i){
    var save=pl.fixed?0:Math.round((Number(pl.mo)*12-Number(pl.yr))*100)/100;
    return h(Reveal,{key:pl.name,className:'vf26-app-plan'+(pl.featured?' featured':''),delay:i*80},
@@ -1088,7 +1090,7 @@ function HomePage(props){
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. Gym membership is separate. 1 on 1 by request.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
     commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. New and returning clients.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
@@ -1168,7 +1170,8 @@ function HomePage(props){
    ['Coaching throughout your session','Get help with technique, exercise choices, and suitable weights.'],
    ['Training matched to your level','Start where you are and progress as you improve.'],
    ['Accountability and group support','Build consistency with a coach and familiar training partners.'],
-   ['Tracked sessions','Know what you have completed and how many sessions remain.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})),
+   ['Tracked sessions','Know what you have completed and how many sessions remain.'],
+   ['The VFIT app','Full access to nutrition planning, weight tracking and online training.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})),
   h('p',{className:'vfh-dlg-price'},h('b',null,'12 coached sessions. $215 per person.'),' That is $17.92 per session when you purchase the 12-session package.'),
   h('p',null,'Come on your own. We will help match you with a suitable group and schedule.'),
   h('p',{className:'vfh-note'},'Gym membership is separate. Your coach confirms availability and explains package terms before you pay. Sessions are 60 minutes; packages expire 45 days after purchase, with paused time added back; sessions cancelled with less than 24 hours notice may be forfeited.'));
@@ -1390,7 +1393,8 @@ function SemiTerms(){
  var t=[['Join on your own','You do not need a partner. We match you with a group whose goals and times fit yours.'],
   ['Small groups','Up to 4 clients per session, with one VFitness coach.'],
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
-  ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')]].concat(commitLive()?[
+  ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')],
+  ['VFIT app included',APP_INCLUDED+' Use it in your phone browser at vfitnow.app.']].concat(commitLive()?[
   ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front and used within '+COMMIT3.expiryDays+' days. '+COMMIT_WHO+' It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
@@ -2061,7 +2065,7 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight vfh vfh-cats','aria-label':'Choose how to train'},h('div',{className:'vf26-wrap'},h('div',{className:'vfh-route-grid'},
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train in Nassau'),h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. Gym membership is separate.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate.'),
     h('button',{type:'button',className:'vf26-link',onClick:function(){vfTrack('coaching_path_selected',{path:'Train in Nassau'});setTab('semi');scrollToId('vf26-packages')();}},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train online'),h('p',{className:'vfh-route-t'},'The VFIT app, with a coach if you want one'),
     h('p',{className:'vfh-route-p'},h('b',null,'From $19.99 a month'),'. Online coaching with a VFITNESS coach from $197 a month.'),
@@ -2076,11 +2080,11 @@ function PricingPage(props){
     h('button',{className:'vf26-btn '+(s.hi?'vf26-btn-primary':'vf26-btn-outline'),onClick:s.act},s.cta));})))),
 
   h('section',{className:'vf26-section tight',id:'vf26-packages'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $215 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
+   h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $215 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. Every package includes the VFIT app. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
    tab==='semi'&&commitLive()?h('div',{className:'vf26-commit'},
     h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'3 month commitment · until '+COMMIT3.endsLabel),
      h('h3',null,COMMIT3.sessions+' sessions for $'+COMMIT3.price),
-     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Use your sessions within '+COMMIT3.expiryDays+' days. Per person, gym membership separate.'),
+     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Use your sessions within '+COMMIT3.expiryDays+' days. Includes full access to the VFIT app. Per person, gym membership separate.'),
      h('p',{className:'who'},COMMIT_WHO)),
     h('div',{className:'c-act'},h('div',{className:'amt'},'$'+COMMIT3.price),
      h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:commit.busy,'aria-busy':commit.busy?'true':undefined,onClick:selectCommit},commit.busy?'Checking...':'Choose 3 months',commit.busy?null:icon('arrow',16,{className:'vf26-arrow'})),
@@ -2093,6 +2097,7 @@ function PricingPage(props){
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
      pkg.legacy?h('div',{className:'sv'},icon('check',13),'Your client price until '+LEGACY12.untilLabel+'. $'+PKG.semi.filter(function(p){return p.sessions===pkg.sessions;})[0].price+' after.'):save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
+   h('p',{className:'vf26-app-inc'},icon('check',15),h('span',null,h('b',null,'VFIT app included. '),APP_INCLUDED)),
    tab==='semi'?h(SemiGroups,{user:user,setCurrentPage:setCurrentPage}):null,
    tab==='semi'?h(SemiTerms,null):null,
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),

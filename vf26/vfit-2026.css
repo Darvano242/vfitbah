@@ -2126,3 +2126,7 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
  .vf26-ret .vf26-adm-card td:empty{display:none;}
  .vf26-ret .vf26-adm-card td.acts{grid-column:2;grid-row:1 / span 3;}
 }
+/* VFIT app included with every package */
+.vf26-app-inc{display:flex;gap:.6rem;align-items:flex-start;margin:1.25rem 0 0;padding:.9rem 1rem;border:1px solid var(--vf-border);border-radius:14px;background:var(--vf-card);color:var(--vf-dim);font-size:.95rem;line-height:1.5;}
+.vf26-app-inc svg{flex:0 0 auto;margin-top:.2rem;color:var(--vf-teal);}
+.vf26-app-inc b{color:var(--vf-text);}

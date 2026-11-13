@@ -156,3 +156,9 @@ test('existing clients keep 12 sessions for $195 until March 1 2027; new clients
   assert.deepEqual(list.map(p => p.price), [35, 110, 140, 180, 195]);
   assert.deepEqual(vf26Packages().semi.map(p => p.price), [35, 110, 140, 180, 215]);              // published prices are not mutated
 });
+
+test('every package states that the VFIT app is included', () => {
+  assert.ok(vf26.includes("var APP_INCLUDED='All package holders have full access to the VFIT app: nutrition planning, weight tracking and online training.'"));
+  assert.ok(vf26.includes("['VFIT app included',APP_INCLUDED"));
+  assert.ok(vf26.includes("className:'vf26-app-inc'"));
+});
