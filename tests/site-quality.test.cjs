@@ -16,9 +16,9 @@ test('package savings are computed from prices, never hardcoded', () => {
   assert.ok(!/discount:\d/.test(legacy.slice(0, legacy.indexOf('[oneOnOnePackages,semiPersonalPackages].forEach'))));
   const pkg = vf26Packages();
   const save = (list, n) => { const p = list.find(x => x.sessions === n); const full = list[0].price * n; return Math.round((full - p.price) / full * 1000) / 10; };
-  assert.equal(save(pkg.semi, 8), 1.7);   // $173 against $176
-  assert.equal(save(pkg.one, 8), 7.9);    // $221 against $240
-  assert.equal(save(pkg.one, 12), 18.3);  // $294 against $360
+  assert.equal(save(pkg.semi, 8), 38.2);  // $173 against $280 (single session $35)
+  assert.equal(save(pkg.one, 8), 44.8);   // $221 against $400 (single session $50)
+  assert.equal(save(pkg.one, 12), 51);    // $294 against $600
   assert.ok(vf26.includes('function pkgSavings(pkg,single)'));
 });
 
@@ -84,4 +84,52 @@ test('package savings below 5% are not advertised, and there is no floating Ask 
   assert.equal(fn({ sessions: 12, price: 195 }, 22).pctLabel, '26%');
   assert.ok(html.includes('p.discount=pct>=5?pct:0'));
   assert.ok(!html.includes("b.textContent='Ask Coach'"));
+});
+
+test('single sessions are $35 semi private and $50 1 on 1, and package prices are unchanged', () => {
+  const pkg = vf26Packages();
+  assert.deepEqual(pkg.semi.map(p => p.price), [35, 87, 130, 173, 195]);
+  assert.deepEqual(pkg.one.map(p => p.price), [50, 120, 180, 221, 294]);
+  assert.ok(html.includes("'1on1':{1:50,4:120,6:180,8:221,12:294}"));
+  assert.ok(html.includes("Object.assign({1:35,4:87,6:130,8:173,12:195},vfCommitLive?{36:495}:{})"));
+  assert.ok(html.includes('{sessions:1,price:35,title:"Single Semi Personal Session"}'));
+});
+
+test('3 month commitment: 36 sessions, $495, 135 days, gone after December 20 2026 Nassau time', () => {
+  const src = vf26.slice(vf26.indexOf('var COMMIT3='), vf26.indexOf('window.vfCommit3=COMMIT3'));
+  const { COMMIT3, commitLive } = Function(`${src};return {COMMIT3,commitLive};`)();
+  assert.equal(COMMIT3.sessions, 36); assert.equal(COMMIT3.price, 495); assert.equal(COMMIT3.expiryDays, 135);
+  assert.equal(commitLive(Date.parse('2026-12-20T23:30:00-05:00')), true);
+  assert.equal(commitLive(Date.parse('2026-12-21T00:00:30-05:00')), false);
+  // Admin form uses the same cut-off, and both checkout paths carry the longer validity onto the package.
+  assert.ok(html.includes("Date.now()<=Date.parse('2026-12-21T04:59:59Z')"));
+  assert.equal(html.split('selectedPackage.expiryDays?{expiryDays:selectedPackage.expiryDays').length - 1, 2);
+  const policy = fs.readFileSync(path.join(__dirname, '../scripts/apply-package-policy.js'), 'utf8');
+  assert.ok(policy.includes('sessionCount===36?135:45'));
+  assert.ok(policy.includes('Number(pkg.expiryDays)>45?Number(pkg.expiryDays):45'));
+});
+
+test('retention plan: renewals due, lapsed clients split by recency, open group places', () => {
+  const start = vf26.indexOf('var RT_LOW='), end = vf26.indexOf('window.vfRetentionPlan=rtPlan');
+  const tdDate = v => (v && v.toDate ? v.toDate() : v ? new Date(v) : null);
+  const { rtPlan, rtSeats, rtPhone } = Function('tdDate', 'h', 'icon', `${vf26.slice(start, end)};return {rtPlan,rtSeats,rtPhone};`)(tdDate, () => null, () => null);
+  const now = Date.parse('2026-11-13T12:00:00-05:00'), DAY = 86400000;
+  const clients = ['a', 'b', 'c', 'd', 'e'].map(id => ({ id, name: id.toUpperCase() }));
+  const pkgs = [
+    { id: 'p1', clientId: 'a', status: 'active', sessionsRemaining: 2, expiryDate: now + 30 * DAY },   // low balance
+    { id: 'p2', clientId: 'b', status: 'active', sessionsRemaining: 9, expiryDate: now + 3 * DAY },    // expiring soon
+    { id: 'p3', clientId: 'c', status: 'active', sessionsRemaining: 8, expiryDate: now + 30 * DAY },   // fine
+    { id: 'p4', clientId: 'd', status: 'completed', sessionsRemaining: 0, completedAt: now - 10 * DAY } // lapsed recently
+  ];
+  const plan = rtPlan(pkgs, [], clients, now);
+  assert.deepEqual(plan.due.map(r => r.pkg.id), ['p1', 'p2']);
+  assert.deepEqual(plan.recent.map(r => r.client.id), ['d']);
+  assert.deepEqual(plan.older.map(r => r.client.id), ['e']);
+  // A paused package still counts as a current client; an expired active one does not.
+  assert.equal(rtPlan([{ id: 'x', clientId: 'a', status: 'paused', sessionsRemaining: 5, expiryDate: now - DAY }], [], [clients[0]], now).older.length, 0);
+  assert.equal(rtPlan([{ id: 'x', clientId: 'a', status: 'active', sessionsRemaining: 5, expiryDate: now - DAY }], [{ clientId: 'a', createdAt: now - 2 * DAY }], [clients[0]], now).recent.length, 1);
+  const seats = rtSeats([{ id: 'g1', status: 'open', seats: [{ state: 'confirmed' }, { state: 'free' }, { state: 'free' }, { state: 'held' }], waitlist: [] },
+    { id: 'g2', status: 'open', seats: [{ state: 'confirmed' }], waitlist: [] }, { id: 'g3', status: 'closed', seats: [{ state: 'free' }], waitlist: [] }]);
+  assert.equal(seats.total, 2); assert.deepEqual(seats.rows.map(r => r.g.id), ['g1']);
+  assert.equal(rtPhone('454-9063'), '12424549063'); assert.equal(rtPhone('(242) 454-9063'), '12424549063'); assert.equal(rtPhone('123'), '');
 });

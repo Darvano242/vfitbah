@@ -57,3 +57,15 @@ inquiry and an approved test purchase.
 | 15 Inquiry | DONE | Goals and delivery lists match the brief; confirmation wording from the brief. |
 | 16 Contact | DONE | "VFITNESS coaching hours" separated from gym opening hours. |
 | Session length | 60 minutes | Brief mentions 45; Darvano confirmed 60 on Nov 2. |
+
+## Pricing and retention update (Nov 13, 2026)
+
+Decisions from Darvano on Nov 13, 2026: package prices unchanged; single session $35 semi private and $50 1 on 1;
+3 month commitment of 36 semi private sessions for $495 paid up front, offered until December 20, 2026.
+
+| Item | Status | Notes |
+|---|---|---|
+| Single session prices | RUNTIME VERIFIED (stand-in data) | Services page, admin Add Package form and legacy lists. Savings badges are computed from the single price, so they now read against $35 and $50. |
+| 3 month commitment | RUNTIME VERIFIED (stand-in data) / NEEDS TESTING (payment) | Services page card, home page line, terms row, admin form option. 135 day validity is written on the package at purchase and kept by the expiry migration and by pause and resume. Everything hides itself after December 20, 2026 23:59 Nassau time. No live PayPal purchase was run. |
+| Retention tab | RUNTIME VERIFIED (stand-in data) | Business dashboard > Retention: renewals due (2 or fewer left, or expiring within 7 days), lapsed clients (recent first), open group places. Read only; messages open in WhatsApp or email for the coach to send. Not yet opened with a real staff login. |
+| Homepage coaches and results | RUNTIME VERIFIED (stand-in data) | Coach names and roles on the page, and up to three more published gallery photos (section hidden when there are fewer than two). Headshots still wanted. |

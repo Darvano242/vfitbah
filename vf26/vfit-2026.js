@@ -1089,6 +1089,7 @@ function HomePage(props){
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
     h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $195'),' per person ($16.25 a session). 60 minute sessions. Gym membership is separate. 1 on 1 by request.'),
+    commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train online'),
@@ -1135,6 +1136,16 @@ function HomePage(props){
     media:proof?img(proof.imageUrl,'',800,1000):null,
     body:proof?null:h('p',{className:'vfh-note'},'Real client photos and documented progress, published with permission.')})));
 
+ var coachesSec=h('section',{className:'vfh-coaches','aria-labelledby':'vfh-coaches-h'},
+  h('h2',{id:'vfh-coaches-h',className:'vfh-sec-h'},'Your coaches'),
+  h('ul',{className:'vfh-people'},COACHES.map(function(c){return h('li',{key:c.name},h('b',null,c.name),h('span',null,c.role));})),
+  navA('trainers',go(setCurrentPage,'trainers'),{className:'vf26-link'},h(React.Fragment,null,'Coach profiles',icon('arrow',15))));
+ var morePhotos=(gal||[]).filter(function(x){return x.imageUrl;}).slice(1,4);
+ var resultsSec=morePhotos.length?h('section',{className:'vfh-results','aria-labelledby':'vfh-results-h'},
+  h('h2',{id:'vfh-results-h',className:'vfh-sec-h'},'Client results'),
+  h('div',{className:'vfh-results-row'},morePhotos.map(function(x){return h('img',{key:x.id,src:x.imageUrl,alt:'VFITNESS client progress photo',width:400,height:500,loading:'lazy',decoding:'async'});})),
+  h('p',{className:'vfh-note'},'Real client photos, published with permission.'),
+  navA('results',go(setCurrentPage,'results'),{className:'vf26-link'},h(React.Fragment,null,'All client results',icon('arrow',15)))):null;
  var steps=h('section',{className:'vfh-steps','aria-labelledby':'vfh-steps-h'},
   h('h2',{id:'vfh-steps-h',className:'vfh-sec-h'},'What happens after you ask'),
   h('ol',null,HOW3.map(function(s,i){return h('li',{key:s[0]},h('span',{className:'n'},'0'+(i+1)),h('b',null,s[0]),h('p',null,s[1]));})),
@@ -1172,7 +1183,7 @@ function HomePage(props){
  return h('main',{className:'vf26 vfh'},
   h('div',{className:'vfh-split'},
    intro,
-   h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,steps,h(PromoSlider,null))),
+   h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,coachesSec,resultsSec,steps,h(PromoSlider,null))),
   dialog);
 }
 
@@ -1338,19 +1349,26 @@ function pkgSavings(pkg,single){var full=single*pkg.sessions;var amount=Math.rou
  return {per:Math.round(pkg.price/pkg.sessions*100)/100,amount:amount>0?amount:0,pct:pct,pctLabel:(pct>=10?Math.round(pct):pct)+'%'};}
 window.vfPkgSavings=pkgSavings;
 var PKG={
- one:[{sessions:1,price:30,title:'Single Session'},{sessions:4,price:120,title:'4-Session Package'},{sessions:6,price:180,title:'6-Session Package'},{sessions:8,price:221,title:'8-Session Package'},{sessions:12,price:294,title:'12-Session Package'}],
- semi:[{sessions:1,price:22,title:'Single Semi Personal Session'},{sessions:4,price:87,title:'4-Session Package'},{sessions:6,price:130,title:'6-Session Package'},{sessions:8,price:173,title:'8-Session Package'},{sessions:12,price:195,title:'12-Session Package'}]
+ one:[{sessions:1,price:50,title:'Single Session'},{sessions:4,price:120,title:'4-Session Package'},{sessions:6,price:180,title:'6-Session Package'},{sessions:8,price:221,title:'8-Session Package'},{sessions:12,price:294,title:'12-Session Package'}],
+ semi:[{sessions:1,price:35,title:'Single Semi Personal Session'},{sessions:4,price:87,title:'4-Session Package'},{sessions:6,price:130,title:'6-Session Package'},{sessions:8,price:173,title:'8-Session Package'},{sessions:12,price:195,title:'12-Session Package'}]
 };
+/* 3 month commitment: 36 semi private sessions paid up front, used within 135 days.
+   Offered until the end of December 20, 2026, Nassau time. After that it disappears from the site and the admin form. */
+var COMMIT3={sessions:36,price:495,title:'3 Month Commitment, 36 Sessions',expiryDays:135,months:3,ends:'2026-12-21T04:59:59Z',endsLabel:'December 20'};
+function commitLive(now){return (now||Date.now())<=Date.parse(COMMIT3.ends);}
+function commitRegular(){var p12=PKG.semi.filter(function(p){return p.sessions===12;})[0];return p12?p12.price*COMMIT3.months:0;}
+window.vfCommit3=COMMIT3;window.vfCommitLive=commitLive;
 /* Semi private, defined in full next to the packages. */
 function SemiTerms(){
  var t=[['Join on your own','You do not need a partner. We match you with a group whose goals and times fit yours.'],
   ['Small groups','Up to 4 clients per session, with one VFitness coach.'],
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
-  ['Packages','Prices are per person: 1 session $22, 4 for $87, 6 for $130, 8 for $173 or 12 for $195 ($16.25 a session). A package is a block of sessions, not a monthly membership.'],
+  ['Packages','Prices are per person: 1 session $35, 4 for $87, 6 for $130, 8 for $173 or 12 for $195. A package is a block of sessions, not a monthly membership.']].concat(commitLive()?[
+  ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front and used within '+COMMIT3.expiryDays+' days. It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
   ['Cancellations','Sessions cancelled with less than 24 hours notice may be forfeited.'],
-  ['Gym access','A gym membership is not included. Your package covers your coaching only, and we walk you through training location options at your consultation.']];
+  ['Gym access','A gym membership is not included. Your package covers your coaching only, and we walk you through training location options at your consultation.']]);
  return h('div',{className:'vf26-semi'},h('h3',null,'How semi private works'),
   h('dl',null,t.map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})));
 }
@@ -1599,6 +1617,115 @@ function TodayCheckin(p){
    toast.undo?h('button',{type:'button',onClick:function(){undo(toast.undo);}},'Undo'):null):null);
 }
 window.VF26TodayCheckin=vfFenced(TodayCheckin,false);
+/* ================= RETENTION (staff only) =================
+   One place to see where clients are about to drop off and where there is room:
+   1. Renewals due: active packages with 2 sessions or fewer left, or expiring within 7 days.
+   2. Lapsed clients: clients with no active or paused package. Those who trained in the last 120 days come first.
+   3. Open group places: semi private groups with fewer than their full number of clients.
+   Read only. Each client row opens WhatsApp (or email) with a message the coach can edit before sending. Nothing is sent
+   automatically from here. Trainers see only their own clients because the clients list they receive is already filtered. */
+var RT_LOW=2,RT_SOON_DAYS=7,RT_RECENT_DAYS=120,RT_DAY=86400000;
+function rtPhone(raw){var d=String(raw||'').replace(/\D/g,'');if(d.length===7)d='1242'+d;else if(d.length===10)d='1'+d;return d.length>=11&&d.length<=15?d:'';}
+function rtFirst(n){var f=String(n||'').trim().split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
+function rtCoach(pkg){return (pkg&&(pkg.assignedTrainerName||pkg.assignedBy||pkg.trainerName))||'';}
+function rtLive(pkg,now){if(pkg.status!=='active'&&pkg.status!=='paused')return false;if((pkg.sessionsRemaining||0)<=0)return false;
+ var ex=tdDate(pkg.expiryDate);return !(pkg.status==='active'&&ex&&ex.getTime()<now);}
+function rtRenewText(first,coach,left,until){var n=left+' session'+(left===1?'':'s');
+ if(until)return 'Hi '+first+', it is '+coach+' from VFITNESS. Your package runs to '+until+' and you still have '+n+' on it. Want me to book them in before then?';
+ return 'Hi '+first+', it is '+coach+' from VFITNESS. You have '+n+' left on your package. Want me to set up your next one so your training time stays yours?';}
+function rtBackText(first,coach){return 'Hi '+first+', it is '+coach+' from VFITNESS. It has been a little while since your last session. I have a place for you this week if you want to restart. Should I hold it?';}
+function rtContact(c,text,label){var ph=rtPhone(c&&c.phone),em=c&&c.email;
+ if(ph)return h('a',{className:'vf26-btn vf26-btn-primary sm',href:'https://wa.me/'+ph+'?text='+encodeURIComponent(text),target:'_blank',rel:'noopener noreferrer','aria-label':label+' on WhatsApp'},icon('chat',15),'WhatsApp');
+ if(em)return h('a',{className:'vf26-btn vf26-btn-outline sm',href:'mailto:'+em+'?subject='+encodeURIComponent('Your VFITNESS training')+'&body='+encodeURIComponent(text),'aria-label':label+' by email'},'Email');
+ return h('span',{className:'mute'},'No phone or email on file');}
+function rtPlan(pkgs,logs,clients,now){
+ var byClient={},lastSeen={};
+ pkgs.forEach(function(x){if(!x.clientId)return;(byClient[x.clientId]=byClient[x.clientId]||[]).push(x);
+  [x.lastSessionAt,x.completedAt].forEach(function(v){var t=tdDate(v);if(t&&(!lastSeen[x.clientId]||t.getTime()>lastSeen[x.clientId]))lastSeen[x.clientId]=t.getTime();});});
+ logs.forEach(function(l){var t=tdDate(l.createdAt);if(l.clientId&&t&&(!lastSeen[l.clientId]||t.getTime()>lastSeen[l.clientId]))lastSeen[l.clientId]=t.getTime();});
+ var due=[];
+ pkgs.forEach(function(x){if(x.status!=='active'||!rtLive(x,now))return;var left=x.sessionsRemaining||0,ex=tdDate(x.expiryDate);
+  var days=ex?Math.ceil((ex.getTime()-now)/RT_DAY):null;var low=left<=RT_LOW,soon=days!=null&&days<=RT_SOON_DAYS;
+  if(low||soon)due.push({pkg:x,left:left,days:days,low:low,soon:soon,ex:ex});});
+ due.sort(function(a,b){return (a.left-b.left)||((a.days==null?999:a.days)-(b.days==null?999:b.days));});
+ var recent=[],older=[];
+ clients.forEach(function(c){var mine=byClient[c.id]||[];if(mine.some(function(x){return rtLive(x,now);}))return;
+  var seen=lastSeen[c.id]||null;var row={client:c,seen:seen,days:seen?Math.floor((now-seen)/RT_DAY):null};
+  if(seen&&now-seen<=RT_RECENT_DAYS*RT_DAY)recent.push(row);else older.push(row);});
+ recent.sort(function(a,b){return b.seen-a.seen;});
+ older.sort(function(a,b){return String(a.client.name||'').localeCompare(String(b.client.name||''));});
+ return {due:due,recent:recent,older:older};
+}
+function rtSeats(groups){var out=[],total=0;(groups||[]).forEach(function(g){if(g.status!=='open')return;var seats=g.seats||[];var free=seats.filter(function(s){return s.state==='free';}).length;
+  if(free>0){total+=free;out.push({g:g,free:free,cap:seats.length,wait:(g.waitlist||[]).length});}});
+ out.sort(function(a,b){return b.free-a.free;});return {rows:out,total:total};}
+window.vfRetentionPlan=rtPlan;window.vfRetentionSeats=rtSeats;
+function Retention(p){
+ var u=p.user||{},clients=p.clients||[];
+ var st=React.useState({loading:true,error:'',pkgs:[],logs:[],groups:null,groupsError:''}),data=st[0],setData=st[1];
+ var os=React.useState(false),showOlder=os[0],setShowOlder=os[1];
+ function load(){var d=tdDb();if(!d){setData({loading:false,error:'The database is not ready. Refresh the page.',pkgs:[],logs:[],groups:null,groupsError:''});return;}
+  setData(function(x){return Object.assign({},x,{loading:true,error:''});});
+  var since=new Date(Date.now()-RT_RECENT_DAYS*RT_DAY);
+  Promise.all([d.collection('packages').get(),
+   d.collection('sessionLogs').where('createdAt','>=',since).get().catch(function(){return {docs:[]};}),
+   Promise.resolve().then(function(){return vfGroupsApi('adminList',null,true);}).then(function(j){return {groups:j.groups||[],err:''};}).catch(function(e){return {groups:null,err:(e&&e.message)||'Could not load groups.'};})])
+  .then(function(r){var ids={};clients.forEach(function(c){ids[c.id]=1;});
+   var pk=r[0].docs.map(function(x){return Object.assign({id:x.id},x.data());}).filter(function(x){return ids[x.clientId];});
+   var logs=r[1].docs.map(function(x){return x.data();});
+   setData({loading:false,error:'',pkgs:pk,logs:logs,groups:r[2].groups,groupsError:r[2].err});})
+  .catch(function(e){setData({loading:false,error:(e&&e.message)||'Could not load packages.',pkgs:[],logs:[],groups:null,groupsError:''});});}
+ React.useEffect(function(){load();},[clients.length]);
+ var now=Date.now(),coach=rtFirst(u.name||u.displayName||'your coach');
+ var byId={};clients.forEach(function(c){byId[c.id]=c;});
+ var plan=rtPlan(data.pkgs,data.logs,clients,now),seats=rtSeats(data.groups);
+ function fmt(t){return new Date(t).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+ function lapsedRow(r){var c=r.client;return h('tr',{key:c.id},
+  h('td',null,c.name||'No name',c.email?h('small',null,' ',c.email):null),
+  h('td',null,r.seen?('Last session '+fmt(r.seen)+' ('+(r.days===0?'today':r.days+' day'+(r.days===1?'':'s')+' ago')+')'):'No session in the last '+RT_RECENT_DAYS+' days'),
+  h('td',null,c.assignedTrainer||''),
+  h('td',{className:'acts'},rtContact(c,rtBackText(rtFirst(c.name),coach),'Message '+(c.name||'client'))));}
+ function head(cols){return h('thead',null,h('tr',null,cols.map(function(x,i){return h('th',{key:i,scope:'col'},i===cols.length-1?h('span',{className:'sr-only'},x):x);})));}
+ var body;
+ if(data.loading)body=h('p',{role:'status'},'Loading...');
+ else if(data.error)body=h('div',{role:'alert',className:'vf26-adm-msg bad'},h('p',null,data.error),h('button',{className:'vf26-btn vf26-btn-outline',onClick:load},'Try again'));
+ else body=h('div',{className:'vf26-adm-list'},
+  h('div',{className:'vf26-ret-stats'},
+   h('div',null,h('b',null,plan.due.length),h('span',null,'renewals due')),
+   h('div',null,h('b',null,plan.recent.length),h('span',null,'lapsed in the last '+RT_RECENT_DAYS+' days')),
+   h('div',null,h('b',null,data.groups?seats.total:'?'),h('span',null,'open group places'))),
+  h('article',{className:'vf26-adm-card'},
+   h('header',null,h('div',null,h('h3',null,'Renewals due'),h('p',null,RT_LOW+' sessions or fewer left, or the package expires within '+RT_SOON_DAYS+' days. Agree the next package before the last session.'))),
+   !plan.due.length?h('p',{className:'notes'},'Nobody is due right now.'):
+   h('table',null,h('caption',{className:'sr-only'},'Packages due for renewal'),head(['Client','Package','Coach','Actions']),
+    h('tbody',null,plan.due.map(function(r){var x=r.pkg,c=byId[x.clientId]||{name:x.clientName,email:x.clientEmail};
+     return h('tr',{key:x.id},
+      h('td',null,x.clientName||c.name||'No name'),
+      h('td',null,h('b',null,r.left+' left'),r.ex?h('small',null,' ',r.days<0?'expired':r.days===0?'expires today':'expires '+fmt(r.ex.getTime())):null),
+      h('td',null,rtCoach(x)),
+      h('td',{className:'acts'},rtContact(c,rtRenewText(rtFirst(x.clientName||c.name),coach,r.left,!r.low&&r.ex&&r.days>=0?fmt(r.ex.getTime()):''),'Message '+(x.clientName||'client'))));})))),
+  h('article',{className:'vf26-adm-card'},
+   h('header',null,h('div',null,h('h3',null,'Lapsed clients'),h('p',null,'Clients with no active or paused package. People who trained recently are the easiest to bring back, so they come first.'))),
+   !clients.length?h('p',{className:'notes'},'No clients are assigned to you yet.'):
+   !plan.recent.length?h('p',{className:'notes'},'Nobody has lapsed in the last '+RT_RECENT_DAYS+' days.'):
+   h('table',null,h('caption',{className:'sr-only'},'Recently lapsed clients'),head(['Client','Last seen','Coach','Actions']),h('tbody',null,plan.recent.map(lapsedRow))),
+   plan.older.length?h('div',{className:'vf26-ret-more'},
+    h('button',{type:'button',className:'vf26-btn vf26-btn-outline sm','aria-expanded':showOlder?'true':'false',onClick:function(){setShowOlder(!showOlder);}},(showOlder?'Hide ':'Show ')+plan.older.length+' older or not yet started'),
+    showOlder?h('table',null,h('caption',{className:'sr-only'},'Older lapsed clients and accounts that have not started'),head(['Client','Last seen','Coach','Actions']),h('tbody',null,plan.older.slice(0,200).map(lapsedRow))):null):null),
+  h('article',{className:'vf26-adm-card'},
+   h('header',null,h('div',null,h('h3',null,'Open group places'),h('p',null,'Fill these before starting a new group. A full group of 4 costs no extra coaching hours.'))),
+   data.groups==null?h('p',{className:'notes'},'Group places could not be loaded here. '+(data.groupsError||'')+' Open the Groups tab to see them.'):
+   !seats.rows.length?h('p',{className:'notes'},'Every open group is full, or no groups are set up yet. Create groups in the Groups tab.'):
+   h('table',null,h('caption',{className:'sr-only'},'Semi private groups with free places'),head(['Group','Coach','Free','Waitlist']),
+    h('tbody',null,seats.rows.map(function(r){var g=r.g,when=daysLabel(g.weekdays)+' at '+g.timeLabel;
+     return h('tr',{key:g.id},h('td',null,g.title||when,g.title?h('small',null,' ',when):null,h('small',null,' ',g.locationName||'')),h('td',null,g.trainerName||''),
+      h('td',null,h('b',null,r.free),' of '+r.cap),h('td',null,r.wait?r.wait+' waiting':''));})))));
+ return h('section',{className:'vf26-adm-groups vf26-ret','aria-labelledby':'vf26-ret-h'},
+  h('div',{className:'head'},h('div',null,h('h2',{id:'vf26-ret-h'},'Retention'),h('p',null,'Who to renew, who to bring back and where there is room. Messages open in WhatsApp for you to check and send; nothing is sent automatically.')),
+   h('button',{className:'vf26-btn vf26-btn-outline',onClick:load,disabled:data.loading},'Refresh')),
+  body);
+}
+window.VF26Retention=vfFenced(Retention,false);
 /* ================= BOOK A CLIENT (staff only) =================
    The trainer is whoever is signed in, so a booking made from Darvano's account is with Darvano.
    Pick the client, day, time and length; optionally repeat on chosen weekdays for a number of weeks.
@@ -1883,7 +2010,7 @@ function PricingPage(props){
  var ps=React.useState(null),selected=ps[0],setSelected=ps[1];
  var ts=React.useState('semi'),tab=ts[0],setTab=ts[1];
  function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}vfTrack('package_checkout_started',{path:tab+' '+pkg.sessions});setSelected(pkg);setShowModal(true);}
- React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=PKG[it.tab]||PKG.one;var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setSelected(pkg);setShowModal(true);setTimeout(scrollToId('vf26-packages'),300);},[!!user]);
+ React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=(PKG[it.tab]||PKG.one).concat(it.tab==='semi'&&commitLive()?[COMMIT3]:[]);var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setSelected(pkg);setShowModal(true);setTimeout(scrollToId('vf26-packages'),300);},[!!user]);
  var services=[
   {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$16.25',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
   {icon:'user',name:'1 on 1 Coaching',who:'By request. Ask about coach availability at your consultation.',price:'By request',unit:'',cta:'Ask about 1 on 1',act:lead(setCurrentPage,{vf_lead_type:'1 on 1 by request'})},
@@ -1915,6 +2042,12 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight',id:'vf26-packages'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $195 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
+   tab==='semi'&&commitLive()?h('div',{className:'vf26-commit'},
+    h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'3 month commitment · until '+COMMIT3.endsLabel),
+     h('h3',null,COMMIT3.sessions+' sessions for $'+COMMIT3.price),
+     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Use your sessions within '+COMMIT3.expiryDays+' days. Per person, gym membership separate.')),
+    h('div',{className:'c-act'},h('div',{className:'amt'},'$'+COMMIT3.price),
+     h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){select(COMMIT3);}},'Choose 3 months',icon('arrow',16,{className:'vf26-arrow'})))):null,
    h('div',tabPanel('vf26-pkgtabs',tab,{className:'vf26-pkg-grid',key:tab}),list.map(function(pkg,i){var s=pkgSavings(pkg,base);var per=s.per;var save=s.amount;var best=pkg===bestPkg;
     return h('div',{key:pkg.sessions,className:'vf26-pkg vf26-enter'+(best?' best':''),style:{'--d':(i*60)+'ms'}},
      best?h('span',{className:'tag'},'Best value'+(s.pct?' · save '+s.pctLabel:'')):(s.pct>0?h('span',{className:'tag soft'},'Save '+s.pctLabel):null),

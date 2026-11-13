@@ -399,6 +399,10 @@ once("activeTab==='today'&&React.createElement(window.VF26TodayCheckin||'div',",
 once("activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),",
      "activeTab==='overview'&&React.createElement(VF26ClientOverview,{user:user,packages:packages,appointments:appointments,setActiveTab:setActiveTab,onLogSession:logClientGymSession}),activeTab==='overview'&&React.createElement(window.VF26ReminderPrefs||'span',null),");
 
+// 6o. Retention tab for staff: renewals due, lapsed clients and open group places (component VF26Retention in vfit-2026.js).
+once("{id:'notifications',label:'Notifications',icon:'bell'}","{id:'notifications',label:'Notifications',icon:'bell'},{id:'retention',label:'Retention',icon:'repeat'}");
+once("activeTab==='notifications'&&React.createElement(window.VF26Notifications||'div',null),","activeTab==='notifications'&&React.createElement(window.VF26Notifications||'div',null),activeTab==='retention'&&React.createElement(window.VF26Retention||'div',{clients:clients,user:user}),");
+
 // 7. Verify: every inline script and the component file must parse.
 const scripts=[...html.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 scripts.forEach((code,i)=>{try{new vm.Script(code,{filename:'inline-'+i+'.js'});}catch(e){throw new Error('Inline script '+i+' failed to parse: '+e.message);}});
