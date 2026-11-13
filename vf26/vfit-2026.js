@@ -1116,7 +1116,7 @@ function HomePage(props){
     h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.')),
     VF_CINEMATIC.semi?h('div',{className:'sg2'},h(CinematicChapters,{asset:VF_CINEMATIC.semi})):h(SemiGroupScene,null),
     h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$215'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $17.92 per session on the 12-session package.'),
-     h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
+     h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Includes a nutrition and supplement plan and full access to the VFIT app.'),h('p',{className:'gym'},'Gym membership is separate.')),
     h('div',{className:'vfh-semi-acts'},
      h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
      h('button',{type:'button',className:'vfh-semi-more',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15))))));
@@ -1390,12 +1390,29 @@ function legacyEligible(clientId){var d=tdDb();if(!legacyLive()||!d||!clientId)r
  catch(e){return Promise.resolve(false);}}
 function legacyList(list){return list.map(function(p){return p.sessions===LEGACY12.sessions?Object.assign({},p,{price:LEGACY12.price,legacy:true}):p;});}
 window.vfLegacy12=LEGACY12;window.vfLegacyEligible=legacyEligible;window.vfLegacyCheck=legacyCheck;
+/* What the 12 session semi private package includes (decision from Darvano, Nov 13, 2026).
+   The value line is shown only while the parts, at their own published prices, really add up to more than $400:
+   12 sessions at the single session price plus one month of the VFIT app. */
+var PACK_VALUE_FLOOR=400;
+function packValue(){var p1=PKG.semi[0].price,app=Number((APP_PLANS[0]||{}).mo)||0;return {sessions:p1*12,app:app,total:p1*12+app};}
+function PackIncludes(p){var v=packValue();
+ var rows=[
+  ['users','In person training with expert coaches','12 coached 60 minute sessions, in a group of up to 4.','$'+money(v.sessions),'at the single session price'],
+  ['clipboard','Nutrition and supplement plan','A plan from your coach, set to your goal.','Included',''],
+  ['dumbbell','Full access to the VFIT app','Nutrition planning, weight tracking and online training, so you are well equipped for your fitness journey.',v.app?'$'+money(v.app):'Included',v.app?'a month on its own':'']];
+ return h('div',{className:'vf26-incl','aria-labelledby':'vf26-incl-h',role:'group'},
+  h('h3',{id:'vf26-incl-h'},'What your 12 sessions include'),
+  h('ul',null,rows.map(function(r){return h('li',{key:r[1]},h('span',{className:'vf26-icon-tile'},icon(r[0],19)),
+   h('div',{className:'t'},h('b',null,r[1]),h('p',null,r[2])),h('div',{className:'v'},h('b',null,r[3]),r[4]?h('small',null,r[4]):null));})),
+  h('p',{className:'tot'},v.total>PACK_VALUE_FLOOR?h('span',null,'Valued at over $'+PACK_VALUE_FLOOR+'.'):null,h('b',null,(v.total>PACK_VALUE_FLOOR?'Only $':'You pay $')+p.price+'.')));
+}
 /* Semi private, defined in full next to the packages. */
 function SemiTerms(){
  var t=[['Join on your own','You do not need a partner. We match you with a group whose goals and times fit yours.'],
   ['Small groups','Up to 4 clients per session, with one VFitness coach.'],
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
   ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')],
+  ['What 12 sessions include','In person training with expert coaches, a nutrition and supplement plan from your coach, and full access to the VFIT app.'],
   ['VFIT app included',APP_INCLUDED+' Use it in your phone browser at vfitnow.app.']].concat(commitLive()?[
   ['3 month flash sale','36 sessions, paid up front: $'+COMMIT3.price+' per person for new clients and $'+COMMIT3.activePrice+' for active clients. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. Active means you have a package in use, or bought, trained on or finished one in the last '+COMMIT_AWAY_DAYS+' days. It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
@@ -2097,7 +2114,8 @@ function PricingPage(props){
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
      pkg.legacy?h('div',{className:'sv'},icon('check',13),'Your client price until '+LEGACY12.untilLabel+'. $'+PKG.semi.filter(function(p){return p.sessions===pkg.sessions;})[0].price+' after.'):save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
-   h('p',{className:'vf26-app-inc'},icon('check',15),h('span',null,h('b',null,'VFIT app included. '),APP_INCLUDED)),
+   tab==='semi'?h(PackIncludes,{price:list.filter(function(p){return p.sessions===12;})[0].price}):null,
+   tab==='semi'?null:h('p',{className:'vf26-app-inc'},icon('check',15),h('span',null,h('b',null,'VFIT app included. '),APP_INCLUDED)),
    tab==='semi'?h(SemiGroups,{user:user,setCurrentPage:setCurrentPage}):null,
    tab==='semi'?h(SemiTerms,null):null,
    h('p',{className:'vf26-note'},user?'Choose a package and pick your coach at checkout.':'Sign in or create an account to purchase. Your session balance appears in your dashboard.'))),

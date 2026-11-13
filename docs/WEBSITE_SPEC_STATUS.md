@@ -78,3 +78,7 @@ Update later on Nov 13, 2026: the 3 month commitment is sold as the Black Friday
 ends December 13, 2026. Clients can start when they are ready; the package expires 105 days after purchase.
 Two prices: $500 for new clients (and clients returning after 30 days or more away), $450 for active clients. The Services page and
 the admin Add Package form pick the price from the client's own packages.
+Services page now breaks down what the 12 session package includes: in person training with expert coaches, a nutrition and
+supplement plan, and full access to the VFIT app. The "Valued at over $400" line rests on 12 single sessions ($420) plus a month of
+the VFIT app; it hides itself if those published prices ever add up to $400 or less. NEEDS DARVANO: every 12 session client must
+actually receive the nutrition and supplement plan.

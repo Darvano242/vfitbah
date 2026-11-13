@@ -162,3 +162,11 @@ test('every package states that the VFIT app is included', () => {
   assert.ok(vf26.includes("['VFIT app included',APP_INCLUDED"));
   assert.ok(vf26.includes("className:'vf26-app-inc'"));
 });
+
+test('the "valued at over $400" line is backed by published prices', () => {
+  const single = vf26Packages().semi[0].price;
+  const app = Number(/name:'VFIT App',mo:'([0-9.]+)'/.exec(vf26)[1]);
+  assert.ok(single * 12 + app > 400, 'twelve single sessions plus a month of the app must exceed $400');
+  assert.ok(vf26.includes('var PACK_VALUE_FLOOR=400;'));
+  assert.ok(vf26.includes("v.total>PACK_VALUE_FLOOR?h('span',null,'Valued at over $'+PACK_VALUE_FLOOR+'.'):null"));
+});

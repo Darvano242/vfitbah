@@ -2132,3 +2132,16 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vf26-app-inc{display:flex;gap:.6rem;align-items:flex-start;margin:1.25rem 0 0;padding:.9rem 1rem;border:1px solid var(--vf-border);border-radius:14px;background:var(--vf-card);color:var(--vf-dim);font-size:.95rem;line-height:1.5;}
 .vf26-app-inc svg{flex:0 0 auto;margin-top:.2rem;color:var(--vf-teal);}
 .vf26-app-inc b{color:var(--vf-text);}
+/* What the 12 session package includes */
+.vf26-incl{margin-top:1.5rem;padding:1.25rem;border:1px solid var(--vf-border);border-radius:1.4rem;background:var(--vf-card);box-shadow:var(--vf-shadow-card);}
+.vf26-incl h3{margin:0 0 .9rem;font-size:1.25rem;font-weight:800;letter-spacing:-.02em;color:var(--vf-text);}
+.vf26-incl ul{list-style:none;margin:0;padding:0;display:grid;gap:0;}
+.vf26-incl li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:.9rem;align-items:center;padding:.85rem 0;border-top:1px solid var(--vf-border);}
+.vf26-incl .t b{display:block;color:var(--vf-text);font-size:1rem;}
+.vf26-incl .t p{margin:.15rem 0 0;color:var(--vf-dim);font-size:.9rem;line-height:1.45;}
+.vf26-incl .v{text-align:right;white-space:nowrap;}
+.vf26-incl .v b{display:block;color:var(--vf-text);font-size:1.05rem;}
+.vf26-incl .v small{display:block;color:var(--vf-dim);font-size:.75rem;white-space:normal;max-width:8.5rem;}
+.vf26-incl .tot{display:flex;flex-wrap:wrap;gap:.4rem 1rem;align-items:baseline;justify-content:space-between;margin:0;padding-top:1rem;border-top:1px solid var(--vf-border);color:var(--vf-dim);font-size:1rem;}
+.vf26-incl .tot b{color:var(--vf-text);font-size:1.6rem;font-weight:800;letter-spacing:-.03em;}
+@media (max-width:480px){.vf26-incl li{grid-template-columns:auto minmax(0,1fr);}.vf26-incl .v{grid-column:2;text-align:left;display:flex;gap:.4rem;align-items:baseline;}.vf26-incl .v small{max-width:none;}}
