@@ -91,7 +91,7 @@ test('single sessions are $35 semi private and $50 1 on 1, and package prices ar
   assert.deepEqual(pkg.semi.map(p => p.price), [35, 110, 140, 180, 215]);
   assert.deepEqual(pkg.one.map(p => p.price), [50, 120, 180, 221, 294]);
   assert.ok(html.includes("'1on1':{1:50,4:120,6:180,8:221,12:294}"));
-  assert.ok(html.includes("Object.assign({1:35,4:110,6:140,8:180,12:215},vfCommitLive?{36:495}:{})"));
+  assert.ok(html.includes("Object.assign({1:35,4:110,6:140,8:180,12:vfLegacy?195:215},vfCommitLive?{36:495}:{})"));
   assert.ok(html.includes('{sessions:1,price:35,title:"Single Semi Personal Session"}'));
 });
 
@@ -140,4 +140,19 @@ test('retention plan: renewals due, lapsed clients split by recency, open group 
     { id: 'g2', status: 'open', seats: [{ state: 'confirmed' }], waitlist: [] }, { id: 'g3', status: 'closed', seats: [{ state: 'free' }], waitlist: [] }]);
   assert.equal(seats.total, 2); assert.deepEqual(seats.rows.map(r => r.g.id), ['g1']);
   assert.equal(rtPhone('454-9063'), '12424549063'); assert.equal(rtPhone('(242) 454-9063'), '12424549063'); assert.equal(rtPhone('123'), '');
+});
+
+test('existing clients keep 12 sessions for $195 until March 1 2027; new clients pay $215', () => {
+  const src = vf26.slice(vf26.indexOf('var LEGACY12='), vf26.indexOf('window.vfLegacy12=LEGACY12'));
+  const tdDate = v => (v && v.toDate ? v.toDate() : v ? new Date(v) : null);
+  const { LEGACY12, legacyLive, legacyCheck, legacyList } = Function('tdDate', 'tdDb', `${src};return {LEGACY12,legacyLive,legacyCheck,legacyList};`)(tdDate, () => null);
+  assert.equal(LEGACY12.price, 195);
+  assert.equal(legacyLive(Date.parse('2027-02-28T23:59:00-05:00')), true);
+  assert.equal(legacyLive(Date.parse('2027-03-01T00:00:30-05:00')), false);
+  assert.equal(legacyCheck([{ purchaseDate: Date.parse('2026-10-02T09:00:00-05:00') }]), true);   // had a package before the change
+  assert.equal(legacyCheck([{ createdAt: Date.parse('2026-11-20T09:00:00-05:00') }]), false);     // joined after the change
+  assert.equal(legacyCheck([]), false);
+  const list = legacyList(vf26Packages().semi);
+  assert.deepEqual(list.map(p => p.price), [35, 110, 140, 180, 195]);
+  assert.deepEqual(vf26Packages().semi.map(p => p.price), [35, 110, 140, 180, 215]);              // published prices are not mutated
 });

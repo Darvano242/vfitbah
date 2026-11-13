@@ -1374,12 +1374,23 @@ window.vfCommitEligible=commitEligible;window.vfCommitCheck=commitCheck;
 function commitLive(now){return (now||Date.now())<=Date.parse(COMMIT3.ends);}
 function commitRegular(){var p12=PKG.semi.filter(function(p){return p.sessions===12;})[0];return p12?p12.price*COMMIT3.months:0;}
 window.vfCommit3=COMMIT3;window.vfCommitLive=commitLive;
+/* Existing clients keep the previous 12 session price until March 1, 2027 (Nassau time).
+   Existing means the client already had a package before the new prices went live on November 13, 2026. */
+var LEGACY12={sessions:12,price:195,before:'2026-11-13T20:00:00Z',until:'2027-03-01T05:00:00Z',untilLabel:'March 1, 2027'};
+function legacyLive(now){return (now||Date.now())<Date.parse(LEGACY12.until);}
+function legacyCheck(pkgs){var cut=Date.parse(LEGACY12.before);return (pkgs||[]).some(function(x){var t=tdDate(x.purchaseDate)||tdDate(x.createdAt);return !!t&&t.getTime()<cut;});}
+/* If the lookup fails the standard price applies; staff can still set the client price by hand. */
+function legacyEligible(clientId){var d=tdDb();if(!legacyLive()||!d||!clientId)return Promise.resolve(false);
+ try{return d.collection('packages').where('clientId','==',clientId).get().then(function(s){return legacyCheck(s.docs.map(function(x){return x.data();}));}).catch(function(){return false;});}
+ catch(e){return Promise.resolve(false);}}
+function legacyList(list){return list.map(function(p){return p.sessions===LEGACY12.sessions?Object.assign({},p,{price:LEGACY12.price,legacy:true}):p;});}
+window.vfLegacy12=LEGACY12;window.vfLegacyEligible=legacyEligible;window.vfLegacyCheck=legacyCheck;
 /* Semi private, defined in full next to the packages. */
 function SemiTerms(){
  var t=[['Join on your own','You do not need a partner. We match you with a group whose goals and times fit yours.'],
   ['Small groups','Up to 4 clients per session, with one VFitness coach.'],
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
-  ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.']].concat(commitLive()?[
+  ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')]].concat(commitLive()?[
   ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front and used within '+COMMIT3.expiryDays+' days. '+COMMIT_WHO+' It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
@@ -2026,18 +2037,22 @@ function PricingPage(props){
  var ps=React.useState(null),selected=ps[0],setSelected=ps[1];
  var ts=React.useState('semi'),tab=ts[0],setTab=ts[1];
  var cs=React.useState({busy:false,msg:''}),commit=cs[0],setCommit=cs[1];
+ var lg=React.useState(false),legacy=lg[0],setLegacy=lg[1];var uid=user?(user.uid||user.id):null;
+ React.useEffect(function(){var on=true;setLegacy(false);if(uid)legacyEligible(uid).then(function(r){if(on)setLegacy(!!r);});return function(){on=false;};},[uid]);
  function selectCommit(){if(!user){select(COMMIT3);return;}if(commit.busy)return;setCommit({busy:true,msg:''});
   commitEligible(user.uid||user.id).then(function(r){if(r.ok){setCommit({busy:false,msg:''});select(COMMIT3);}
    else setCommit({busy:false,msg:'This offer is for new clients and clients returning after '+COMMIT_AWAY_DAYS+' days or more away. Your account shows recent training with us, so please choose a package below.'});});}
  function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}vfTrack('package_checkout_started',{path:tab+' '+pkg.sessions});setSelected(pkg);setShowModal(true);}
- React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=(PKG[it.tab]||PKG.one).concat(it.tab==='semi'&&commitLive()?[COMMIT3]:[]);var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setTimeout(scrollToId('vf26-packages'),300);if(pkg===COMMIT3){selectCommit();return;}setSelected(pkg);setShowModal(true);},[!!user]);
+ React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=(PKG[it.tab]||PKG.one).concat(it.tab==='semi'&&commitLive()?[COMMIT3]:[]);var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setTimeout(scrollToId('vf26-packages'),300);if(pkg===COMMIT3){selectCommit();return;}
+  if(it.tab==='semi'&&pkg.sessions===LEGACY12.sessions){legacyEligible(user.uid||user.id).then(function(r){setSelected(r?legacyList([pkg])[0]:pkg);setShowModal(true);});return;}
+  setSelected(pkg);setShowModal(true);},[!!user]);
  var services=[
   {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$17.92',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
   {icon:'user',name:'1 on 1 Coaching',who:'By request. Ask about coach availability at your consultation.',price:'By request',unit:'',cta:'Ask about 1 on 1',act:lead(setCurrentPage,{vf_lead_type:'1 on 1 by request'})},
   {icon:'dumbbell',name:'Group Training',who:'Motivation in a small group',price:'Ask',unit:'',cta:'Enquire',act:lead(setCurrentPage,{vf_lead_type:'Group'})},
   {icon:'clipboard',name:'Free Consultation and Body Assessment',who:'First timers, goals and body scan',price:'Free',unit:'',cta:'Request my free consultation',act:go(setCurrentPage,'book')}
  ];
- var list=PKG[tab];var base=list[0].price;var bestPkg=list.reduce(function(a,p){return p.price/p.sessions<a.price/a.sessions?p:a;},list[0]);if(bestPkg===list[0])bestPkg=null;
+ var list=tab==='semi'&&legacy?legacyList(PKG[tab]):PKG[tab];var base=list[0].price;var bestPkg=list.reduce(function(a,p){return p.price/p.sessions<a.price/a.sessions?p:a;},list[0]);if(bestPkg===list[0])bestPkg=null;
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Services and pricing',title:'Clear pricing.',accent:'No lock in contracts.',lead:'In person training at three Nassau locations and online coaching through the VFIT app. Pay securely online and track every session in your client portal.',
    chips:[['check','No lock in contracts'],['history','Sessions tracked in your dashboard'],['shield','Secure checkout']],
@@ -2076,7 +2091,7 @@ function PricingPage(props){
      h('div',{className:'ses'},h('b',{className:'vf26-condensed'},pkg.sessions),h('span',null,pkg.sessions===1?'session':'sessions')),
      h('div',{className:'amt'},'$'+pkg.price),
      h('div',{className:'per'},'$'+(per%1?per.toFixed(2):per)+' per session'),
-     save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
+     pkg.legacy?h('div',{className:'sv'},icon('check',13),'Your client price until '+LEGACY12.untilLabel+'. $'+PKG.semi.filter(function(p){return p.sessions===pkg.sessions;})[0].price+' after.'):save>0?h('div',{className:'sv'},icon('check',13),'You save $'+money(save)+' vs single sessions'):h('div',{className:'sv muted'},pkg.sessions===1?'Pay as you go':'Prepaid. Use within 45 days.'),
      h('button',{className:'vf26-btn '+(best?'vf26-btn-blend':'vf26-btn-primary'),onClick:function(){select(pkg);}},'Select package'));})),
    tab==='semi'?h(SemiGroups,{user:user,setCurrentPage:setCurrentPage}):null,
    tab==='semi'?h(SemiTerms,null):null,
