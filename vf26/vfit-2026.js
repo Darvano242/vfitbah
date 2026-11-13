@@ -1088,7 +1088,7 @@ function HomePage(props){
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $195'),' per person ($16.25 a session). 60 minute sessions. Gym membership is separate. 1 on 1 by request.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $200'),' per person ($16.67 a session). 60 minute sessions. Gym membership is separate. 1 on 1 by request.'),
     commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
@@ -1113,7 +1113,7 @@ function HomePage(props){
     h('h2',{className:'vfh-h'},'Personal coaching.',h('span',null,'Small-group energy.')),
     h('p',{className:'vfh-semi-p'},'Train with up to three others while your coach guides your technique, adjusts exercises to your level, and keeps you progressing.')),
     VF_CINEMATIC.semi?h('div',{className:'sg2'},h(CinematicChapters,{asset:VF_CINEMATIC.semi})):h(SemiGroupScene,null),
-    h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$195'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.25 per session on the 12-session package.'),
+    h('div',{className:'vfh-price'},h('p',{className:'amt'},h('b',null,'$200'),h('span',null,' / 12 coached sessions')),h('p',{className:'per'},'Per person. $16.67 per session on the 12-session package.'),
      h('p',{className:'join'},'Join individually. We help find your group.'),h('p',{className:'gym'},'Gym membership is separate.')),
     h('div',{className:'vfh-semi-acts'},
      h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:consult},'Request my free consultation',icon('arrow',16,{className:'vf26-arrow'})),
@@ -1169,7 +1169,7 @@ function HomePage(props){
    ['Training matched to your level','Start where you are and progress as you improve.'],
    ['Accountability and group support','Build consistency with a coach and familiar training partners.'],
    ['Tracked sessions','Know what you have completed and how many sessions remain.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})),
-  h('p',{className:'vfh-dlg-price'},h('b',null,'12 coached sessions. $195 per person.'),' That is $16.25 per session when you purchase the 12-session package.'),
+  h('p',{className:'vfh-dlg-price'},h('b',null,'12 coached sessions. $200 per person.'),' That is $16.67 per session when you purchase the 12-session package.'),
   h('p',null,'Come on your own. We will help match you with a suitable group and schedule.'),
   h('p',{className:'vfh-note'},'Gym membership is separate. Your coach confirms availability and explains package terms before you pay. Sessions are 60 minutes; packages expire 45 days after purchase, with paused time added back; sessions cancelled with less than 24 hours notice may be forfeited.'));
  if(dlg==='app')dialog=h(HomeDialog,{id:'vfh-d-app',onClose:close,wide:true,label:'VFIT app · Train online',title:'Your training. Your food. Your progress, together.',
@@ -1350,7 +1350,7 @@ function pkgSavings(pkg,single){var full=single*pkg.sessions;var amount=Math.rou
 window.vfPkgSavings=pkgSavings;
 var PKG={
  one:[{sessions:1,price:50,title:'Single Session'},{sessions:4,price:120,title:'4-Session Package'},{sessions:6,price:180,title:'6-Session Package'},{sessions:8,price:221,title:'8-Session Package'},{sessions:12,price:294,title:'12-Session Package'}],
- semi:[{sessions:1,price:35,title:'Single Semi Personal Session'},{sessions:4,price:87,title:'4-Session Package'},{sessions:6,price:130,title:'6-Session Package'},{sessions:8,price:173,title:'8-Session Package'},{sessions:12,price:195,title:'12-Session Package'}]
+ semi:[{sessions:1,price:35,title:'Single Semi Personal Session'},{sessions:4,price:110,title:'4-Session Package'},{sessions:6,price:140,title:'6-Session Package'},{sessions:8,price:180,title:'8-Session Package'},{sessions:12,price:200,title:'12-Session Package'}]
 };
 /* 3 month commitment: 36 semi private sessions paid up front, used within 135 days.
    Offered until the end of December 20, 2026, Nassau time. After that it disappears from the site and the admin form. */
@@ -1363,7 +1363,7 @@ function SemiTerms(){
  var t=[['Join on your own','You do not need a partner. We match you with a group whose goals and times fit yours.'],
   ['Small groups','Up to 4 clients per session, with one VFitness coach.'],
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
-  ['Packages','Prices are per person: 1 session $35, 4 for $87, 6 for $130, 8 for $173 or 12 for $195. A package is a block of sessions, not a monthly membership.']].concat(commitLive()?[
+  ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $200. A package is a block of sessions, not a monthly membership.']].concat(commitLive()?[
   ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front and used within '+COMMIT3.expiryDays+' days. It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
@@ -2012,7 +2012,7 @@ function PricingPage(props){
  function select(pkg){if(!user){needAccount({title:'Sign in to buy this package',reason:'Packages are added to your client account, so your sessions, bookings and receipts stay in one place.',keep:'Your '+pkg.sessions+' session package stays selected and checkout opens when you are back.',intent:{page:'pricing',action:'buy',tab:tab,sessions:pkg.sessions}});return;}vfTrack('package_checkout_started',{path:tab+' '+pkg.sessions});setSelected(pkg);setShowModal(true);}
  React.useEffect(function(){if(!user)return;var it=peekIntent();if(!it||it.page!=='pricing'||it.action!=='buy')return;takeIntent();var l=(PKG[it.tab]||PKG.one).concat(it.tab==='semi'&&commitLive()?[COMMIT3]:[]);var pkg=l.filter(function(p){return p.sessions===it.sessions;})[0];if(!pkg)return;setTab(it.tab in PKG?it.tab:'one');setSelected(pkg);setShowModal(true);setTimeout(scrollToId('vf26-packages'),300);},[!!user]);
  var services=[
-  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$16.25',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
+  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$16.67',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
   {icon:'user',name:'1 on 1 Coaching',who:'By request. Ask about coach availability at your consultation.',price:'By request',unit:'',cta:'Ask about 1 on 1',act:lead(setCurrentPage,{vf_lead_type:'1 on 1 by request'})},
   {icon:'dumbbell',name:'Group Training',who:'Motivation in a small group',price:'Ask',unit:'',cta:'Enquire',act:lead(setCurrentPage,{vf_lead_type:'Group'})},
   {icon:'clipboard',name:'Free Consultation and Body Assessment',who:'First timers, goals and body scan',price:'Free',unit:'',cta:'Request my free consultation',act:go(setCurrentPage,'book')}
@@ -2026,7 +2026,7 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight vfh vfh-cats','aria-label':'Choose how to train'},h('div',{className:'vf26-wrap'},h('div',{className:'vfh-route-grid'},
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train in Nassau'),h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $195'),' per person ($16.25 a session). 60 minute sessions. Gym membership is separate.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $200'),' per person ($16.67 a session). 60 minute sessions. Gym membership is separate.'),
     h('button',{type:'button',className:'vf26-link',onClick:function(){vfTrack('coaching_path_selected',{path:'Train in Nassau'});setTab('semi');scrollToId('vf26-packages')();}},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train online'),h('p',{className:'vfh-route-t'},'The VFIT app, with a coach if you want one'),
     h('p',{className:'vfh-route-p'},h('b',null,'From $19.99 a month'),'. Online coaching with a VFITNESS coach from $197 a month.'),
@@ -2041,7 +2041,7 @@ function PricingPage(props){
     h('button',{className:'vf26-btn '+(s.hi?'vf26-btn-primary':'vf26-btn-outline'),onClick:s.act},s.cta));})))),
 
   h('section',{className:'vf26-section tight',id:'vf26-packages'},h('div',{className:'vf26-wrap'},
-   h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $195 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
+   h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $200 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
    tab==='semi'&&commitLive()?h('div',{className:'vf26-commit'},
     h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'3 month commitment · until '+COMMIT3.endsLabel),
      h('h3',null,COMMIT3.sessions+' sessions for $'+COMMIT3.price),

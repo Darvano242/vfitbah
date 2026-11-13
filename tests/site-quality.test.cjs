@@ -16,7 +16,7 @@ test('package savings are computed from prices, never hardcoded', () => {
   assert.ok(!/discount:\d/.test(legacy.slice(0, legacy.indexOf('[oneOnOnePackages,semiPersonalPackages].forEach'))));
   const pkg = vf26Packages();
   const save = (list, n) => { const p = list.find(x => x.sessions === n); const full = list[0].price * n; return Math.round((full - p.price) / full * 1000) / 10; };
-  assert.equal(save(pkg.semi, 8), 38.2);  // $173 against $280 (single session $35)
+  assert.equal(save(pkg.semi, 8), 35.7);  // $180 against $280 (single session $35)
   assert.equal(save(pkg.one, 8), 44.8);   // $221 against $400 (single session $50)
   assert.equal(save(pkg.one, 12), 51);    // $294 against $600
   assert.ok(vf26.includes('function pkgSavings(pkg,single)'));
@@ -88,10 +88,10 @@ test('package savings below 5% are not advertised, and there is no floating Ask 
 
 test('single sessions are $35 semi private and $50 1 on 1, and package prices are unchanged', () => {
   const pkg = vf26Packages();
-  assert.deepEqual(pkg.semi.map(p => p.price), [35, 87, 130, 173, 195]);
+  assert.deepEqual(pkg.semi.map(p => p.price), [35, 110, 140, 180, 200]);
   assert.deepEqual(pkg.one.map(p => p.price), [50, 120, 180, 221, 294]);
   assert.ok(html.includes("'1on1':{1:50,4:120,6:180,8:221,12:294}"));
-  assert.ok(html.includes("Object.assign({1:35,4:87,6:130,8:173,12:195},vfCommitLive?{36:495}:{})"));
+  assert.ok(html.includes("Object.assign({1:35,4:110,6:140,8:180,12:200},vfCommitLive?{36:495}:{})"));
   assert.ok(html.includes('{sessions:1,price:35,title:"Single Semi Personal Session"}'));
 });
 

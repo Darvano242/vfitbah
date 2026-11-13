@@ -171,7 +171,7 @@ if(!html.includes('<title>'+NEW_TITLE+'</title>'))throw new Error('Title not upd
   html=html.slice(0,ldStart)+'<script type="application/ld+json">'+JSON.stringify(ld)+'</script>'+html.slice(ldEnd);
   const ns=`<noscript><main style="max-width:44rem;margin:0 auto;padding:24px;font-family:system-ui,sans-serif;line-height:1.6;color:#f3f4f6;background:#0f1115">
 <h1>VFITNESS: semi private coaching in Nassau, The Bahamas</h1>
-<p>Structured semi private coaching with a clear training plan, personal attention and progress tracking. Groups of up to 4, 60 minute sessions, and you can join on your own. 12 sessions for $195 per person. Gym membership is separate. Packages expire 45 days after purchase.</p>
+<p>Structured semi private coaching with a clear training plan, personal attention and progress tracking. Groups of up to 4, 60 minute sessions, and you can join on your own. 12 sessions for $200 per person. Gym membership is separate. Packages expire 45 days after purchase.</p>
 <p>Training locations: Empire Fitness (Seagrape Plaza, Prince Charles Drive), Fanta C Fitness and the Royal Bahamas Police College. Online training through the VFIT app at vfitnow.app.</p>
 <p>Request a free consultation: WhatsApp or call <a href="tel:+12424549063">242 454 9063</a> or email <a href="mailto:vfitnessbah@gmail.com">vfitnessbah@gmail.com</a>.</p>
 <ul><li><a href="/services">Services and pricing</a></li><li><a href="/team">Coaching team</a></li><li><a href="/results">Client results</a></li><li><a href="/company">Company</a></li><li><a href="/contact">Contact</a></li><li><a href="/events/pink-beach-burn">PINK Beach Burn 2026</a></li></ul>

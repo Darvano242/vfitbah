@@ -60,7 +60,8 @@ inquiry and an approved test purchase.
 
 ## Pricing and retention update (Nov 13, 2026)
 
-Decisions from Darvano on Nov 13, 2026: package prices unchanged; single session $35 semi private and $50 1 on 1;
+Decisions from Darvano on Nov 13, 2026: semi private is now 1 for $35, 4 for $110, 6 for $140, 8 for $180 and 12 for $200
+(was $22, $87, $130, $173, $195); 1 on 1 packages unchanged with the single session at $50;
 3 month commitment of 36 semi private sessions for $495 paid up front, offered until December 20, 2026.
 
 | Item | Status | Notes |
