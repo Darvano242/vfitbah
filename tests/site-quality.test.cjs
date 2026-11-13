@@ -91,15 +91,15 @@ test('single sessions are $35 semi private and $50 1 on 1, and package prices ar
   assert.deepEqual(pkg.semi.map(p => p.price), [35, 110, 140, 180, 215]);
   assert.deepEqual(pkg.one.map(p => p.price), [50, 120, 180, 221, 294]);
   assert.ok(html.includes("'1on1':{1:50,4:120,6:180,8:221,12:294}"));
-  assert.ok(html.includes("Object.assign({1:35,4:110,6:140,8:180,12:vfLegacy?195:215},vfCommitLive?{36:495}:{})"));
+  assert.ok(html.includes("Object.assign({1:35,4:110,6:140,8:180,12:vfLegacy?195:215},vfCommitLive?{36:500}:{})"));
   assert.ok(html.includes('{sessions:1,price:35,title:"Single Semi Personal Session"}'));
 });
 
-test('3 month commitment: 36 sessions, $495, 105 days, new or returning clients, gone after December 20 2026', () => {
+test('3 month flash sale: 36 sessions, $500, 105 days, new or returning clients, gone after December 13 2026', () => {
   const src = vf26.slice(vf26.indexOf('var COMMIT3='), vf26.indexOf('window.vfCommit3=COMMIT3'));
   const tdDate = v => (v && v.toDate ? v.toDate() : v ? new Date(v) : null);
   const { COMMIT3, commitLive, commitCheck } = Function('tdDate', 'tdDb', 'window', `${src};return {COMMIT3,commitLive,commitCheck};`)(tdDate, () => null, {});
-  assert.equal(COMMIT3.sessions, 36); assert.equal(COMMIT3.price, 495); assert.equal(COMMIT3.expiryDays, 105);
+  assert.equal(COMMIT3.sessions, 36); assert.equal(COMMIT3.price, 500); assert.equal(COMMIT3.expiryDays, 105);
   const now = Date.parse('2026-11-13T12:00:00-05:00'), DAY = 86400000;
   assert.equal(commitCheck([], now).ok, true);                                                                      // new client
   assert.equal(commitCheck([{ status: 'active', sessionsRemaining: 4, expiryDate: now + 9 * DAY }], now).ok, false); // training now
@@ -107,10 +107,10 @@ test('3 month commitment: 36 sessions, $495, 105 days, new or returning clients,
   assert.equal(commitCheck([{ status: 'completed', sessionsRemaining: 0, purchaseDate: now - 90 * DAY, completedAt: now - 45 * DAY }], now).ok, true); // returning
   assert.equal(commitCheck([{ status: 'active', sessionsRemaining: 3, purchaseDate: now - 80 * DAY, expiryDate: now - 35 * DAY }], now).ok, true);     // expired and away
   assert.ok(html.includes('window.vfCommitEligible(selectedClient)'));
-  assert.equal(commitLive(Date.parse('2026-12-20T23:30:00-05:00')), true);
-  assert.equal(commitLive(Date.parse('2026-12-21T00:00:30-05:00')), false);
+  assert.equal(commitLive(Date.parse('2026-12-13T23:30:00-05:00')), true);
+  assert.equal(commitLive(Date.parse('2026-12-14T00:00:30-05:00')), false);
   // Admin form uses the same cut-off, and both checkout paths carry the longer validity onto the package.
-  assert.ok(html.includes("Date.now()<=Date.parse('2026-12-21T04:59:59Z')"));
+  assert.ok(html.includes("Date.now()<=Date.parse('2026-12-14T04:59:59Z')"));
   assert.equal(html.split('selectedPackage.expiryDays?{expiryDays:selectedPackage.expiryDays').length - 1, 2);
   const policy = fs.readFileSync(path.join(__dirname, '../scripts/apply-package-policy.js'), 'utf8');
   assert.ok(policy.includes('sessionCount===36?105:45'));

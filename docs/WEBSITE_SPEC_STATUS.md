@@ -73,3 +73,6 @@ clients returning after 30 days or more away, offered until December 20, 2026.
 | VFIT app included | RUNTIME VERIFIED (copy only) | Decision Nov 13, 2026: all package holders have full access to the VFIT app (nutrition planning, weight tracking, online training). Stated on the homepage, Services page, package terms, 3 month commitment card and the no-JavaScript summary. The access itself is granted in the VFIT app, not by this website: NEEDS DARVANO to confirm package holders are unlocked there. |
 | Retention tab | RUNTIME VERIFIED (stand-in data) | Business dashboard > Retention: renewals due (2 or fewer left, or expiring within 7 days), lapsed clients (recent first), open group places. Read only; messages open in WhatsApp or email for the coach to send. Not yet opened with a real staff login. |
 | Homepage coaches and results | RUNTIME VERIFIED (stand-in data) | Coach names and roles on the page, and up to three more published gallery photos (section hidden when there are fewer than two). Headshots still wanted. |
+
+Update later on Nov 13, 2026: the 3 month commitment is sold as the Black Friday and Christmas flash sale: 36 sessions for $500,
+ends December 13, 2026. Clients can start when they are ready; the package expires 105 days after purchase.

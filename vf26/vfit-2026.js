@@ -1091,7 +1091,7 @@ function HomePage(props){
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
     h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
-    commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. New and returning clients.'):null,
+    commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. New and returning clients.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train online'),
@@ -1356,10 +1356,10 @@ var PKG={
  semi:[{sessions:1,price:35,title:'Single Semi Personal Session'},{sessions:4,price:110,title:'4-Session Package'},{sessions:6,price:140,title:'6-Session Package'},{sessions:8,price:180,title:'8-Session Package'},{sessions:12,price:215,title:'12-Session Package'}]
 };
 /* 3 month commitment: 36 semi private sessions paid up front, used within 105 days.
-   Offered until the end of December 20, 2026, Nassau time. After that it disappears from the site and the admin form.
+   Sold as the Black Friday and Christmas flash sale until the end of December 13, 2026, Nassau time. After that it disappears from the site and the admin form.
    For new clients and clients returning after COMMIT_AWAY_DAYS or more away, so it brings people in or back
    instead of discounting clients who are already training. */
-var COMMIT3={sessions:36,price:495,title:'3 Month Commitment, 36 Sessions',expiryDays:105,months:3,ends:'2026-12-21T04:59:59Z',endsLabel:'December 20'};
+var COMMIT3={sessions:36,price:500,title:'3 Month Commitment, 36 Sessions',expiryDays:105,months:3,ends:'2026-12-14T04:59:59Z',endsLabel:'December 13'};
 var COMMIT_AWAY_DAYS=30,COMMIT_WHO='For new clients and clients returning after '+COMMIT_AWAY_DAYS+' days or more away.';
 /* Decide from a client's own packages. New: no packages. Returning: no package in use and nothing bought, trained or
    finished in the last COMMIT_AWAY_DAYS days. */
@@ -1395,7 +1395,7 @@ function SemiTerms(){
   ['60 minute sessions','A written plan for every session, with adjustments for you inside the group.'],
   ['Packages','Prices are per person: 1 session $35, 4 for $110, 6 for $140, 8 for $180 or 12 for $215. A package is a block of sessions, not a monthly membership.'+(legacyLive()?' Clients who had a package with us before November 13, 2026 keep 12 sessions for $'+LEGACY12.price+' until '+LEGACY12.untilLabel+'.':'')],
   ['VFIT app included',APP_INCLUDED+' Use it in your phone browser at vfitnow.app.']].concat(commitLive()?[
-  ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front and used within '+COMMIT3.expiryDays+' days. '+COMMIT_WHO+' It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
+  ['3 month commitment','36 sessions for $'+COMMIT3.price+' per person, paid up front. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. '+COMMIT_WHO+' It does not renew automatically. Available until '+COMMIT3.endsLabel+', 2026.']]:[]).concat([
   ['Training times','Tell us the days and times that suit you. Your coach confirms a recurring group slot before you pay. A preferred time is not a booked slot.'],
   ['Package expiry','Packages expire 45 days after purchase. If your coach pauses your package for travel or injury, the paused time is added back. Ask your coach about make up sessions.'],
   ['Cancellations','Sessions cancelled with less than 24 hours notice may be forfeited.'],
@@ -2082,9 +2082,9 @@ function PricingPage(props){
   h('section',{className:'vf26-section tight',id:'vf26-packages'},h('div',{className:'vf26-wrap'},
    h(SectionHead,{row:true,kicker:'Semi private packages',title:'12 sessions for $215 per person.',lead:'Small groups of up to 4, 60 minute sessions. Gym membership is separate. Buy a block of sessions and track every one in your client portal. Every package includes the VFIT app. 1 on 1 coaching is by request.',right:tab==='one'?h(TabList,{id:'vf26-pkgtabs',label:'Training type',value:tab,onChange:setTab,options:[{value:'semi',label:'Semi private'},{value:'one',label:'1 on 1'}]}):null}),
    tab==='semi'&&commitLive()?h('div',{className:'vf26-commit'},
-    h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'3 month commitment · until '+COMMIT3.endsLabel),
+    h('div',{className:'c-text'},h('p',{className:'vf26-kicker'},'Black Friday and Christmas flash sale · ends '+COMMIT3.endsLabel),
      h('h3',null,COMMIT3.sessions+' sessions for $'+COMMIT3.price),
-     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Use your sessions within '+COMMIT3.expiryDays+' days. Includes full access to the VFIT app. Per person, gym membership separate.'),
+     h('p',null,'Three months of semi private coaching, paid up front. That is $'+money(COMMIT3.price/COMMIT3.months)+' a month'+(commitRegular()>COMMIT3.price?', a saving of $'+money(commitRegular()-COMMIT3.price)+' against three 12 session packages':'')+'. Start when you are ready; the package expires '+COMMIT3.expiryDays+' days after purchase. Includes full access to the VFIT app. Per person, gym membership separate.'),
      h('p',{className:'who'},COMMIT_WHO)),
     h('div',{className:'c-act'},h('div',{className:'amt'},'$'+COMMIT3.price),
      h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:commit.busy,'aria-busy':commit.busy?'true':undefined,onClick:selectCommit},commit.busy?'Checking...':'Choose 3 months',commit.busy?null:icon('arrow',16,{className:'vf26-arrow'})),
