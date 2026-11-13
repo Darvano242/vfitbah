@@ -82,3 +82,6 @@ Services page now breaks down what the 12 session package includes: in person tr
 supplement plan, and full access to the VFIT app. The "Valued at over $400" line rests on 12 single sessions ($420) plus a month of
 the VFIT app; it hides itself if those published prices ever add up to $400 or less. NEEDS DARVANO: every 12 session client must
 actually receive the nutrition and supplement plan.
+
+Nov 13, 2026, 3:27 pm: Darvano took the flash sale off the website while he reworks the offer (COMMIT_ON=false in vf26/vfit-2026.js).
+The card, homepage line, terms row and admin form option are hidden; nothing else changed.

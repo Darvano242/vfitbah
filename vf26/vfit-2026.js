@@ -1376,7 +1376,10 @@ function commitEligible(clientId){var d=tdDb();if(!d||!clientId)return Promise.r
  try{return d.collection('packages').where('clientId','==',clientId).get().then(function(s){return commitCheck(s.docs.map(function(x){return Object.assign({id:x.id},x.data());}));}).catch(function(){return {ok:true,reason:''};});}
  catch(e){return Promise.resolve({ok:true,reason:''});}}
 window.vfCommitEligible=commitEligible;window.vfCommitCheck=commitCheck;
-function commitLive(now){return (now||Date.now())<=Date.parse(COMMIT3.ends);}
+/* Switched off by Darvano on Nov 13, 2026 while he reworks the offer. Set COMMIT_ON to true to bring the card, the
+   homepage line, the terms row and the admin form option back (they still stop by themselves after COMMIT3.ends). */
+var COMMIT_ON=false;
+function commitLive(now){return COMMIT_ON&&(now||Date.now())<=Date.parse(COMMIT3.ends);}
 function commitRegular(){var p12=PKG.semi.filter(function(p){return p.sessions===12;})[0];return p12?p12.price*COMMIT3.months:0;}
 window.vfCommit3=COMMIT3;window.vfCommitLive=commitLive;
 /* Existing clients keep the previous 12 session price until March 1, 2027 (Nassau time).
