@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'vfitness-shell-';
-const CACHE_NAME = CACHE_PREFIX + 'v20261004';
+const CACHE_NAME = CACHE_PREFIX + 'v20261122align';
 const PUBLIC_ASSETS = ['/offline.html', '/manifest.json', '/icon-192.png', '/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(PUBLIC_ASSETS)).then(() => self.skipWaiting()));

@@ -1,0 +1,94 @@
+/* ============================================================
+   VFIT ALIGN - vfitbah.com visual + motion alignment with the
+   VFIT app identity. Flat app-blue primary, restrained teal
+   support, spring motion. Overrides the retired cyan/violet/
+   purple accent utilities without touching page markup.
+   App tokens: primary #1572d5 / #4296f0 (text on dark),
+   teal #5fddcc / #127d72, ease spring cubic-bezier(.2,.8,.2,1).
+   ============================================================ */
+:root{
+  --vfa-primary:#1572d5;
+  --vfa-primary-text:#4296f0;
+  --vfa-teal:#5fddcc;
+  --vfa-teal-deep:#127d72;
+  --vfa-spring:cubic-bezier(.2,.8,.2,1);
+}
+
+/* ---- accent text ---- */
+.text-cyan-400,.text-cyan-500{color:#4296f0!important}
+.text-cyan-300{color:#6cacf4!important}
+.text-blue-400{color:#4296f0!important}
+.text-purple-400,.text-purple-300{color:#5fddcc!important}
+.text-purple-100{color:#c9f3ed!important}
+.text-purple-700{color:#0f6b61!important}
+.text-pink-500{color:#4296f0!important}
+
+/* ---- solid surfaces ---- */
+.bg-cyan-500,.bg-blue-500{background-color:#1572d5!important}
+.bg-cyan-600,.bg-blue-600{background-color:#1166bd!important}
+.bg-cyan-50{background-color:#edf5fd!important}
+.bg-cyan-100{background-color:#dcebfb!important}
+.bg-purple-100{background-color:#d9f4f0!important}
+
+/* ---- tinted fills ---- */
+.bg-cyan-500\/10,.bg-blue-500\/10{background-color:rgba(66,150,240,.1)!important}
+.bg-cyan-500\/20,.bg-blue-500\/20{background-color:rgba(66,150,240,.16)!important}
+.bg-cyan-500\/30{background-color:rgba(66,150,240,.24)!important}
+.bg-purple-500\/10{background-color:rgba(95,221,204,.1)!important}
+.bg-purple-500\/20{background-color:rgba(95,221,204,.16)!important}
+.bg-purple-500\/30{background-color:rgba(95,221,204,.24)!important}
+
+/* ---- borders ---- */
+.border-cyan-500,.border-blue-500{border-color:#1572d5!important}
+.border-cyan-400,.border-blue-400{border-color:#4296f0!important}
+.border-cyan-300{border-color:#9cc8f7!important}
+.border-cyan-200{border-color:#c3dcfa!important}
+.border-cyan-500\/10{border-color:rgba(66,150,240,.14)!important}
+.border-cyan-500\/20,.border-blue-500\/20{border-color:rgba(66,150,240,.2)!important}
+.border-cyan-500\/30,.border-blue-500\/30{border-color:rgba(66,150,240,.3)!important}
+.border-purple-500\/20{border-color:rgba(95,221,204,.22)!important}
+.border-purple-500\/30{border-color:rgba(95,221,204,.3)!important}
+.border-purple-200{border-color:#bfe9e3!important}
+.border-pink-500\/20{border-color:rgba(66,150,240,.2)!important}
+.border-pink-200{border-color:#c3dcfa!important}
+
+/* ---- colored shadows ---- */
+.shadow-cyan-500\/50,.shadow-pink-500\/50,.shadow-purple-500\/50{--tw-shadow-color:rgba(21,114,213,.4)!important;--tw-shadow:var(--tw-shadow-colored)!important}
+
+/* ---- gradients collapse to flat app color ---- */
+.from-cyan-500,.from-cyan-600,.from-blue-500{--tw-gradient-from:#1572d5 var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(21 114 213/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500,.to-blue-600,.to-cyan-500,.to-indigo-500{--tw-gradient-to:#1572d5 var(--tw-gradient-to-position,)!important}
+.from-cyan-500\/10{--tw-gradient-from:rgba(66,150,240,.09) var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgba(66,150,240,0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500\/10,.to-cyan-500\/10{--tw-gradient-to:rgba(66,150,240,.09) var(--tw-gradient-to-position,)!important}
+.from-cyan-500\/20{--tw-gradient-from:rgba(66,150,240,.15) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500\/20{--tw-gradient-to:rgba(66,150,240,.15) var(--tw-gradient-to-position,)!important}
+.from-cyan-50{--tw-gradient-from:#edf5fd var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-50{--tw-gradient-to:#edf5fd var(--tw-gradient-to-position,)!important}
+.from-green-500{--tw-gradient-from:#16a34a var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-emerald-500{--tw-gradient-to:#16a34a var(--tw-gradient-to-position,)!important}
+.from-green-500\/10{--tw-gradient-from:rgba(34,197,94,.1) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-emerald-500\/10{--tw-gradient-to:rgba(34,197,94,.1) var(--tw-gradient-to-position,)!important}
+.from-green-50{--tw-gradient-from:#ecfdf3 var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-emerald-50{--tw-gradient-to:#ecfdf3 var(--tw-gradient-to-position,)!important}
+.from-purple-500,.from-pink-500{--tw-gradient-from:#127d72 var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(18 125 114/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-pink-500,.to-purple-500,.to-fuchsia-500{--tw-gradient-to:#127d72 var(--tw-gradient-to-position,)!important}
+.from-purple-500\/10,.from-pink-500\/10{--tw-gradient-from:rgba(95,221,204,.1) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-pink-500\/10,.to-fuchsia-500\/10,.to-pink-500\/20{--tw-gradient-to:rgba(95,221,204,.1) var(--tw-gradient-to-position,)!important}
+.from-purple-50,.from-pink-50{--tw-gradient-from:#e7f6f4 var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-pink-50,.to-fuchsia-50{--tw-gradient-to:#e7f6f4 var(--tw-gradient-to-position,)!important}
+
+/* ============================================================
+   Motion: springs, reveals, pressed states, nav condensing.
+   Explains, never decorates. All guarded by reduced motion.
+   ============================================================ */
+@media (prefers-reduced-motion: no-preference){
+  button:active,[role="button"]:active{transform:scale(.97)}
+  button,[role="button"]{transition:transform .16s var(--vfa-spring),box-shadow .2s ease,background-color .2s ease,border-color .2s ease,opacity .2s ease}
+}
+
+/* nav condenses into a bar with material blur once scrolled */
+nav.vfa-scrolled{background:rgba(9,11,15,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 8px 24px -16px rgba(0,0,0,.6)}
+
+/* warm CTA flattens too - one color, no sunset ramp */
+.from-yellow-500{--tw-gradient-from:#ea8a0a var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(234 138 10/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-orange-500{--tw-gradient-to:#ea8a0a var(--tw-gradient-to-position,)!important}
