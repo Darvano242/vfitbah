@@ -1,112 +1,85 @@
 /* ============================================================
-   VFIT ALIGN - vfitbah.com visual + motion alignment with the
-   VFIT app identity. Flat app-blue primary, restrained teal
-   support, spring motion. Overrides the retired cyan/violet/
-   purple accent utilities without touching page markup.
-   App tokens: primary #1572d5 / #4296f0 (text on dark),
-   teal #5fddcc / #127d72, ease spring cubic-bezier(.2,.8,.2,1).
+   VFIT ALIGN - harmonizes the remaining legacy accent utilities
+   with the live VFIT 2026 design language, and adds its motion
+   polish. Loaded after vf-tw.css; hooked in by
+   scripts/apply-vfit-align.js as the last build step.
+   VFIT 2026 palette: blue #4296f0, violet #8869ec, sky #7dd3fc,
+   ink #0c0d0e, marine #1c1f27. Signature ramp: blue to violet.
    ============================================================ */
 :root{
-  --vfa-primary:#1572d5;
-  --vfa-primary-text:#4296f0;
-  --vfa-teal:#5fddcc;
-  --vfa-teal-deep:#127d72;
+  --vfa-blue:#4296f0;
+  --vfa-violet:#8869ec;
+  --vfa-sky:#7dd3fc;
   --vfa-spring:cubic-bezier(.2,.8,.2,1);
 }
 
-/* ---- accent text ---- */
-.text-cyan-400,.text-cyan-500{color:#4296f0!important}
-.text-cyan-300{color:#6cacf4!important}
+/* ---- legacy cyan family joins the 2026 blue/sky ---- */
+.text-cyan-400,.text-cyan-500{color:#7dd3fc!important}
+.text-cyan-300{color:#a5e0fd!important}
 .text-blue-400{color:#4296f0!important}
-.text-purple-400,.text-purple-300{color:#5fddcc!important}
-.text-purple-100{color:#c9f3ed!important}
-.text-purple-700{color:#0f6b61!important}
-.text-pink-500{color:#4296f0!important}
-
-/* ---- solid surfaces ---- */
-.bg-cyan-500,.bg-blue-500{background-color:#1572d5!important}
-.bg-cyan-600,.bg-blue-600{background-color:#1166bd!important}
-.bg-cyan-50{background-color:#edf5fd!important}
-.bg-cyan-100{background-color:#dcebfb!important}
-.bg-purple-100{background-color:#d9f4f0!important}
-
-/* ---- tinted fills ---- */
+.bg-cyan-500,.bg-blue-500{background-color:#2b85e8!important}
+.bg-cyan-600,.bg-blue-600{background-color:#1f6fd0!important}
+.bg-cyan-50{background-color:#eaf4fe!important}
+.bg-cyan-100{background-color:#d8eafc!important}
 .bg-cyan-500\/10,.bg-blue-500\/10{background-color:rgba(66,150,240,.1)!important}
 .bg-cyan-500\/20,.bg-blue-500\/20{background-color:rgba(66,150,240,.16)!important}
 .bg-cyan-500\/30{background-color:rgba(66,150,240,.24)!important}
-.bg-purple-500\/10{background-color:rgba(95,221,204,.1)!important}
-.bg-purple-500\/20{background-color:rgba(95,221,204,.16)!important}
-.bg-purple-500\/30{background-color:rgba(95,221,204,.24)!important}
-
-/* ---- borders ---- */
-.border-cyan-500,.border-blue-500{border-color:#1572d5!important}
-.border-cyan-400,.border-blue-400{border-color:#4296f0!important}
-.border-cyan-300{border-color:#9cc8f7!important}
-.border-cyan-200{border-color:#c3dcfa!important}
+.border-cyan-500,.border-blue-500{border-color:#4296f0!important}
+.border-cyan-400,.border-blue-400{border-color:#5ea5f3!important}
+.border-cyan-300{border-color:#9ccbf8!important}
+.border-cyan-200{border-color:#c4def9!important}
 .border-cyan-500\/10{border-color:rgba(66,150,240,.14)!important}
 .border-cyan-500\/20,.border-blue-500\/20{border-color:rgba(66,150,240,.2)!important}
 .border-cyan-500\/30,.border-blue-500\/30{border-color:rgba(66,150,240,.3)!important}
-.border-purple-500\/20{border-color:rgba(95,221,204,.22)!important}
-.border-purple-500\/30{border-color:rgba(95,221,204,.3)!important}
-.border-purple-200{border-color:#bfe9e3!important}
-.border-pink-500\/20{border-color:rgba(66,150,240,.2)!important}
-.border-pink-200{border-color:#c3dcfa!important}
+.shadow-cyan-500\/50{--tw-shadow-color:rgba(66,150,240,.45)!important;--tw-shadow:var(--tw-shadow-colored)!important}
 
-/* ---- colored shadows ---- */
-.shadow-cyan-500\/50,.shadow-pink-500\/50,.shadow-purple-500\/50{--tw-shadow-color:rgba(21,114,213,.4)!important;--tw-shadow:var(--tw-shadow-colored)!important}
+/* ---- legacy purple family joins the 2026 violet ---- */
+.text-purple-400,.text-purple-300{color:#a08df0!important}
+.text-purple-100{color:#ddd3fb!important}
+.text-purple-700{color:#6a4ee0!important}
+.bg-purple-100{background-color:#e4dcfb!important}
+.bg-purple-500\/10{background-color:rgba(136,105,236,.12)!important}
+.bg-purple-500\/20{background-color:rgba(136,105,236,.18)!important}
+.bg-purple-500\/30{background-color:rgba(136,105,236,.26)!important}
+.border-purple-200{border-color:#cfc2f7!important}
+.border-purple-500\/20{border-color:rgba(136,105,236,.24)!important}
+.border-purple-500\/30{border-color:rgba(136,105,236,.32)!important}
+.shadow-purple-500\/50{--tw-shadow-color:rgba(136,105,236,.45)!important;--tw-shadow:var(--tw-shadow-colored)!important}
 
-/* ---- gradients collapse to flat app color ---- */
-.from-cyan-500,.from-cyan-600,.from-blue-500{--tw-gradient-from:#1572d5 var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(21 114 213/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-blue-500,.to-blue-600,.to-cyan-500,.to-indigo-500{--tw-gradient-to:#1572d5 var(--tw-gradient-to-position,)!important}
-.from-cyan-500\/10{--tw-gradient-from:rgba(66,150,240,.09) var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgba(66,150,240,0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-blue-500\/10,.to-cyan-500\/10{--tw-gradient-to:rgba(66,150,240,.09) var(--tw-gradient-to-position,)!important}
-.from-cyan-500\/20{--tw-gradient-from:rgba(66,150,240,.15) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-blue-500\/20{--tw-gradient-to:rgba(66,150,240,.15) var(--tw-gradient-to-position,)!important}
-.from-cyan-50{--tw-gradient-from:#edf5fd var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-blue-50{--tw-gradient-to:#edf5fd var(--tw-gradient-to-position,)!important}
-.from-green-500{--tw-gradient-from:#16a34a var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-emerald-500{--tw-gradient-to:#16a34a var(--tw-gradient-to-position,)!important}
-.from-green-500\/10{--tw-gradient-from:rgba(34,197,94,.1) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-emerald-500\/10{--tw-gradient-to:rgba(34,197,94,.1) var(--tw-gradient-to-position,)!important}
-.from-green-50{--tw-gradient-from:#ecfdf3 var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-emerald-50{--tw-gradient-to:#ecfdf3 var(--tw-gradient-to-position,)!important}
-.from-purple-500,.from-pink-500{--tw-gradient-from:#127d72 var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(18 125 114/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-pink-500,.to-purple-500,.to-fuchsia-500{--tw-gradient-to:#127d72 var(--tw-gradient-to-position,)!important}
-.from-purple-500\/10,.from-pink-500\/10{--tw-gradient-from:rgba(95,221,204,.1) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-pink-500\/10,.to-fuchsia-500\/10,.to-pink-500\/20{--tw-gradient-to:rgba(95,221,204,.1) var(--tw-gradient-to-position,)!important}
-.from-purple-50,.from-pink-50{--tw-gradient-from:#e7f6f4 var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-pink-50,.to-fuchsia-50{--tw-gradient-to:#e7f6f4 var(--tw-gradient-to-position,)!important}
+/* ---- legacy gradients become the 2026 signature ramp ---- */
+.from-cyan-500,.from-blue-500{--tw-gradient-from:#4296f0 var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(66 150 240/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.from-cyan-600{--tw-gradient-from:#3b87d9 var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500,.to-blue-600,.to-cyan-500,.to-indigo-500,.to-purple-500{--tw-gradient-to:#8869ec var(--tw-gradient-to-position,)!important}
+.from-purple-500{--tw-gradient-from:#8869ec var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.from-cyan-500\/10{--tw-gradient-from:rgba(66,150,240,.1) var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgba(66,150,240,0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500\/10{--tw-gradient-to:rgba(136,105,236,.12) var(--tw-gradient-to-position,)!important}
+.from-cyan-500\/20{--tw-gradient-from:rgba(66,150,240,.16) var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-500\/20{--tw-gradient-to:rgba(136,105,236,.18) var(--tw-gradient-to-position,)!important}
+.from-cyan-50{--tw-gradient-from:#eaf4fe var(--tw-gradient-from-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
+.to-blue-50{--tw-gradient-to:#efeafd var(--tw-gradient-to-position,)!important}
 
 /* ============================================================
-   Motion: springs, reveals, pressed states, nav condensing.
-   Explains, never decorates. All guarded by reduced motion.
+   Motion: springs, pressed states, nav condensing, photo settle.
+   Explains, never decorates. Reduced motion guarded.
    ============================================================ */
 @media (prefers-reduced-motion: no-preference){
   button:active,[role="button"]:active{transform:scale(.97)}
   button,[role="button"]{transition:transform .16s var(--vfa-spring),box-shadow .2s ease,background-color .2s ease,border-color .2s ease,opacity .2s ease}
-}
-
-/* nav condenses into a bar with material blur once scrolled */
-nav.vfa-scrolled{background:rgba(9,11,15,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 8px 24px -16px rgba(0,0,0,.6)}
-
-/* warm CTA flattens too - one color, no sunset ramp */
-.from-yellow-500{--tw-gradient-from:#ea8a0a var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(234 138 10/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
-.to-orange-500{--tw-gradient-to:#ea8a0a var(--tw-gradient-to-position,)!important}
-
-/* ---- hero photo settle: the one hero moment, app-style scale settle ---- */
-@media (prefers-reduced-motion: no-preference){
   @keyframes vfa-photo-enter{from{transform:scale(1.05);opacity:.72}to{transform:scale(1);opacity:1}}
   .vfa-photo{animation:vfa-photo-enter 900ms var(--vfa-spring) both}
 }
 
-/* ---- quiet card depth on hover, desktop pointers only ---- */
+/* nav condenses into a bar with material blur once scrolled */
+nav.vfa-scrolled{background:rgba(10,12,16,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 8px 24px -16px rgba(0,0,0,.6)}
+
+/* quiet card depth on hover, desktop pointers only */
 @media (hover:hover) and (prefers-reduced-motion: no-preference){
   .vf-program-card,.mu-program-card{transition:transform .25s var(--vfa-spring),box-shadow .25s ease,border-color .25s ease}
   .vf-program-card:hover,.mu-program-card:hover{transform:translateY(-2px);border-color:rgba(66,150,240,.35);box-shadow:0 18px 44px -22px rgba(0,0,0,.7)}
 }
 
-/* ---- mobile sticky CTA bar gets the app's material treatment ---- */
-.mu-sticky-cta{background:rgba(9,11,15,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid rgba(255,255,255,.08)}
+/* mobile sticky CTA bar gets the material treatment */
+.mu-sticky-cta{background:rgba(10,12,16,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid rgba(255,255,255,.08)}
 
-/* ---- consistent focus ring in the app accent ---- */
+/* consistent focus ring in the 2026 blue */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role="button"]:focus-visible{outline:2px solid #4296f0!important;outline-offset:2px}

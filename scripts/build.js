@@ -7,6 +7,7 @@ const steps = [
   'scripts/verify-vfp-progress-design.js',
   'vf26/apply-vfit-2026-site.js',
   'scripts/apply-professional-hardening.js',
-  'scripts/strip-unused-legacy.js'
+  'scripts/strip-unused-legacy.js',
+  'scripts/apply-vfit-align.js'
 ];
 for (const step of steps) execFileSync(process.execPath, [step], { stdio: 'inherit' });
