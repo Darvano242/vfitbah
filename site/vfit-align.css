@@ -92,3 +92,21 @@ nav.vfa-scrolled{background:rgba(9,11,15,.82)!important;backdrop-filter:blur(20p
 /* warm CTA flattens too - one color, no sunset ramp */
 .from-yellow-500{--tw-gradient-from:#ea8a0a var(--tw-gradient-from-position,)!important;--tw-gradient-to:rgb(234 138 10/0) var(--tw-gradient-to-position,)!important;--tw-gradient-stops:var(--tw-gradient-from),var(--tw-gradient-to)!important}
 .to-orange-500{--tw-gradient-to:#ea8a0a var(--tw-gradient-to-position,)!important}
+
+/* ---- hero photo settle: the one hero moment, app-style scale settle ---- */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes vfa-photo-enter{from{transform:scale(1.05);opacity:.72}to{transform:scale(1);opacity:1}}
+  .vfa-photo{animation:vfa-photo-enter 900ms var(--vfa-spring) both}
+}
+
+/* ---- quiet card depth on hover, desktop pointers only ---- */
+@media (hover:hover) and (prefers-reduced-motion: no-preference){
+  .vf-program-card,.mu-program-card{transition:transform .25s var(--vfa-spring),box-shadow .25s ease,border-color .25s ease}
+  .vf-program-card:hover,.mu-program-card:hover{transform:translateY(-2px);border-color:rgba(66,150,240,.35);box-shadow:0 18px 44px -22px rgba(0,0,0,.7)}
+}
+
+/* ---- mobile sticky CTA bar gets the app's material treatment ---- */
+.mu-sticky-cta{background:rgba(9,11,15,.82)!important;backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-top:1px solid rgba(255,255,255,.08)}
+
+/* ---- consistent focus ring in the app accent ---- */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role="button"]:focus-visible{outline:2px solid #4296f0!important;outline-offset:2px}
