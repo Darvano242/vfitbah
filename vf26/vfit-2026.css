@@ -2341,3 +2341,5 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vf26-page .vf26-about2-media img{height:100%;object-fit:cover}
 .mu-login .rounded-3xl{background-image:none;border-radius:16px;box-shadow:none}
 .mu-login form button.w-full{background-image:none;background-color:var(--vf-primary,#2f7df6);border-radius:12px;box-shadow:none;text-transform:none;letter-spacing:0}
+.vf26-page .vf26-team4-card .ph .sp{display:none} /* the label sat on top of the initials */
+.mu-login form button.w-full.py-4{background:var(--vf-primary,#2f7df6) !important;box-shadow:none !important;text-transform:none;letter-spacing:0;border-radius:12px} /* beats the inline gradient */
