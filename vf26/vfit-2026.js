@@ -1881,7 +1881,7 @@ function NotificationCenter(){
  function say(t,bad){setMsg({text:t,bad:!!bad});}
  function loadOverview(){setErr('');return ncApi('adminOverview').then(setInfo).catch(function(e){setErr(e.message);});}
  React.useEffect(function(){loadOverview();},[]);
- var tabs=[['overview','Overview'],['messages','Messages'],['templates','Templates'],['clients','Client preferences'],['automations','Automations'],['send','Send']];
+ var tabs=[['overview','Overview'],['payments','Payment reminders'],['messages','Messages'],['templates','Templates'],['clients','Client preferences'],['automations','Automations'],['send','Send']];
  return h('section',{className:'vf26-nc','aria-labelledby':'vf26-nc-h'},
   h('div',{className:'head'},h('div',null,h('h2',{id:'vf26-nc-h'},'Notifications'),
    h('p',null,'Booking confirmations, changes, cancellations, reminders 24 hours and 2 hours before, and renewal messages, sent automatically over WhatsApp, SMS or email. Runs every 15 minutes, even with this page closed.')),
@@ -1891,6 +1891,7 @@ function NotificationCenter(){
   err?h('p',{className:'vf26-nc-msg bad'},err,' ',h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:loadOverview},'Try again')):
   !info?h('p',{className:'vf26-nc-dim'},'Loading...'):
   tab==='overview'?h(NcOverview,{info:info,reload:loadOverview,say:say,go:setTab}):
+  tab==='payments'?h(NcPayments,{info:info,say:say}):
   tab==='messages'?h(NcMessages,{info:info,say:say}):
   tab==='templates'?h(NcTemplates,{info:info,say:say,reload:loadOverview}):
   tab==='clients'?h(NcClients,{info:info,say:say}):
@@ -2027,6 +2028,66 @@ function NcSend(p){
   h('p',{className:'vf26-nc-dim'},p.info.settings&&p.info.settings.live?'Messages go out now over each client\'s chosen channel.':'Test mode: messages are prepared and held, not sent.'),
   h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy||!f.note.trim(),onClick:send},busy?'Sending...':'Send'),
   res?h('ul',{className:'vf26-nc-list'},res.map(function(r,k){return h('li',{key:k},(r.name||'Client')+': '+(NC_ST[r.status]||r.status)+(r.channel?' by '+(NC_CH[r.channel]||r.channel):'')+(r.reason?' ('+r.reason+')':''));})):null);
+}
+/* Payment reminders: the admin picks a client, the amount, what it is for and the due date, reads the exact email,
+   then starts it. The server emails the client up to four times (3 days before, on the day, 3 and 7 days after)
+   and stops the moment the reminder is marked paid or stopped. Email only. These send even while the other
+   messages are in test mode, because each one is started here by hand after the preview. */
+function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(v+'T12:00:00'):new Date(v);return d.toLocaleDateString('en-US',/^\d{4}-\d{2}-\d{2}$/.test(v)?{month:'short',day:'numeric'}:{timeZone:'America/Nassau',month:'short',day:'numeric'});}catch(e){return '';}}
+function NcPayments(p){
+ var blank={id:'',uid:'',amount:'',item:'',dueDate:'',note:''};
+ var ds=React.useState(null),data=ds[0],setData=ds[1];
+ var cl=React.useState(null),clients=cl[0],setClients=cl[1];
+ var fs=React.useState(blank),f=fs[0],setF=fs[1];
+ var ps=React.useState(null),pv=ps[0],setPv=ps[1];
+ var ns=React.useState(''),note=ns[0],setNote=ns[1];
+ var bs=React.useState(''),busy=bs[0],setBusy=bs[1];
+ function load(){return ncApi('adminPayList').then(function(j){setData(j);setNote(j.payNote||'');setF(function(x){return x.dueDate?x:Object.assign({},x,{dueDate:j.today||''});});}).catch(function(e){p.say(e.message,true);setData({reminders:[],failed:true});});}
+ React.useEffect(function(){load();ncApi('adminClients').then(function(j){setClients(j.clients||[]);}).catch(function(){setClients([]);});},[]);
+ function set(k,v){var x=Object.assign({},f);x[k]=v;setF(x);setPv(null);}
+ function preview(){setBusy('preview');ncApi('adminPayPreview',f).then(function(j){setPv(j.preview);p.say('');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
+ function start(){setBusy('start');ncApi('adminPaySave',Object.assign({},f,{anyway:!!(pv&&pv.warn)})).then(function(j){setData(Object.assign({},data,{reminders:j.reminders}));p.say((f.id?'Reminder updated for ':'Reminders started for ')+(pv&&pv.name||'the client')+'. '+(pv&&pv.steps&&pv.steps[0]?'First email: '+ncWhen(pv.steps[0].at)+'.':''));setF(Object.assign({},blank,{dueDate:data&&data.today||''}));setPv(null);}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
+ function mark(r,status){if(status==='stopped'&&!window.confirm('Stop the payment emails to '+(r.clientName||'this client')+'?'))return;setBusy(r.id);ncApi('adminPayMark',{id:r.id,status:status}).then(function(j){setData(Object.assign({},data,{reminders:j.reminders}));p.say(status==='paid'?(r.clientName||'Client')+' marked paid. No more emails will go out.':'Emails stopped for '+(r.clientName||'the client')+'.');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
+ function edit(r){setF({id:r.id,uid:r.uid,amount:String(r.amount),item:r.item||'',dueDate:r.dueDate,note:r.note||''});setPv(null);try{document.getElementById('vf26-pay-form').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}}
+ function saveNote(){setBusy('note');ncApi('adminPayNote',{payNote:note}).then(function(j){setNote(j.payNote||'');setPv(null);p.say('Saved. Every payment email now carries that line.');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
+ if(!data)return h('p',{className:'vf26-nc-dim'},'Loading...');
+ var rows=data.reminders||[],open=rows.filter(function(r){return r.status==='active';}),closed=rows.filter(function(r){return r.status!=='active';}).slice(0,8);
+ var ready=f.uid&&Number(f.amount)>0&&f.dueDate;
+ function line(r){var g=r.progress||{},t=g.made+' of '+g.total+' emails prepared';
+  if(r.last)t+='. Last one: '+(NC_ST[r.last.status]||r.last.status)+(r.last.reason?' ('+r.last.reason+')':'')+', '+ncWhen(r.last.at);
+  t+=g.done?'. All reminders have gone out and it is still unpaid.':g.nextAt?'. Next: '+ncWhen(g.nextAt)+'.':'.';return t;}
+ return h('div',{className:'vf26-nc-body'},
+  data.emailReady===false?h('p',{className:'vf26-nc-msg bad'},'Email is not connected yet, so nothing can be sent. Add BREVO_API_KEY as a secret in the VFIT app (Base44) settings.'):null,
+  h('p',{className:'vf26-nc-dim'},'Pick a client who owes a payment and VFITNESS emails them for you: 3 days before the due date, on the day, then 3 and 7 days after. It stops as soon as you mark it paid. These emails go out even while the other notifications are in test mode, because you read and start each one here.'),
+  h('div',{className:'vf26-nc-card',id:'vf26-pay-form'},h('h3',null,f.id?'Change reminder':'Start a reminder'),
+   h('div',{className:'grid'},
+    h('label',{className:'vf26-adm-field'},h('span',null,'Client'),!clients?h('input',{disabled:true,value:'Loading clients...'}):h('select',{value:f.uid,disabled:!!f.id,onChange:function(e){set('uid',e.target.value);}},h('option',{value:''},'Choose a client'),clients.map(function(c){return h('option',{key:c.uid,value:c.uid},c.name+(c.email?'':' (no email)'));}))),
+    h('label',{className:'vf26-adm-field'},h('span',null,'Amount owed (USD)'),h('input',{type:'number',inputMode:'decimal',min:'1',step:'0.01',value:f.amount,placeholder:'215',onChange:function(e){set('amount',e.target.value);}})),
+    h('label',{className:'vf26-adm-field'},h('span',null,'What it is for (the client sees this)'),h('input',{value:f.item,maxLength:120,placeholder:'Semi Private Training, 12 sessions',onChange:function(e){set('item',e.target.value);}})),
+    h('label',{className:'vf26-adm-field'},h('span',null,'Due date'),h('input',{type:'date',value:f.dueDate,onChange:function(e){set('dueDate',e.target.value);}})),
+    h('label',{className:'vf26-adm-field'},h('span',null,'Note for you (never sent)'),h('input',{value:f.note,maxLength:300,onChange:function(e){set('note',e.target.value);}}))),
+   !pv?h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:!ready||busy==='preview','aria-busy':busy==='preview'?'true':undefined,onClick:preview},busy==='preview'?'Preparing...':'Preview email'),
+     f.id?h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){setF(Object.assign({},blank,{dueDate:data.today||''}));setPv(null);}},'Cancel change'):null):
+   h('div',{className:'vf26-bk-review'},
+    pv.warn?h('p',{className:'warn'},pv.warn):null,
+    h('p',null,'To ',h('b',null,pv.name||'Client'),pv.to?' ('+pv.to+')':''),
+    h('p',null,h('b',null,pv.subject)),
+    h('p',null,pv.body),
+    h('ul',null,(pv.steps||[]).map(function(s,i){return h('li',{key:i},s.label+': '+ncWhen(s.at)+(s.soon?' (first email)':''));})),
+    h('p',{className:'vf26-nc-dim'},'Times are Nassau time. Later emails use their own wording and only go out if this is still unpaid.'),
+    h('div',{className:'acts'},pv.to?h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy==='start','aria-busy':busy==='start'?'true':undefined,onClick:start},busy==='start'?'Starting...':f.id?'Save and restart reminders':'Start reminders'):null,
+     h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy==='start',onClick:function(){setPv(null);}},'Change')))),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'Running ('+open.length+')'),
+   !open.length?h('p',{className:'vf26-nc-dim'},'No payment reminders are running.'):
+   h('ul',{className:'vf26-nc-list'},open.map(function(r){return h('li',{key:r.id},
+    h('b',null,(r.clientName||'Client')+': '+ncMoney(r.amount)),' for '+(r.item||'training')+', due '+ncDay(r.dueDate)+'. ',h('small',null,line(r)),r.note?h('small',null,' Note: '+r.note):null,
+    h('div',{className:'acts'},h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:busy===r.id,onClick:function(){mark(r,'paid');}},'Mark paid'),
+     h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy===r.id,onClick:function(){edit(r);}},'Change'),
+     h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy===r.id,onClick:function(){mark(r,'stopped');}},'Stop')));}))),
+  h('div',{className:'vf26-nc-card'},h('h3',null,'How to pay'),
+   h('label',{className:'vf26-adm-field'},h('span',null,'This sentence goes in every payment email'),h('textarea',{rows:2,maxLength:300,value:note,onChange:function(e){setNote(e.target.value);}})),
+   h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:busy==='note',onClick:saveNote},busy==='note'?'Saving...':'Save')),
+  closed.length?h('div',{className:'vf26-nc-card'},h('h3',null,'Closed'),h('ul',{className:'vf26-nc-list'},closed.map(function(r){return h('li',{key:r.id},(r.clientName||'Client')+': '+ncMoney(r.amount)+', '+(r.status==='paid'?'paid':'stopped')+' '+ncDay(r.closedAt)+'. ',h('small',null,(r.progress?r.progress.made:0)+' emails prepared.'));}))):null);
 }
 window.VF26Notifications=vfFenced(NotificationCenter,false);
 

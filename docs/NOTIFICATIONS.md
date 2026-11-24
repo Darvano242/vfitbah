@@ -20,6 +20,18 @@ Every message has a key (kind:record:stage) and is created once. Moved or cancel
 Quiet hours (default 21:30 to 07:00 Nassau) delay messages; a 2 h reminder inside quiet hours is skipped.
 The first run seeds what exists so old bookings are not messaged.
 
+## Payment reminders (Nov 24 2026)
+Notifications > Payment reminders. The admin picks a client, the amount, what it is for and the due date, reads the exact
+first email, then starts it. Email only, up to four emails at 9:00 am Nassau: 3 days before the due date, on the day,
+3 days after and 7 days after (kinds `payment_upcoming`, `payment_due`, `payment_late`, `payment_final`; wording is editable
+under Templates, and the "How to pay" sentence is one setting, `payNote`). A reminder started late sends one email at once and
+never opens with the final wording. "Mark paid" or "Stop" cancels anything waiting; "Change" starts a fresh round.
+One running reminder per client. Rows live in the VFIT entity `sitePaymentReminders` (admin only); logic is
+`paymentSchedule` / `planPayments` in `notifyEngine.js` (tests: `tests/payment-reminders.test.mjs`).
+These emails do not wait for the live switch: each one is started by hand after a preview. They still respect
+"Stop these emails" and quiet hours, and are skipped (with the reason shown) when the client has no email.
+Nothing is detected automatically: the site does not know who has paid, so the admin starts and closes each reminder.
+
 ## Safety
 - Live sending is off until an admin turns it on. The server refuses unless every enabled template on every channel in use
   is approved and each of those channels has a successful test message. Until then messages are "held".
