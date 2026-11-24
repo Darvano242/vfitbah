@@ -2261,7 +2261,8 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 
 @media (min-width:640px){
  .vfx-wrap{padding:0 32px}
- .vfx-hero-acts{flex-direction:row;align-items:center;gap:8px 28px}
+ .vfx-hero-acts{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px 28px}
+ .vfx-hero .vfx-text-link{white-space:nowrap}
  .vfx-hero .vfx-cta{width:auto}
  .vfx-strip{grid-template-columns:repeat(3,1fr)}
  .vfx-results{grid-template-columns:repeat(4,1fr)}
