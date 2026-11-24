@@ -1238,7 +1238,7 @@ function HomePageV3(props){
    h('h2',{id:'vfx-ways-h',className:'vfx-h2'},'Two ways to train.'),
    h('div',{className:'vfx-ways'},
     h('article',{className:'vfx-way'},
-     h('div',{className:'vfx-way-media vfx-way-portrait'},img('/vf26/darvano-andrews.webp','The founder and head coach of VFITNESS',720,900)),
+     h('div',{className:'vfx-way-media'},img('/vf26/empire-fitness.webp','The entrance of Empire Fitness in Nassau, where VFITNESS coaches train clients',930,698)),
      h('p',{className:'vfx-over'},'Small group coaching'),
      h('h3',{className:'vfx-h3'},'Train in Nassau'),
      h('p',{className:'vfx-p'},'Semi private sessions with a VFITNESS coach and up to three other clients. 60 minutes, a written plan and tracked sessions.'),
@@ -1328,7 +1328,7 @@ function HomePageV3(props){
   h('div',{className:'vfx-wrap vfx-narrow'},
    h('h2',{id:'vfx-faq-h',className:'vfx-h2'},'Questions, answered.'),
    h('div',{className:'vfx-faq'},faq.map(function(q,i){return h('details',{key:i},h('summary',null,q[0]),h('p',null,q[1]));})),
-   navA('faq',go(setCurrentPage,'faq'),{className:'vfx-text-link'},h(React.Fragment,null,'All questions',icon('arrow',15))))):null;
+   navA('contact',go(setCurrentPage,'contact'),{className:'vfx-text-link'},h(React.Fragment,null,'Ask us something else',icon('arrow',15))))):null;
 
  var closing=h('section',{className:'vfx-sec vfx-dark vfx-closing','aria-labelledby':'vfx-end-h'},
   h('div',{className:'vfx-wrap vfx-narrow'},
@@ -2681,7 +2681,7 @@ function Gallery(){
  function prev(){setIdx(function(i){return n?(i-1+n)%n:0;});}
  React.useEffect(function(){if(n<2||paused||reduceMotion)return;var t=setTimeout(next,5000);return function(){clearTimeout(t);};},[n,idx,paused]);
  React.useEffect(function(){function k(e){if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='Escape')setFull(false);}window.addEventListener('keydown',k);return function(){window.removeEventListener('keydown',k);};},[n]);
- if(!n)return h('div',{className:'vf26-gallery empty'},h('img',{src:'/vf26/strength-editorial-v1.webp',alt:'VFitness training session'}));
+ if(!n)return h('div',{className:'vf26-gallery empty'},h('img',{src:'/vf26/empire-fitness.webp',alt:'The entrance of Empire Fitness in Nassau',width:930,height:698,loading:'lazy'}));
  var cur=gallery[idx]||gallery[0];
  return h('div',{className:'vf26-gallery',onMouseEnter:function(){setPaused(true);},onMouseLeave:function(){setPaused(false);}},
   h('div',{className:'vf26-gallery-main',onTouchStart:function(e){touch.current=e.touches[0].clientX;},onTouchEnd:function(e){if(touch.current==null)return;var d=touch.current-e.changedTouches[0].clientX;if(Math.abs(d)>50){d>0?next():prev();}touch.current=null;}},
@@ -2709,7 +2709,7 @@ function AboutPage(props){
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau coaching team delivering personal training across three locations and online coaching through the VFIT app.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-about2'},
-   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/welcome-glute-v1.webp',alt:'A VFitness client training in a Nassau gym',loading:'lazy'})),
+   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/team-four-2026-sm.webp',srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 900px) 50vw, 100vw',alt:'The four VFITNESS coaches together',width:1600,height:1200,loading:'lazy'})),
    h(Reveal,{className:'vf26-about2-copy',delay:80},
     h('p',{className:'vf26-kicker'},'Our story'),
     h('h2',{className:'vf26-h2'},'One team. One coaching standard.'),

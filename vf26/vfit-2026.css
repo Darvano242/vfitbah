@@ -2292,3 +2292,41 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
  .vfx-h2{margin-bottom:28px}
 }
 @media (prefers-reduced-motion:reduce){.vfx-text-link svg{transition:none}}
+
+/* ================= PUBLIC PAGES V3 (Nov 24 2026) =================
+   Brings Services, Team, Results, Company, Contact, the event story, sign in and the intake onto the homepage's
+   system by restyling the shared parts (page hero, section heading, kicker, chips, cards, icon tiles, buttons).
+   Scoped to .vf26-page, the sign-in and intake shells and the footer. No !important. Layout and behaviour of each page are unchanged. */
+.vf26-page,.vf26-shell-auth,.vf26-shell-doc{--x-r:14px}
+/* Page hero: plain label, one colour headline */
+.vf26-page .vf26-eyebrow{display:block;margin-bottom:.75rem;padding:0;border:0;background:none;box-shadow:none;font-size:.875rem;font-weight:500;letter-spacing:0;text-transform:none;color:var(--vf-mute)}
+.vf26-page .vf26-eyebrow i{display:none}
+.vf26-page .vf26-ph1{font-size:clamp(2.25rem,8.4vw,4.5rem);line-height:1.03;letter-spacing:-.035em;font-weight:700;text-wrap:balance}
+.vf26-page .vf26-ph1 span{margin-top:0;color:inherit;background:none;-webkit-text-fill-color:currentColor}
+.vf26-page .vf26-phero{border-bottom:0}
+.vf26-page .vf26-lead{font-size:1.0625rem;line-height:1.6;max-width:58ch}
+/* Section headings and labels */
+.vf26-page .vf26-kicker,.vf26-shell-auth .vf26-kicker,.vf26-page .vfh-label{margin:0 0 .6rem;font-size:.875rem;font-weight:500;letter-spacing:0;text-transform:none;color:var(--vf-mute)}
+.vf26-page .vf26-kicker::before,.vf26-page .vf26-kicker::after{content:none}
+.vf26-page .vf26-h2{font-size:clamp(1.75rem,4.8vw,2.875rem);line-height:1.08;letter-spacing:-.03em;font-weight:650;text-wrap:balance}
+.vf26-page h3,.vf26-page h4{letter-spacing:-.015em;text-transform:none}
+.vf26-page dt{letter-spacing:0;text-transform:none}
+.vf26-page .vf26-section{padding-top:clamp(3.5rem,8vw,6.5rem);padding-bottom:clamp(3.5rem,8vw,6.5rem)}
+.vf26-page .vf26-section.tight{padding-top:clamp(2.5rem,6vw,4.5rem);padding-bottom:clamp(2.5rem,6vw,4.5rem)}
+/* Surfaces: flat, one radius, no glow */
+.vf26-page :is(.vf26-command,.vf26-pkg,.vf26-svc,.vf26-trainer,.vf26-story,.vf26-value,.vf26-app-plan,.vf26-contact,.vf26-loc,.vf26-incl,.vf26-licence,.vf26-panel,.vf26-hours,.vf26-ev-hero,.vf26-about2-media,.vf26-groups-wrap,.vf26-semi,.vf26-remote-price,.vfj-frame,.vfj-thumb,.vf26-tabs){border-radius:var(--x-r);box-shadow:none;background-image:none}
+.vf26-page :is(.vf26-pkg,.vf26-svc,.vf26-trainer,.vf26-story,.vf26-app-plan,.vf26-contact,.vf26-loc):hover{box-shadow:none;transform:none}
+.vf26-page .vf26-trainer-media{background-image:none}
+.vf26-page .vf26-about2-media img{display:block;width:100%;height:auto}
+/* Icon tiles: neutral, no gradient */
+.vf26-page .vf26-icon-tile{background:none;background-image:none;box-shadow:none;border:1px solid var(--vf-border);border-radius:10px;color:inherit}
+.vf26-page .vf26-icon-tile svg{color:currentColor}
+/* Chips and filters: sentence case, quiet */
+.vf26-page .vf26-chip{font-size:.875rem;font-weight:500;letter-spacing:0;text-transform:none;border-radius:10px}
+/* Buttons: flat fill, 12px corners */
+.vf26-page .vf26-btn,.vf26-shell-auth .vf26-btn{border-radius:12px;box-shadow:none}
+.vf26-page .vf26-btn-blend,.vf26-shell-auth .vf26-btn-blend,.vf26-shell-auth button[type="submit"]{background-image:none;background-color:var(--vf-primary);box-shadow:none;letter-spacing:0;text-transform:none}
+.vf26-page .vf26-btn-primary:hover,.vf26-shell-auth .vf26-btn-primary:hover{box-shadow:none}
+/* Footer headings */
+.vf26-footer .vf26-foot-h{font-size:.875rem;font-weight:600;letter-spacing:0;text-transform:none}
+@media (min-width:900px){.vf26-page .vf26-lead{font-size:1.125rem}}
