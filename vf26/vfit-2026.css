@@ -2163,8 +2163,9 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-h2{margin:0 0 20px;font-size:clamp(1.875rem,5vw,3.25rem);line-height:1.08;letter-spacing:-.03em;font-weight:650;color:var(--x-ink);text-wrap:balance}
 .vfx-h3{margin:0 0 6px;font-size:1.375rem;line-height:1.2;letter-spacing:-.015em;font-weight:650;color:var(--x-ink)}
 .vfx-p{margin:0 0 16px;font-size:1.0625rem;line-height:1.6;color:var(--x-mut);max-width:58ch}
-.vfx-kicker,.vfx-eyebrow{margin:0 0 12px;font-size:.875rem;line-height:1.3;font-weight:500;color:var(--x-mut);letter-spacing:0}
-.vfx-note{margin:14px 0 0;font-size:.875rem;line-height:1.55;color:var(--x-mut);max-width:62ch}
+.vfx-over,.vfx-eyebrow{margin:0 0 12px;font-size:.875rem;line-height:1.3;font-weight:500;color:var(--x-mut);letter-spacing:0;text-transform:none}
+.vfx-note{margin:14px 0 0;font-size:.875rem;line-height:1.55;font-weight:400;color:var(--x-mut);max-width:62ch}
+.vfx-note b{font-weight:600;color:var(--x-ink)}
 .vfx-from{margin:0 0 10px;font-size:1.0625rem;font-weight:600;color:var(--x-ink)}
 .vfx-text-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;border:0;background:none;font:inherit;font-size:1rem;font-weight:600;color:var(--x-ink);text-decoration:none;cursor:pointer}
 .vfx-text-link svg{width:16px;height:16px;transition:transform .18s ease}
@@ -2176,9 +2177,9 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-head .vfx-h2{margin-bottom:12px}
 
 /* Hero: obsidian, headline left, the founder's portrait right. The portrait has a black studio background, so it sits flush. */
-.vfx-hero{background:#0a0a0a;color:var(--x-dk-ink)}
+.vfx-hero{background:#0a0a0a;color:var(--x-dk-ink);padding-top:var(--vfx-head,84px)}
 .vfx-hero-in{display:grid;grid-template-columns:1fr;max-width:1320px;margin:0 auto}
-.vfx-hero-copy{padding:40px 20px 36px;order:2}
+.vfx-hero-copy{padding:28px 20px 36px;order:2}
 .vfx-hero .vfx-eyebrow{color:var(--x-dk-mut)}
 .vfx-lead{margin:20px 0 0;font-size:1.125rem;line-height:1.55;color:#d6d8d3;max-width:34ch}
 .vfx-hero-acts{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-top:28px}
@@ -2186,8 +2187,8 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-hero .vfx-text-link{color:var(--x-dk-ink)}
 .vfx-fine{margin:16px 0 0;font-size:.875rem;line-height:1.55;color:var(--x-dk-mut);max-width:44ch}
 .vfx-fine a{color:var(--x-dk-ink);text-decoration:underline;text-underline-offset:3px}
-.vfx-hero-photo{position:relative;margin:0;order:1;height:min(62vw,340px);overflow:hidden}
-.vfx-hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 16%}
+.vfx-hero-photo{position:relative;margin:0;order:1;height:min(78vw,360px);overflow:hidden}
+.vfx-hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 4%}
 .vfx-hero-photo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38%;background:linear-gradient(to top,#0a0a0a,rgba(10,10,10,0))}
 .vfx-hero-photo figcaption{position:absolute;left:20px;bottom:12px;z-index:1;display:flex;flex-direction:column;font-size:.8125rem;color:var(--x-dk-mut)}
 .vfx-hero-photo figcaption b{font-size:.9375rem;font-weight:600;color:var(--x-dk-ink)}
@@ -2211,8 +2212,8 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-list li:last-child{border-bottom:1px solid var(--x-line)}
 .vfx-price{padding:24px;border-radius:16px;background:var(--x-dk-card)}
 .vfx-price-top{display:flex;flex-direction:column;gap:4px;margin:0 0 16px}
-.vfx-price-top b{font-size:clamp(3rem,12vw,4.5rem);line-height:1;font-weight:650;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-.vfx-price-top span{font-size:1rem;color:var(--x-mut)}
+.vfx-price-top b{font-size:clamp(3rem,12vw,4.5rem);line-height:1;font-weight:650;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--x-ink);background:none;-webkit-text-fill-color:currentColor}
+.vfx-price-top span{font-size:1rem;font-weight:400;color:var(--x-mut)}
 .vfx-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .vfx-table th,.vfx-table td{padding:12px 0;border-top:1px solid var(--x-line);font-size:1rem;font-weight:400;text-align:left;color:var(--x-ink)}
 .vfx-table thead th{border-top:0;padding-top:0;font-size:.8125rem;color:var(--x-mut)}
@@ -2270,11 +2271,11 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 }
 @media (min-width:900px){
  .vfx-sec{padding:120px 0}
- .vfx-hero-in{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:stretch;min-height:min(78vh,760px)}
+ .vfx-hero-in{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:stretch;min-height:min(74vh,720px)}
  .vfx-hero-copy{order:1;align-self:center;padding:72px 32px 72px 48px}
  .vfx-lead{font-size:1.3125rem;max-width:30ch}
  .vfx-hero-photo{order:2;height:auto;min-height:560px}
- .vfx-hero-photo img{position:absolute;inset:0;object-position:50% 20%}
+ .vfx-hero-photo img{position:absolute;inset:0;object-position:50% 12%}
  .vfx-hero-photo::after{left:0;right:auto;top:0;bottom:0;width:30%;height:auto;background:linear-gradient(to right,#0a0a0a,rgba(10,10,10,0))}
  .vfx-hero-photo figcaption{left:auto;right:32px;bottom:28px;text-align:right}
  .vfx-facts{padding:0 48px}
