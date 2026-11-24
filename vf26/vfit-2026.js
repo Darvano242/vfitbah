@@ -1090,7 +1090,7 @@ function HomePageClassic(props){
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person. 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
     commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. $'+COMMIT3.activePrice+' for active clients.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
@@ -2298,7 +2298,7 @@ function PricingPage(props){
   if(it.tab==='semi'&&pkg.sessions===LEGACY12.sessions){legacyEligible(user.uid||user.id).then(function(r){setSelected(r?legacyList([pkg])[0]:pkg);setShowModal(true);});return;}
   setSelected(pkg);setShowModal(true);},[!!user]);
  var services=[
-  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$17.92',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
+  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$215',unit:'for 12 sessions',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
   {icon:'user',name:'1 on 1 Coaching',who:'By request. Ask about coach availability at your consultation.',price:'By request',unit:'',cta:'Ask about 1 on 1',act:lead(setCurrentPage,{vf_lead_type:'1 on 1 by request'})},
   {icon:'dumbbell',name:'Group Training',who:'Motivation in a small group',price:'Ask',unit:'',cta:'Enquire',act:lead(setCurrentPage,{vf_lead_type:'Group'})},
   {icon:'clipboard',name:'Free Consultation and Body Assessment',who:'First timers, goals and body scan',price:'Free',unit:'',cta:'Request my free consultation',act:go(setCurrentPage,'book')}
@@ -2312,7 +2312,7 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight vfh vfh-cats','aria-label':'Choose how to train'},h('div',{className:'vf26-wrap'},h('div',{className:'vfh-route-grid'},
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train in Nassau'),h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person. 60 minute sessions. VFIT app included. Gym membership is separate.'),
     h('button',{type:'button',className:'vf26-link',onClick:function(){vfTrack('coaching_path_selected',{path:'Train in Nassau'});setTab('semi');scrollToId('vf26-packages')();}},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train online'),h('p',{className:'vfh-route-t'},'The VFIT app, with a coach if you want one'),
     h('p',{className:'vfh-route-p'},h('b',null,'From $19.99 a month'),'. Online coaching with a VFITNESS coach from $197 a month.'),

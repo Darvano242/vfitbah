@@ -2330,3 +2330,14 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 /* Footer headings */
 .vf26-footer .vf26-foot-h{font-size:.875rem;font-weight:600;letter-spacing:0;text-transform:none}
 @media (min-width:900px){.vf26-page .vf26-lead{font-size:1.125rem}}
+/* Public pages V3, second pass: one typeface, sentence case labels, flat tags, sign in */
+.vf26-page.vf26-page :is(.nm,.nm b,.mono,.n,.v,.p,.pr b,.cap b,.av,.ses b,dd){font-family:inherit;letter-spacing:-.02em}
+.vf26-page .vf26-condensed{font-family:inherit !important;letter-spacing:-.02em} /* the base rule is !important */
+.vf26-page.vf26-page :is(.badge,.rl,.k,.tag,.pr em,.ses span,.nm span,.vf26-mini-stats span,.vf26-story-facts span){text-transform:none;letter-spacing:0;font-weight:500}
+.vf26-page.vf26-page .rl{color:var(--vf-mute);font-size:.9375rem}
+.vf26-page.vf26-page .tag{background-image:none;background-color:var(--vf-primary);border-radius:8px;box-shadow:none}
+.vf26-page.vf26-page .tag.soft{background-color:transparent;border:1px solid var(--vf-border);color:inherit}
+.vf26-page .vf26-about2-media{aspect-ratio:4/3}
+.vf26-page .vf26-about2-media img{height:100%;object-fit:cover}
+.mu-login .rounded-3xl{background-image:none;border-radius:16px;box-shadow:none}
+.mu-login form button.w-full{background-image:none;background-color:var(--vf-primary,#2f7df6);border-radius:12px;box-shadow:none;text-transform:none;letter-spacing:0}
