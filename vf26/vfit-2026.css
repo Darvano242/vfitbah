@@ -2187,9 +2187,9 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-hero .vfx-text-link{color:var(--x-dk-ink)}
 .vfx-fine{margin:16px 0 0;font-size:.875rem;line-height:1.55;color:var(--x-dk-mut);max-width:44ch}
 .vfx-fine a{color:var(--x-dk-ink);text-decoration:underline;text-underline-offset:3px}
-.vfx-hero-photo{position:relative;margin:0;order:1;height:min(78vw,360px);overflow:hidden}
-.vfx-hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 4%}
-.vfx-hero-photo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:38%;background:linear-gradient(to top,#0a0a0a,rgba(10,10,10,0))}
+.vfx-hero-photo{position:relative;margin:0;order:1;aspect-ratio:4/3;max-height:420px;width:100%;overflow:hidden}
+.vfx-hero-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 42%}
+.vfx-hero-photo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(to top,#0a0a0a,rgba(10,10,10,0))}
 .vfx-hero-photo figcaption{position:absolute;left:20px;bottom:12px;z-index:1;display:flex;flex-direction:column;font-size:.8125rem;color:var(--x-dk-mut)}
 .vfx-hero-photo figcaption b{font-size:.9375rem;font-weight:600;color:var(--x-dk-ink)}
 .vfx-facts{display:grid;grid-template-columns:repeat(3,1fr);max-width:1320px;margin:0 auto;padding:0 20px;border-top:1px solid var(--x-dk-line)}
@@ -2202,6 +2202,7 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 .vfx-ways{display:grid;grid-template-columns:1fr;gap:48px}
 .vfx-way-media{aspect-ratio:4/3;margin-bottom:20px;border-radius:14px;overflow:hidden;background:var(--x-alt)}
 .vfx-way-media img{display:block;width:100%;height:100%;object-fit:cover}
+.vfx-way-portrait img{object-position:50% 10%}
 .vfx-way-phones{display:flex;align-items:flex-end;justify-content:center;gap:5%;padding:8% 8% 0}
 .vfx-way-phones img{width:38%;height:auto;object-fit:contain;border-radius:18px 18px 0 0;border:1px solid var(--x-line);border-bottom:0}
 
@@ -2271,12 +2272,12 @@ html[data-vf26]:has(> body[style*="overflow: hidden"]){overflow:hidden !importan
 }
 @media (min-width:900px){
  .vfx-sec{padding:120px 0}
- .vfx-hero-in{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:stretch;min-height:min(74vh,720px)}
- .vfx-hero-copy{order:1;align-self:center;padding:72px 32px 72px 48px}
+ .vfx-hero-in{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:stretch;min-height:min(74vh,720px)}
+ .vfx-hero-copy{order:1;align-self:center;padding:64px 40px 64px 48px}
  .vfx-lead{font-size:1.3125rem;max-width:30ch}
- .vfx-hero-photo{order:2;height:auto;min-height:560px}
- .vfx-hero-photo img{position:absolute;inset:0;object-position:50% 12%}
- .vfx-hero-photo::after{left:0;right:auto;top:0;bottom:0;width:30%;height:auto;background:linear-gradient(to right,#0a0a0a,rgba(10,10,10,0))}
+ .vfx-hero-photo{order:2;aspect-ratio:auto;max-height:none;height:auto;min-height:560px}
+ .vfx-hero-photo img{position:absolute;inset:0;object-position:50% 40%}
+ .vfx-hero-photo::after{left:0;right:auto;top:0;bottom:0;width:22%;height:auto;background:linear-gradient(to right,#0a0a0a,rgba(10,10,10,0))}
  .vfx-hero-photo figcaption{left:auto;right:32px;bottom:28px;text-align:right}
  .vfx-facts{padding:0 48px}
  .vfx-facts div{padding:28px 0}
