@@ -1054,7 +1054,7 @@ function HomePanel(p){
  if(p.page)return navA(p.page,p.run,{className:cls,'aria-label':p.name},inner);
  return h('button',{type:'button',className:cls,onClick:p.onOpen,'aria-label':p.name,'aria-haspopup':'dialog'},inner);
 }
-function HomePage(props){
+function HomePageClassic(props){
  var setCurrentPage=props.setCurrentPage;
  React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);
  var ds=React.useState(null),dlg=ds[0],setDlg=ds[1];
@@ -1090,7 +1090,7 @@ function HomePage(props){
    h('div',{className:'vfh-route'},
     h('p',{className:'vfh-label'},'Train in Nassau'),
     h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person. 60 minute sessions. VFIT app included. Gym membership is separate. 1 on 1 by request.'),
     commitLive()?h('p',{className:'vfh-route-p vfh-offer'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. $'+COMMIT3.activePrice+' for active clients.'):null,
     h('button',{type:'button',className:'vf26-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},
@@ -1189,6 +1189,171 @@ function HomePage(props){
    h('div',{className:'vfh-stage'},routes,sceneSec,semiSec,strengthSec,gallery,coachesSec,resultsSec,steps,h(PromoSlider,null))),
   dialog);
 }
+
+/* ================= HOMEPAGE V3 (Nov 24 2026) =================
+   Editorial layout: one full-width hero, then one idea per section. Same flows as before: the consultation
+   intake (lead), WhatsApp, pricing anchors, client portal, results, coaches, events. Styles are the "vfx" block at
+   the end of vfit-2026.css, scoped to .vfx, with no overrides of other pages.
+   Roll back without a deploy: set window.VF_HOME_CLASSIC = true before this script, or revert the commit.
+   Only real VFITNESS media is used here (founder portrait, team photo, event photos, app screens, client gallery). */
+function HomePageV3(props){
+ var setCurrentPage=props.setCurrentPage;
+ React.useEffect(function(){try{window.scrollTo(0,0);}catch(e){}},[]);
+ var ds=React.useState(null),dlg=ds[0],setDlg=ds[1];
+ var gal=useGallery();var photos=(gal||[]).filter(function(x){return x.imageUrl;}).slice(0,4);
+ function svc(id){return function(){go(setCurrentPage,'pricing')();setTimeout(scrollToId(id),400);};}
+ function route(name,id){return function(){vfTrack('coaching_path_selected',{path:name});svc(id)();};}
+ var consult=lead(setCurrentPage,{vf_lead_type:'Semi private'});
+ var close=function(){setDlg(null);};
+ function arrow(){return icon('arrow',16,{className:'vf26-arrow'});}
+ function cta(label){return h('button',{type:'button',className:'vf26-btn vf26-btn-primary vfx-cta',onClick:consult},label||'Request my free consultation',arrow());}
+ function img(src,alt,w,hgt,extra){return h('img',Object.assign({src:src,alt:alt||'',width:w,height:hgt,loading:'lazy',decoding:'async'},extra||{}));}
+ function toWays(e){if(e)e.preventDefault();var el=document.getElementById('vfx-ways');if(el){try{el.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});}catch(x){el.scrollIntoView();}}}
+ var semi=PKG.semi,top=semi[semi.length-1],single=semi[0];
+ var faq=[];try{faq=((typeof VF_FAQ!=='undefined'&&VF_FAQ)||[]).slice(0,5);}catch(e){}
+ var HOW=[['Tell us your goal','Four short steps: your goal, how you want to train, your contact details and when you can train.'],['A coach contacts you','A VFITNESS coach reviews your answers and contacts you to confirm a consultation time.'],['Start training','Your coach confirms your plan and group time before you pay. Sessions and invoices live in your client portal.']];
+
+ var hero=h('section',{className:'vfx-hero','aria-labelledby':'vfx-h1'},
+  h('div',{className:'vfx-hero-in'},
+   h('div',{className:'vfx-hero-copy'},
+    h('p',{className:'vfx-eyebrow'},'Nassau, The Bahamas'),
+    h(PromoHeadliner,null),
+    h('h1',{id:'vfx-h1',className:'vfx-h1'},'Build strength.',h('br',null),'See your progress.'),
+    h('p',{className:'vfx-lead'},'Expert coaching in small groups of up to four, here in Nassau. Or train anywhere with the VFIT app.'),
+    h('div',{className:'vfx-hero-acts'},
+     cta(),
+     h('a',{className:'vfx-text-link',href:'#vfx-ways',onClick:toWays},'Explore training options',icon('arrow',15))),
+    h('p',{className:'vfx-fine'},'A coach contacts you to confirm a suitable time. Prefer to chat? ',
+     h('a',{href:waLink('home'),target:'_blank',rel:'noopener noreferrer',onClick:function(){vfTrack('whatsapp_clicked',{path:'home'});}},'Message us on WhatsApp'),'.')),
+   h('figure',{className:'vfx-hero-photo'},
+    h('img',{src:'/vf26/team-four-2026-sm.webp',srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 900px) 58vw, 100vw',alt:'The four VFITNESS coaches together',width:1600,height:1200,loading:'eager',decoding:'async',fetchpriority:'high'}),
+    h('figcaption',null,h('b',null,'The VFITNESS coaching team'),'Nassau, The Bahamas'))),
+  h('dl',{className:'vfx-facts'},
+   h('div',null,h('dd',null,'2,000+'),h('dt',null,'Clients served')),
+   h('div',null,h('dd',null,'2018'),h('dt',null,'Coaching since')),
+   h('div',null,h('dd',null,'3'),h('dt',null,'Nassau locations'))));
+
+ var ways=h('section',{id:'vfx-ways',className:'vfx-sec','aria-labelledby':'vfx-ways-h'},
+  h('div',{className:'vfx-wrap'},
+   h('h2',{id:'vfx-ways-h',className:'vfx-h2'},'Two ways to train.'),
+   h('div',{className:'vfx-ways'},
+    h('article',{className:'vfx-way'},
+     h('div',{className:'vfx-way-media'},img('/vf26/empire-fitness.webp','The entrance of Empire Fitness in Nassau, where VFITNESS coaches train clients',930,698)),
+     h('p',{className:'vfx-over'},'Small group coaching'),
+     h('h3',{className:'vfx-h3'},'Train in Nassau'),
+     h('p',{className:'vfx-p'},'Semi private sessions with a VFITNESS coach and up to three other clients. 60 minutes, a written plan and tracked sessions.'),
+     h('p',{className:'vfx-from'},'From $'+single.price+' a session'),
+     h('button',{type:'button',className:'vfx-text-link',onClick:route('Train in Nassau','vf26-packages')},'Nassau packages',icon('arrow',15))),
+    h('article',{className:'vfx-way'},
+     h('div',{className:'vfx-way-media vfx-way-phones'},img('/vf26/wt-3-train.webp','VFIT app training screen',420,840),img('/vf26/wt-5-progress.webp','VFIT app progress screen',420,840)),
+     h('p',{className:'vfx-over'},'The VFIT app'),
+     h('h3',{className:'vfx-h3'},'Train anywhere'),
+     h('p',{className:'vfx-p'},'Guided workouts, food logging and your progress in one app. Add a VFITNESS coach whenever you want one.'),
+     h('p',{className:'vfx-from'},'From $19.99 a month'),
+     h('button',{type:'button',className:'vfx-text-link',onClick:route('Train online','vf26-remote')},'Online plans',icon('arrow',15))))));
+
+ var flagship=h('section',{className:'vfx-sec vfx-dark','aria-labelledby':'vfx-semi-h'},
+  h('div',{className:'vfx-wrap vfx-two'},
+   h('div',null,
+    h('p',{className:'vfx-over'},'Semi private coaching'),
+    h('h2',{id:'vfx-semi-h',className:'vfx-h2'},'Personal coaching. Small group energy.'),
+    h('p',{className:'vfx-p'},'Your coach guides the session, checks your technique and adjusts each exercise to your level, while you train beside people working as hard as you are.'),
+    h('ul',{className:'vfx-list'},
+     h('li',null,'Groups of up to four, 60 minute sessions'),
+     h('li',null,'Come on your own. We help match you with a group'),
+     h('li',null,'A nutrition and supplement plan, and full access to the VFIT app'),
+     h('li',null,'Gym membership is separate. 1 on 1 coaching is by request')),
+    h('div',{className:'vfx-acts'},cta(),
+     h('button',{type:'button',className:'vfx-text-link',onClick:function(){setDlg('semi');},'aria-haspopup':'dialog'},'How it works',icon('arrow',15)))),
+   h('div',{className:'vfx-price'},
+    h('p',{className:'vfx-price-top'},h('b',null,'$'+top.price),h('span',null,top.sessions+' coached sessions, per person')),
+    h('table',{className:'vfx-table'},
+     h('caption',{className:'sr-only'},'Semi private packages'),
+     h('thead',null,h('tr',null,h('th',{scope:'col'},'Sessions'),h('th',{scope:'col'},'Package price'))),
+     h('tbody',null,semi.map(function(p){return h('tr',{key:p.sessions,className:p===top?'on':''},h('th',{scope:'row'},p.sessions+(p.sessions===1?' session':' sessions')),h('td',null,'$'+p.price));}))),
+    commitLive()?h('p',{className:'vfx-note'},h('b',null,'Flash sale until '+COMMIT3.endsLabel+': 3 months for $'+COMMIT3.price+'.'),' '+COMMIT3.sessions+' sessions, paid up front. $'+COMMIT3.activePrice+' for active clients.'):null,
+    h('p',{className:'vfx-note'},'Packages expire 45 days after purchase, with paused time added back. Your coach confirms availability and terms before you pay.'),
+    h('button',{type:'button',className:'vfx-text-link',onClick:svc('vf26-packages')},'All packages and terms',icon('arrow',15)))));
+
+ var app=h('section',{className:'vfx-sec','aria-labelledby':'vfx-app-h'},
+  h('div',{className:'vfx-wrap'},
+   h('p',{className:'vfx-over'},'VFIT by VFITNESS'),
+   h('h2',{id:'vfx-app-h',className:'vfx-h2'},'Everything you need to progress.'),
+   h('div',{className:'vfx-app'},
+    h('div',{className:'vfx-phones'},img('/vf26/wt-3-train.webp','VFIT app training screen',420,840),img('/vf26/wt-4-eat.webp','VFIT app nutrition screen',420,840),img('/vf26/wt-5-progress.webp','VFIT app progress screen',420,840)),
+    h('div',null,
+     h('dl',{className:'vfx-feats'},[
+      ['Workouts','Guided sessions with rest timers and every set logged.'],
+      ['Nutrition','Log food against your calorie and protein targets.'],
+      ['Progress','Your weigh in trend, measurements and photos in one place.'],
+      ['Coaching','Add a VFITNESS coach who reviews your progress and messages you in the app.']].map(function(x){return h('div',{key:x[0]},h('dt',null,x[0]),h('dd',null,x[1]));})),
+     h('div',{className:'vfx-acts'},
+      h('button',{type:'button',className:'vf26-btn vf26-btn-outline',onClick:function(){toOnlinePlans(setCurrentPage)();}},'Compare online plans'),
+      h('a',{className:'vfx-text-link',href:'https://vfitnow.app/',target:'_blank',rel:'noopener noreferrer',onClick:function(){vfTrack('vfit_app_link_clicked',{path:'home'});}},'Open vfitnow.app',icon('arrow',15))),
+     h('p',{className:'vfx-note'},'The VFIT app runs at vfitnow.app. It is separate from the client portal on this website, where Nassau clients see their sessions and invoices. App screens show sample data.')))));
+
+ var results=h('section',{className:'vfx-sec vfx-bone','aria-labelledby':'vfx-res-h'},
+  h('div',{className:'vfx-wrap'},
+   h('div',{className:'vfx-head'},h('h2',{id:'vfx-res-h',className:'vfx-h2'},'Progress you can see.'),
+    navA('results',go(setCurrentPage,'results'),{className:'vfx-text-link'},h(React.Fragment,null,'All client results',icon('arrow',15)))),
+   photos.length?h('div',{className:'vfx-results'},photos.map(function(x){return h('img',{key:x.id,src:x.imageUrl,alt:'VFITNESS client progress photo',width:400,height:500,loading:'lazy',decoding:'async'});})):null,
+   h('p',{className:'vfx-note'},'Real client photos and documented progress, published with permission.')));
+
+ var team=h('section',{className:'vfx-sec','aria-labelledby':'vfx-team-h'},
+  h('div',{className:'vfx-wrap vfx-two'},
+   h('div',null,
+    h('p',{className:'vfx-over'},'Your coaches'),
+    h('h2',{id:'vfx-team-h',className:'vfx-h2'},'Real coaches, right here in Nassau.'),
+    h('p',{className:'vfx-p'},'VFITNESS has coached clients in Nassau since 2018. Every session follows a written plan, and you train with a coach who knows your goal.')),
+   h('div',null,
+    h('ul',{className:'vfx-people'},COACHES.map(function(c){return h('li',{key:c.name},h('b',null,c.name),h('span',null,c.role));})),
+    h('div',{className:'vfx-acts'},
+     navA('trainers',go(setCurrentPage,'trainers'),{className:'vfx-text-link'},h(React.Fragment,null,'Coach profiles',icon('arrow',15))),
+     navA('contact',go(setCurrentPage,'contact'),{className:'vfx-text-link'},h(React.Fragment,null,'Locations and contact',icon('arrow',15)))))));
+
+ var steps=h('section',{className:'vfx-sec vfx-bone','aria-labelledby':'vfx-steps-h'},
+  h('div',{className:'vfx-wrap'},
+   h('h2',{id:'vfx-steps-h',className:'vfx-h2'},'What happens after you ask.'),
+   h('ol',{className:'vfx-steps'},HOW.map(function(s,i){return h('li',{key:s[0]},h('span',{className:'n','aria-hidden':'true'},'0'+(i+1)),h('h3',{className:'vfx-h3'},s[0]),h('p',{className:'vfx-p'},s[1]));})),
+   cta()));
+
+ var community=h('section',{className:'vfx-sec','aria-labelledby':'vfx-com-h'},
+  h('div',{className:'vfx-wrap'},
+   h('div',{className:'vfx-head'},h('div',null,h('p',{className:'vfx-over'},'Community · Pink Beach Burn, October 31, 2026'),h('h2',{id:'vfx-com-h',className:'vfx-h2'},'Nassau showed up in pink.')),
+    navA('pinkbeachburn',go(setCurrentPage,'pinkbeachburn'),{className:'vfx-text-link'},h(React.Fragment,null,'Read the story',icon('arrow',15)))),
+   h('div',{className:'vfx-strip'},[0,3,8].map(function(i){return img(pbbSrc(i,true),'Pink Beach Burn community bootcamp in Nassau',720,540,{key:i});})),
+   h(PromoSlider,null)));
+
+ var faqSec=faq.length?h('section',{className:'vfx-sec vfx-bone','aria-labelledby':'vfx-faq-h'},
+  h('div',{className:'vfx-wrap vfx-narrow'},
+   h('h2',{id:'vfx-faq-h',className:'vfx-h2'},'Questions, answered.'),
+   h('div',{className:'vfx-faq'},faq.map(function(q,i){return h('details',{key:i},h('summary',null,q[0]),h('p',null,q[1]));})),
+   navA('contact',go(setCurrentPage,'contact'),{className:'vfx-text-link'},h(React.Fragment,null,'Ask us something else',icon('arrow',15))))):null;
+
+ var closing=h('section',{className:'vfx-sec vfx-dark vfx-closing','aria-labelledby':'vfx-end-h'},
+  h('div',{className:'vfx-wrap vfx-narrow'},
+   h('h2',{id:'vfx-end-h',className:'vfx-h2'},'Start with a free consultation.'),
+   h('p',{className:'vfx-p'},'Tell us your goal and a VFITNESS coach will contact you to confirm a time.'),
+   cta()));
+
+ var dialog=null;
+ if(dlg==='team')dialog=h(HomeDialog,{id:'vfh-d-team',onClose:close,wide:true,label:'Meet VFITNESS',title:'Real coaches. Right here in Nassau.',
+  media:h('img',{src:'/vf26/team-four-2026.webp',alt:'The four VFITNESS coaches together in PINK Beach Burn shirts',width:1600,height:1200}),
+  action:navA('trainers',function(){close();go(setCurrentPage,'trainers')();},{className:'vf26-btn vf26-btn-primary'},h(React.Fragment,null,'Meet the coaching team',arrow()))},
+  h('p',null,'VFITNESS has coached clients in Nassau since 2018. Every session follows a written plan, progress is tracked, and you train with a coach who knows your goal.'),
+  h('ul',{className:'vfh-people'},COACHES.map(function(c){return h('li',{key:c.name},h('b',null,c.name),h('span',null,c.role));})));
+ if(dlg==='semi')dialog=h(HomeDialog,{id:'vfh-d-semi',onClose:close,label:'Semi-private coaching',title:'Your goals. Your coach. A small group beside you.',
+  action:h(React.Fragment,null,h('button',{type:'button',className:'vf26-btn vf26-btn-primary',onClick:function(){close();consult();}},'Request my free consultation',arrow()),
+   h('button',{type:'button',className:'vf26-link',onClick:function(){close();svc('vf26-packages')();}},'All packages and terms',icon('arrow',15)))},
+  h('p',null,'Train with a VFITNESS coach in a group of up to four people. Your coach guides the session, adjusts exercises to your ability, checks your technique, and helps you progress.'),
+  h('p',null,'You share the session while receiving individual guidance, and encouragement from people putting in the work alongside you.'),
+  h('p',{className:'vfh-dlg-price'},h('b',null,top.sessions+' coached sessions. $'+top.price+' per person.')),
+  h('p',null,'Come on your own. We will help match you with a suitable group and schedule.'),
+  h('p',{className:'vfh-note'},'Gym membership is separate. Your coach confirms availability and explains package terms before you pay. Sessions are 60 minutes; packages expire 45 days after purchase, with paused time added back; sessions cancelled with less than 24 hours notice may be forfeited.'));
+
+ return h('main',{className:'vf26 vfx'},hero,ways,flagship,app,results,team,steps,community,faqSec,closing,dialog);
+}
+function HomePage(props){return h(window.VF_HOME_CLASSIC?HomePageClassic:HomePageV3,props);}
 
 /* ================= FOOTER ================= */
 function Footer(props){
@@ -2133,7 +2298,7 @@ function PricingPage(props){
   if(it.tab==='semi'&&pkg.sessions===LEGACY12.sessions){legacyEligible(user.uid||user.id).then(function(r){setSelected(r?legacyList([pkg])[0]:pkg);setShowModal(true);});return;}
   setSelected(pkg);setShowModal(true);},[!!user]);
  var services=[
-  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$17.92',unit:'/ session on 12',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
+  {icon:'users',name:'Semi Private Training',who:'Recommended. Join on your own and we match you with a group of up to 4.',price:'$215',unit:'for 12 sessions',cta:'View semi private',act:function(){setTab('semi');scrollToId('vf26-packages')();},hi:true},
   {icon:'user',name:'1 on 1 Coaching',who:'By request. Ask about coach availability at your consultation.',price:'By request',unit:'',cta:'Ask about 1 on 1',act:lead(setCurrentPage,{vf_lead_type:'1 on 1 by request'})},
   {icon:'dumbbell',name:'Group Training',who:'Motivation in a small group',price:'Ask',unit:'',cta:'Enquire',act:lead(setCurrentPage,{vf_lead_type:'Group'})},
   {icon:'clipboard',name:'Free Consultation and Body Assessment',who:'First timers, goals and body scan',price:'Free',unit:'',cta:'Request my free consultation',act:go(setCurrentPage,'book')}
@@ -2147,7 +2312,7 @@ function PricingPage(props){
 
   h('section',{className:'vf26-section tight vfh vfh-cats','aria-label':'Choose how to train'},h('div',{className:'vf26-wrap'},h('div',{className:'vfh-route-grid'},
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train in Nassau'),h('p',{className:'vfh-route-t'},'Semi private coaching, up to 4 clients'),
-    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person ($17.92 a session). 60 minute sessions. VFIT app included. Gym membership is separate.'),
+    h('p',{className:'vfh-route-p'},h('b',null,'12 sessions for $215'),' per person. 60 minute sessions. VFIT app included. Gym membership is separate.'),
     h('button',{type:'button',className:'vf26-link',onClick:function(){vfTrack('coaching_path_selected',{path:'Train in Nassau'});setTab('semi');scrollToId('vf26-packages')();}},'Nassau packages',icon('arrow',15))),
    h('div',{className:'vfh-route'},h('p',{className:'vfh-label'},'Train online'),h('p',{className:'vfh-route-t'},'The VFIT app, with a coach if you want one'),
     h('p',{className:'vfh-route-p'},h('b',null,'From $19.99 a month'),'. Online coaching with a VFITNESS coach from $197 a month.'),
@@ -2516,7 +2681,7 @@ function Gallery(){
  function prev(){setIdx(function(i){return n?(i-1+n)%n:0;});}
  React.useEffect(function(){if(n<2||paused||reduceMotion)return;var t=setTimeout(next,5000);return function(){clearTimeout(t);};},[n,idx,paused]);
  React.useEffect(function(){function k(e){if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev();if(e.key==='Escape')setFull(false);}window.addEventListener('keydown',k);return function(){window.removeEventListener('keydown',k);};},[n]);
- if(!n)return h('div',{className:'vf26-gallery empty'},h('img',{src:'/vf26/strength-editorial-v1.webp',alt:'VFitness training session'}));
+ if(!n)return h('div',{className:'vf26-gallery empty'},h('img',{src:'/vf26/empire-fitness.webp',alt:'The entrance of Empire Fitness in Nassau',width:930,height:698,loading:'lazy'}));
  var cur=gallery[idx]||gallery[0];
  return h('div',{className:'vf26-gallery',onMouseEnter:function(){setPaused(true);},onMouseLeave:function(){setPaused(false);}},
   h('div',{className:'vf26-gallery-main',onTouchStart:function(e){touch.current=e.touches[0].clientX;},onTouchEnd:function(e){if(touch.current==null)return;var d=touch.current-e.changedTouches[0].clientX;if(Math.abs(d)>50){d>0?next():prev();}touch.current=null;}},
@@ -2544,7 +2709,7 @@ function AboutPage(props){
  return h('main',{className:'vf26 vf26-page'},
   h(PageHero,{eyebrow:'Company',title:'VFITNESS',accent:'Training Services.',lead:'A Nassau coaching team delivering personal training across three locations and online coaching through the VFIT app.'}),
   h('section',{className:'vf26-section tight'},h('div',{className:'vf26-wrap vf26-about2'},
-   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/welcome-glute-v1.webp',alt:'A VFitness client training in a Nassau gym',loading:'lazy'})),
+   h(Reveal,{className:'vf26-about2-media'},h('img',{src:'/vf26/team-four-2026-sm.webp',srcSet:'/vf26/team-four-2026-sm.webp 900w, /vf26/team-four-2026.webp 1600w',sizes:'(min-width: 900px) 50vw, 100vw',alt:'The four VFITNESS coaches together',width:1600,height:1200,loading:'lazy'})),
    h(Reveal,{className:'vf26-about2-copy',delay:80},
     h('p',{className:'vf26-kicker'},'Our story'),
     h('h2',{className:'vf26-h2'},'One team. One coaching standard.'),
