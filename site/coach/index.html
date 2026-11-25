@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach with VFITNESS | Personal trainer roles in Nassau</title>
+<meta name="description" content="Coach with VFITNESS in Nassau. We handle leads, bookings, payments and the client app so you can spend your hours coaching. Apply in two minutes.">
+<link rel="canonical" href="https://www.vfitbah.com/coach">
+<meta property="og:title" content="Coach with VFITNESS">
+<meta property="og:description" content="Personal trainer roles in Nassau. Apply in two minutes.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.vfitbah.com/coach">
+<meta name="theme-color" content="#131516">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Standalone page: it does not load the main site bundle, so it carries its own copy of the public theme tokens. */
+:root{--bg:#131516;--bg2:#161819;--card:#1A1C1E;--surface:#222527;--border:#2b2e31;--text:#F2F1EC;--dim:#A8AAA9;--blue:#5aa9f5;--blue-ink:#0a1422;--teal:#5fddcc;--bad:#ff9a8f;}
+*{box-sizing:border-box;}
+[hidden]{display:none !important;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Geist',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:17px;line-height:1.55;}
+a{color:var(--blue);}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+.skip{position:absolute;left:-999px;top:0;background:var(--blue);color:var(--blue-ink);padding:.6rem 1rem;font-weight:700;z-index:10;}
+.skip:focus{left:8px;top:8px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px;}
+header{border-bottom:1px solid var(--border);}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:68px;}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font-weight:800;font-size:1.2rem;letter-spacing:.02em;}
+.brand svg{flex:0 0 auto;}
+.back{color:var(--dim);text-decoration:none;font-weight:600;font-size:.95rem;min-height:44px;display:inline-flex;align-items:center;}
+.back:hover{color:var(--text);}
+.hero{padding-top:56px;padding-bottom:40px;}
+.kicker{margin:0 0 14px;font-size:.82rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--blue);}
+h1{margin:0;font-size:clamp(2.4rem,8vw,4.4rem);line-height:1.02;letter-spacing:-.04em;font-weight:800;max-width:14ch;}
+.lead{margin:20px 0 0;font-size:clamp(1.05rem,2.6vw,1.25rem);color:var(--dim);max-width:56ch;}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:52px;padding:0 1.5rem;margin-top:28px;border:0;border-radius:999px;background:var(--blue);color:var(--blue-ink);font:inherit;font-weight:800;text-decoration:none;cursor:pointer;}
+.cta:hover{filter:brightness(1.08);}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:40px 0 0;padding:0;list-style:none;}
+.facts li{padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card);}
+.facts b{display:block;font-size:1.5rem;letter-spacing:-.03em;line-height:1.1;}
+.facts span{display:block;margin-top:4px;color:var(--dim);font-size:.9rem;line-height:1.35;}
+section{padding:44px 0;border-top:1px solid var(--border);}
+h2{margin:0 0 8px;font-size:clamp(1.6rem,4.5vw,2.2rem);letter-spacing:-.03em;line-height:1.12;font-weight:800;}
+.sub{margin:0 0 24px;color:var(--dim);max-width:60ch;}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:0;padding:0;list-style:none;}
+.grid li{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--card);}
+.grid h3{margin:0 0 6px;font-size:1.1rem;letter-spacing:-.01em;}
+.grid p{margin:0;color:var(--dim);font-size:.97rem;}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0;padding:0;list-style:none;}
+.steps li{counter-increment:s;padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--card);}
+.steps li::before{content:counter(s);display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:var(--surface);color:var(--blue);font-weight:800;margin-bottom:12px;}
+.steps h3{margin:0 0 4px;font-size:1.05rem;}
+.steps p{margin:0;color:var(--dim);font-size:.95rem;}
+.checks{margin:0;padding:0;list-style:none;display:grid;gap:10px;max-width:62ch;}
+.checks li{display:flex;gap:12px;align-items:flex-start;}
+.checks svg{flex:0 0 auto;margin-top:4px;color:var(--teal);}
+.pay{margin:24px 0 0;padding:18px 20px;border:1px solid var(--border);border-radius:16px;background:var(--bg2);max-width:62ch;color:var(--dim);}
+.pay b{color:var(--text);}
+form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:760px;}
+.f{display:flex;flex-direction:column;gap:6px;}
+.f.full{grid-column:1 / -1;}
+label,legend{font-weight:600;font-size:.95rem;}
+.opt{color:var(--dim);font-weight:500;}
+input[type=text],input[type=tel],input[type=email],select,textarea{width:100%;min-height:50px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--text);font:inherit;}
+textarea{min-height:120px;resize:vertical;}
+input::placeholder,textarea::placeholder{color:#8b8f8e;}
+fieldset{margin:0;padding:0;border:0;grid-column:1 / -1;}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.chips label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-weight:500;cursor:pointer;}
+.chips input{width:18px;height:18px;accent-color:var(--blue);}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+.note{grid-column:1 / -1;margin:0;color:var(--dim);font-size:.9rem;}
+.status{grid-column:1 / -1;margin:0;min-height:1.5em;font-weight:600;}
+.status.bad{color:var(--bad);}
+.done{max-width:62ch;padding:24px;border:1px solid var(--teal);border-radius:18px;background:var(--card);}
+.done h3{margin:0 0 6px;font-size:1.3rem;}
+.done p{margin:0;color:var(--dim);}
+button[disabled]{opacity:.6;cursor:progress;}
+footer{border-top:1px solid var(--border);padding:28px 0 40px;color:var(--dim);font-size:.9rem;}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;}
+footer a{color:var(--dim);margin-right:16px;display:inline-block;min-height:32px;}
+@media (max-width:820px){.steps{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:640px){.hero{padding-top:36px;padding-bottom:28px;}.facts,.grid,.steps,form{grid-template-columns:1fr;}section{padding:36px 0;}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+</style>
+</head>
+<body>
+<a class="skip" href="#apply">Skip to the application form</a>
+<header>
+ <div class="wrap">
+  <a class="brand" href="/" aria-label="VFITNESS home">
+   <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="#5aa9f5"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>VFITNESS
+  </a>
+  <a class="back" href="/">Back to the main site</a>
+ </div>
+</header>
+<main>
+ <div class="wrap hero">
+  <p class="kicker">Coach with VFITNESS</p>
+  <h1>Coach more. Chase clients less.</h1>
+  <p class="lead">VFITNESS is a personal training company in Nassau. We handle the leads, bookings, payments and the client app, so you can spend your hours coaching.</p>
+  <a class="cta" href="#apply">Apply in two minutes</a>
+  <ul class="facts" aria-label="About VFITNESS">
+   <li><b>Since 2018</b><span>coaching clients in Nassau</span></li>
+   <li><b>Up to 4</b><span>clients in a semi private session</span></li>
+   <li><b>3 locations</b><span>Empire Fitness, Fanta C Fitness and the Royal Bahamas Police College</span></li>
+  </ul>
+ </div>
+
+ <section aria-labelledby="get-h">
+  <div class="wrap">
+   <h2 id="get-h">What you get</h2>
+   <p class="sub">The parts of the job that take coaches away from coaching are already built.</p>
+   <ul class="grid">
+    <li><h3>Clients sent your way</h3><p>People who ask for a consultation on vfitbah.com are matched to a coach with room in their week.</p></li>
+    <li><h3>Bookings and payments handled</h3><p>Packages, sessions and payments run through the site. You log who trained and the system keeps count.</p></li>
+    <li><h3>The VFIT app for your clients</h3><p>Every package holder gets nutrition planning, weight tracking and online training between sessions.</p></li>
+    <li><h3>A team and a path</h3><p>You work beside experienced coaches, with senior roles as your client list grows.</p></li>
+   </ul>
+  </div>
+ </section>
+
+ <section aria-labelledby="look-h">
+  <div class="wrap">
+   <h2 id="look-h">What we look for</h2>
+   <ul class="checks">
+    <li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>A recognised personal training certification, or one in progress.</span></li>
+    <li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Current CPR and first aid.</span></li>
+    <li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Good with people. You can run a small group and still coach each person in it.</span></li>
+    <li><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg><span>Reliable hours in Nassau, early mornings or evenings especially.</span></li>
+   </ul>
+   <p class="pay"><b>How pay works.</b> You earn a share of every package your clients buy. We go through the numbers with you on the first call.</p>
+  </div>
+ </section>
+
+ <section aria-labelledby="how-h">
+  <div class="wrap">
+   <h2 id="how-h">How it works</h2>
+   <ol class="steps">
+    <li><h3>Apply</h3><p>Fill in the form below. It takes about two minutes.</p></li>
+    <li><h3>We call you</h3><p>A short conversation about your coaching and your week.</p></li>
+    <li><h3>Trial session</h3><p>You coach a real group while one of our coaches watches.</p></li>
+    <li><h3>Start</h3><p>You shadow a coach, then take your first clients.</p></li>
+   </ol>
+  </div>
+ </section>
+
+ <section id="apply" aria-labelledby="apply-h">
+  <div class="wrap">
+   <h2 id="apply-h">Apply to coach</h2>
+   <p class="sub">Tell us about your coaching. Fields marked required are the only ones we need to call you back.</p>
+   <form id="coach-form" novalidate>
+    <div class="f"><label for="c-name">Full name (required)</label><input id="c-name" name="name" type="text" autocomplete="name" maxlength="120" required></div>
+    <div class="f"><label for="c-phone">Phone or WhatsApp (required)</label><input id="c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" placeholder="242 555 0100" required></div>
+    <div class="f"><label for="c-email">Email <span class="opt">(optional)</span></label><input id="c-email" name="email" type="email" autocomplete="email" maxlength="254"></div>
+    <div class="f"><label for="c-exp">Coaching experience (required)</label>
+     <select id="c-exp" name="experience" required>
+      <option value="">Choose one</option>
+      <option>Not coaching yet</option>
+      <option>Under 1 year</option>
+      <option>1 to 3 years</option>
+      <option>3 to 5 years</option>
+      <option>More than 5 years</option>
+     </select></div>
+    <div class="f"><label for="c-cert">Certification <span class="opt">(optional)</span></label><input id="c-cert" name="certification" type="text" maxlength="100" placeholder="ISSA, NASM, ACE or in progress"></div>
+    <div class="f"><label for="c-where">Where you coach now <span class="opt">(optional)</span></label><input id="c-where" name="where" type="text" maxlength="120"></div>
+    <fieldset>
+     <legend>When can you coach? <span class="opt">(optional)</span></legend>
+     <div class="chips">
+      <label><input type="checkbox" name="avail" value="Early mornings">Early mornings</label>
+      <label><input type="checkbox" name="avail" value="Daytime">Daytime</label>
+      <label><input type="checkbox" name="avail" value="Evenings">Evenings</label>
+      <label><input type="checkbox" name="avail" value="Weekends">Weekends</label>
+     </div>
+    </fieldset>
+    <div class="f full"><label for="c-ig">Instagram or other link <span class="opt">(optional)</span></label><input id="c-ig" name="link" type="text" maxlength="120" placeholder="@yourhandle"></div>
+    <div class="f full"><label for="c-why">Why VFITNESS? <span class="opt">(optional)</span></label><textarea id="c-why" name="why" maxlength="1200"></textarea></div>
+    <div class="hp" aria-hidden="true"><label for="c-website">Leave this empty</label><input id="c-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+    <p class="note">We use these details only to contact you about coaching with VFITNESS. See the <a href="/privacy">privacy policy</a>.</p>
+    <p class="status" id="coach-status" role="status" aria-live="polite"></p>
+    <div class="f full"><button class="cta" id="coach-submit" type="submit" style="margin-top:0;align-self:flex-start">Send my application</button></div>
+   </form>
+   <div class="done" id="coach-done" hidden tabindex="-1">
+    <h3>Application received.</h3>
+    <p>Thank you. We will contact you by WhatsApp or phone on the number you gave.</p>
+   </div>
+  </div>
+ </section>
+</main>
+<footer>
+ <div class="wrap">
+  <span>VFITNESS Training Services, Nassau, The Bahamas</span>
+  <span><a href="/">Home</a><a href="/services">Services</a><a href="/team">Team</a><a href="/privacy">Privacy</a></span>
+ </div>
+</footer>
+<script>
+(function(){
+ var form=document.getElementById('coach-form'),status=document.getElementById('coach-status'),btn=document.getElementById('coach-submit'),done=document.getElementById('coach-done');
+ if(!form)return;
+ function val(n){var e=form.elements[n];return e&&typeof e.value==='string'?e.value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g,'').trim():'';}
+ function say(msg,bad){status.textContent=msg;status.className='status'+(bad?' bad':'');}
+ form.addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var name=val('name'),phone=val('phone'),email=val('email'),exp=val('experience');
+  if(!name){say('Please enter your full name.',true);form.elements.name.focus();return;}
+  if(!/^[+()\d\s.\-]+$/.test(phone)||phone.replace(/\D/g,'').length<7){say('Please enter a phone or WhatsApp number, digits only.',true);form.elements.phone.focus();return;}
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){say('That email address does not look right. Fix it or leave it empty.',true);form.elements.email.focus();return;}
+  if(!exp){say('Please choose your coaching experience.',true);form.elements.experience.focus();return;}
+  var avail=[].slice.call(form.querySelectorAll('input[name=avail]:checked')).map(function(x){return x.value;}).join(', ');
+  var cert=val('certification'),where=val('where'),link=val('link'),why=val('why');
+  // Sent through the same endpoint as client applications, so it lands in the same Applications list.
+  // "Coach application" leads every field staff read first, so it is never mistaken for a client.
+  var body={
+   applicationId:'coach-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8),
+   name:name,phone:phone,email:email,
+   goal:('COACH APPLICATION. Experience: '+exp+'. Certification: '+(cert||'not given')+'.').slice(0,300),
+   training:'Coach application',
+   location:where.slice(0,160),
+   schedule:avail.slice(0,300),
+   notes:('Coach application from vfitbah.com/coach\nExperience: '+exp+'\nCertification: '+(cert||'not given')+'\nCoaches now at: '+(where||'not given')+'\nAvailable: '+(avail||'not given')+'\nLink: '+(link||'not given')+'\nWhy VFITNESS: '+(why||'not given')).slice(0,2000),
+   submittedAt:new Date().toISOString(),
+   website:val('website')
+  };
+  btn.disabled=true;say('Sending your application...');
+  fetch('/api/application',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)})
+   .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {ok:r.ok&&j.ok===true,status:r.status};});})
+   .then(function(r){
+    if(r.ok){form.hidden=true;done.hidden=false;done.focus();return;}
+    btn.disabled=false;
+    say(r.status===429?'Too many tries. Please wait a minute and send it again.':'We could not send your application. Please try again, or WhatsApp us on 242 454 9063.',true);
+   })
+   .catch(function(){btn.disabled=false;say('We could not send your application. Check your connection and try again, or WhatsApp us on 242 454 9063.',true);});
+ });
+})();
+</script>
+</body>
+</html>
