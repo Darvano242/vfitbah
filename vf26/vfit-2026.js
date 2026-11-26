@@ -2046,7 +2046,7 @@ function NotificationCenter(){
  function say(t,bad){setMsg({text:t,bad:!!bad});}
  function loadOverview(){setErr('');return ncApi('adminOverview').then(setInfo).catch(function(e){setErr(e.message);});}
  React.useEffect(function(){loadOverview();},[]);
- var tabs=[['overview','Overview'],['payments','Payment reminders'],['messages','Messages'],['templates','Templates'],['clients','Client preferences'],['automations','Automations'],['send','Send']];
+ var tabs=[['overview','Overview'],['payments','Payment reminders'],['broadcast','Broadcast email'],['messages','Messages'],['templates','Templates'],['clients','Client preferences'],['automations','Automations'],['send','Send']];
  return h('section',{className:'vf26-nc','aria-labelledby':'vf26-nc-h'},
   h('div',{className:'head'},h('div',null,h('h2',{id:'vf26-nc-h'},'Notifications'),
    h('p',null,'Booking confirmations, changes, cancellations, reminders 24 hours and 2 hours before, and renewal messages, sent automatically over WhatsApp, SMS or email. Runs every 15 minutes, even with this page closed.')),
@@ -2057,6 +2057,7 @@ function NotificationCenter(){
   !info?h('p',{className:'vf26-nc-dim'},'Loading...'):
   tab==='overview'?h(NcOverview,{info:info,reload:loadOverview,say:say,go:setTab}):
   tab==='payments'?h(NcPayments,{info:info,say:say}):
+  tab==='broadcast'?h(NcBroadcast,{info:info,say:say}):
   tab==='messages'?h(NcMessages,{info:info,say:say}):
   tab==='templates'?h(NcTemplates,{info:info,say:say,reload:loadOverview}):
   tab==='clients'?h(NcClients,{info:info,say:say}):
@@ -2199,6 +2200,50 @@ function NcSend(p){
    and stops the moment the reminder is marked paid or stopped. Email only. These send even while the other
    messages are in test mode, because each one is started here by hand after the preview. */
 function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(v+'T12:00:00'):new Date(v);return d.toLocaleDateString('en-US',/^\d{4}-\d{2}-\d{2}$/.test(v)?{month:'short',day:'numeric'}:{timeZone:'America/Nassau',month:'short',day:'numeric'});}catch(e){return '';}}
+/* Broadcast: one email to a group of clients. Check the list, send a test to yourself, then send. Each client gets it once per campaign. */
+var NC_BF={campaign:'black-friday-2026',subject:'Black Friday for current clients: 3 months for $495',image:'https://www.vfitbah.com/vf26/black-friday-2026.jpg',
+ message:"Hey [Name], Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I'll send the payment link."};
+function NcBroadcast(p){
+ var fs=React.useState(Object.assign({audience:'active',withImage:true},NC_BF)),f=fs[0],setF=fs[1];
+ var ps=React.useState(null),pv=ps[0],setPv=ps[1];
+ var bs=React.useState(''),busy=bs[0],setBusy=bs[1];
+ var ts=React.useState(''),tested=ts[0],setTested=ts[1];
+ var gs=React.useState(null),prog=gs[0],setProg=gs[1];
+ function set(k,v){var x=Object.assign({},f);x[k]=v;setF(x);if(k==='audience')setPv(null);if(k!=='audience')setTested('');}
+ function payload(extra){return Object.assign({campaign:String(f.campaign||'').toLowerCase().replace(/[^a-z0-9-]/g,'-'),subject:f.subject,message:f.message,audience:f.audience,image:f.withImage?f.image:''},extra||{});}
+ function preview(){setBusy('preview');ncApi('adminBroadcast',payload({step:'preview'})).then(function(j){setPv(j);p.say('');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
+ function test(){setBusy('test');ncApi('adminBroadcast',payload({step:'test'})).then(function(j){setTested(j.to||'your address');p.say('Test sent to '+(j.to||'your address')+'. Check the inbox and the spam folder.');}).catch(function(e){p.say('The test did not send: '+e.message,true);}).then(function(){setBusy('');});}
+ function send(){
+  if(!pv)return;var left=pv.count-(pv.alreadySent||0);
+  if(!window.confirm('Send this email to '+left+' client'+(left===1?'':'s')+' now? This cannot be undone.'))return;
+  setBusy('send');var sent=0,failed=0;
+  (function next(){ncApi('adminBroadcast',payload({step:'send',confirmCount:pv.count})).then(function(j){sent+=j.sent||0;failed+=j.failed||0;setProg({sent:sent,failed:failed,remaining:j.remaining});
+    if(j.remaining>0&&(j.sent||j.failed)){next();return;}
+    setBusy('');p.say('Sent to '+sent+' client'+(sent===1?'':'s')+(failed?'. '+failed+' failed; see Messages for the reason.':'.'),!!failed);setPv(Object.assign({},pv,{alreadySent:(pv.alreadySent||0)+sent+failed}));
+   }).catch(function(e){setBusy('');p.say((sent?'Sent to '+sent+' so far, then stopped: ':'')+e.message+' Press Send again to continue; nobody gets it twice.',true);});})();
+ }
+ var fld={width:'100%',minHeight:'44px',padding:'10px 12px',borderRadius:'10px',border:'1px solid var(--vf-border)',background:'transparent',color:'inherit',font:'inherit'};
+ var left=pv?pv.count-(pv.alreadySent||0):0;
+ return h('div',{className:'vf26-nc-broadcast',style:{display:'grid',gap:'16px',maxWidth:'720px'}},
+  h('p',{className:'vf26-nc-dim'},'One email to a group of clients. Replies go to vfitnessbah@gmail.com. Clients who turned emails off are skipped, and nobody gets the same campaign twice.'),
+  h('label',null,'Who gets it',h('select',{style:fld,value:f.audience,onChange:function(e){set('audience',e.target.value);}},
+   h('option',{value:'active'},'Current clients (a package with sessions left, or a booking in the last 60 days)'),
+   h('option',{value:'all'},'Every client account'))),
+  h('label',null,'Subject',h('input',{style:fld,maxLength:120,value:f.subject,onChange:function(e){set('subject',e.target.value);}})),
+  h('label',null,'Message ([Name] becomes each client\'s first name)',h('textarea',{style:fld,rows:11,maxLength:1500,value:f.message,onChange:function(e){set('message',e.target.value);}})),
+  h('label',{style:{display:'flex',gap:'10px',alignItems:'center',minHeight:'44px'}},h('input',{type:'checkbox',checked:!!f.withImage,onChange:function(e){set('withImage',e.target.checked);}}),'Show the flyer at the top of the email'),
+  f.withImage?h('img',{src:f.image.replace('https://www.vfitbah.com',''),alt:'The flyer that will be shown in the email',style:{width:'160px',borderRadius:'10px',border:'1px solid var(--vf-border)'}}):null,
+  h('div',{style:{display:'flex',gap:'10px',flexWrap:'wrap'}},
+   h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:!!busy,onClick:preview},busy==='preview'?'Checking...':'1. Check who gets it'),
+   h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:!!busy,onClick:test},busy==='test'?'Sending test...':'2. Send a test to me')),
+  pv?h('div',null,
+   h('p',null,h('strong',null,pv.count+' client'+(pv.count===1?'':'s')+' will get this email'),pv.alreadySent?' ('+pv.alreadySent+' already got it, '+left+' left)':'',pv.skipped&&pv.skipped.length?'. '+pv.skipped.length+' skipped.':'.'),
+   h('details',null,h('summary',{style:{minHeight:'44px',cursor:'pointer'}},'See the list'),
+    h('ul',{style:{maxHeight:'260px',overflow:'auto',margin:'8px 0',paddingLeft:'18px'}},pv.recipients.map(function(r,i){return h('li',{key:i},r.name,' ',h('span',{className:'vf26-nc-dim'},r.email));})),
+    pv.skipped&&pv.skipped.length?h('p',{className:'vf26-nc-dim'},'Skipped: '+pv.skipped.map(function(s){return s.name+' ('+s.reason+')';}).join(', ')):null),
+   h('button',{type:'button',className:'vf26-btn vf26-btn-primary',disabled:!!busy||!tested||left<1,onClick:send},busy==='send'?'Sending'+(prog?' ('+prog.sent+' sent, '+prog.remaining+' left)':'...'):'3. Send to '+left+' client'+(left===1?'':'s')),
+   !tested?h('p',{className:'vf26-nc-dim'},'Send the test to yourself first. The Send button unlocks after it goes out.'):null):null);
+}
 function NcPayments(p){
  var blank={id:'',uid:'',amount:'',item:'',dueDate:'',note:''};
  var ds=React.useState(null),data=ds[0],setData=ds[1];
