@@ -2201,7 +2201,7 @@ function NcSend(p){
    messages are in test mode, because each one is started here by hand after the preview. */
 function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(v+'T12:00:00'):new Date(v);return d.toLocaleDateString('en-US',/^\d{4}-\d{2}-\d{2}$/.test(v)?{month:'short',day:'numeric'}:{timeZone:'America/Nassau',month:'short',day:'numeric'});}catch(e){return '';}}
 /* Broadcast: one email to a group of clients. Check the list, send a test to yourself, then send. Each client gets it once per campaign. */
-var NC_BF={campaign:'black-friday-2026',subject:'Black Friday for current clients: 3 months for $495',image:'https://www.vfitbah.com/vf26/black-friday-2026.jpg',
+var NC_BF={campaign:'black-friday-2026',subject:'Black Friday for current clients: 3 months for $495',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
  message:"Hey [Name], Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I'll send the payment link."};
 function NcBroadcast(p){
  var fs=React.useState(Object.assign({audience:'active',withImage:true},NC_BF)),f=fs[0],setF=fs[1];
@@ -2955,10 +2955,10 @@ function VF26MemberHead(p){
 
 /* Client broadcast email. Sends one personal email per client through the site's EmailJS account,
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
-var BC_ID='pink-beach-burn-2026-10-31';
-var BC_SUBJECT="New date: PINK Beach Burn is Saturday Oct 31 at Goodman's Bay";
-var BC_IMAGE='https://www.vfitbah.com/vf26/pink-beach-burn-oct31.jpg';
-var BC_BODY='Hi {name},\n\nThe PINK Beach Burn Bootcamp has a new date: Saturday, October 31. In support of Breast Cancer Awareness Month, VFitness is hosting this free beach bootcamp, sponsored by Empire Fitness, and you are invited.\n\nSaturday, October 31\n7:00 AM, about 60 to 75 minutes\nGoodman\'s Bay, Nassau\n\nThe morning runs through a check in and warm up, a beach circuit, a beach challenge, a core finisher, and a cooldown and stretch. Every fitness level is welcome.\n\nDrinks are provided, a DJ keeps the energy up all morning, and there will be giveaways and prizes, plus professional photos and video.\n\nIt is free to all. Bring your friends and family, and wear pink.\n\nMove. Sweat. Support. Together.\n\nSee you on the beach,\nDarvano Andrews\nVFitness Training Services';
+var BC_ID='black-friday-2026';
+var BC_SUBJECT='Black Friday for current clients: 3 months for $495';
+var BC_IMAGE='https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg';
+var BC_BODY='Hey {name}, Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I\'ll send the payment link.';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
 function bcSkipLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-skip-'+BC_ID)||'[]');}catch(e){return [];}}
