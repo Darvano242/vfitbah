@@ -2204,7 +2204,7 @@ function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Da
 var NC_BF={campaign:'black-friday-2026',subject:'[Name], your next 3 months',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
  message:"Hey [Name], Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I'll send the payment link."};
 function NcBroadcast(p){
- var fs=React.useState(Object.assign({audience:'active',withImage:false,plain:true},NC_BF)),f=fs[0],setF=fs[1];
+ var fs=React.useState(Object.assign({audience:'active',withImage:true,plain:false},NC_BF)),f=fs[0],setF=fs[1];
  var ps=React.useState(null),pv=ps[0],setPv=ps[1];
  var bs=React.useState(''),busy=bs[0],setBusy=bs[1];
  var ts=React.useState(''),tested=ts[0],setTested=ts[1];
@@ -2958,7 +2958,7 @@ function VF26MemberHead(p){
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
 var BC_ID='black-friday-2026';
 var BC_SUBJECT='{name}, your next 3 months';
-var BC_IMAGE=''; /* plain by default; the flyer is at https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg */
+var BC_IMAGE='https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg';
 var BC_BODY='Hey {name}, Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I\'ll send the payment link.';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
