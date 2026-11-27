@@ -2957,8 +2957,8 @@ function VF26MemberHead(p){
 /* Client broadcast email. Sends one personal email per client through the site's EmailJS account,
    one at a time, and remembers who already received it so a stopped send can resume without repeats. */
 var BC_ID='black-friday-2026';
-var BC_SUBJECT='Black Friday for current clients: 3 months for $495';
-var BC_IMAGE='https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg';
+var BC_SUBJECT='{name}, your next 3 months';
+var BC_IMAGE=''; /* plain by default; the flyer is at https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg */
 var BC_BODY='Hey {name}, Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I\'ll send the payment link.';
 function bcSentLoad(){try{return JSON.parse(localStorage.getItem('vf-bc-'+BC_ID)||'[]');}catch(e){return [];}}
 function bcSentSave(list){try{localStorage.setItem('vf-bc-'+BC_ID,JSON.stringify(list));}catch(e){}}
@@ -2979,15 +2979,17 @@ function VF26Broadcast(p){
  var pending=recips.filter(function(r){return done.indexOf(r.email)<0;});
  var noEmail=(p.clients||[]).filter(function(c){return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(c.email||'').trim());}).length;var toSend=pending.filter(function(r){return skipped.indexOf(r.email)<0;});
  React.useEffect(function(){if(!open)return;try{if(typeof db!=='undefined')db.collection('broadcasts').doc(BC_ID).get().then(function(d){var x=d.exists&&d.data().sent;if(x&&x.length){var m=bcSentLoad();x.forEach(function(e){if(m.indexOf(e)<0)m.push(e);});bcSentSave(m);setDone(m);}}).catch(function(){});}catch(e){}},[open]);
- function first(n){var f=(n||'').split(/\s+/)[0]||'';return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
+ function first(n){var f=(n||'').trim().split(/\s+/)[0]||'';if(f.length>1&&f===f.toUpperCase())f=f.toLowerCase();return f?f.charAt(0).toUpperCase()+f.slice(1):'there';}
  function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
  function toHtml(txt){var parts=esc(txt).split(/\n{2,}/).map(function(par){return '<p style="margin:0 0 16px">'+par.replace(/\[([^\]]+)\]\(((?:https?:|mailto:)[^)\s]+)\)/g,'<a href="$2" style="color:#4296f0;font-weight:700">$1</a>').replace(/(^|[^"'>\/])(https?:\/\/[^\s<"]+)/g,'$1<a href="$2" style="color:#4296f0;font-weight:700">$2</a>').replace(/\n/g,'<br>')+'</p>';}).join('');
+  // No image: a plain note, like one typed by hand (no logo bar or card), which inbox filters treat less like an advert.
+  if(!image)return '<div style="font-family:Arial,Helvetica,sans-serif;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'</div><p style="font-family:Arial,Helvetica,sans-serif;color:#8a93a3;font-size:12px;margin-top:28px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</p>';
   return '<div style="background:#f4f6fa;padding:24px 12px;font-family:Arial,Helvetica,sans-serif"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e4e8f0"><div style="background:#0f1115;padding:18px 24px"><span style="color:#ffffff;font-size:18px;font-weight:800;letter-spacing:.06em">VFITNESS</span></div>'+(image?'<img src="'+esc(image)+'" alt="" width="560" style="display:block;width:100%;max-width:560px;height:auto;border:0">':'')+'<div style="padding:24px;color:#1b1f27;font-size:15px;line-height:1.6">'+parts+'</div><div style="padding:14px 24px;background:#f8f9fb;color:#8a93a3;font-size:12px">You are receiving this because you have a VFitness client account. Nassau, The Bahamas.</div></div></div>';}
  function sendOne(r){
   var u=(typeof firebase!=='undefined'&&firebase.auth&&firebase.auth().currentUser)||null;
   if(!u)return Promise.reject(new Error('Sign in again to send email.'));
   return u.getIdToken().then(function(tok){
-   return fetch('https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/clientBroadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok,to:r.email,name:r.name||'',subject:subject,html:toHtml(body.split('{name}').join(first(r.name)))})});
+   return fetch('https://vfit-core-flow.base44.app/api/apps/6a0105785d309cbb9ad53ee3/functions/clientBroadcast',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({idToken:tok,to:r.email,name:r.name||'',subject:subject.split('{name}').join(first(r.name)),html:toHtml(body.split('{name}').join(first(r.name)))})});
   }).then(function(res){return res.json().catch(function(){return {};}).then(function(j){if(!res.ok||!j||j.ok===false){var e=new Error((j&&j.error)||('Send failed ('+res.status+')'));e.status=res.status;throw e;}return j;});});
  }
  function sendTest(){var me='vfitnessbah@gmail.com';setRun({state:'test',sent:0,failed:0,total:1,msg:'Sending test to '+me+'...'});
