@@ -2201,7 +2201,7 @@ function NcSend(p){
    messages are in test mode, because each one is started here by hand after the preview. */
 function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(v+'T12:00:00'):new Date(v);return d.toLocaleDateString('en-US',/^\d{4}-\d{2}-\d{2}$/.test(v)?{month:'short',day:'numeric'}:{timeZone:'America/Nassau',month:'short',day:'numeric'});}catch(e){return '';}}
 /* Broadcast: one email to a group of clients. Check the list, send a test to yourself, then send. Each client gets it once per campaign. */
-var NC_BF={campaign:'black-friday-2026',subject:'[Name], your next 3 months',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
+var NC_BF={campaign:'black-friday-2026',subject:'[Name], our biggest sale of the year ends Friday',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
  message:"Hey [Name], Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I'll send the payment link."};
 function NcBroadcast(p){
  var fs=React.useState(Object.assign({audience:'active',withImage:false,plain:true},NC_BF)),f=fs[0],setF=fs[1];
