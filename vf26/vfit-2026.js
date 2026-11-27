@@ -2201,16 +2201,16 @@ function NcSend(p){
    messages are in test mode, because each one is started here by hand after the preview. */
 function ncDay(v){if(!v)return '';try{var d=/^\d{4}-\d{2}-\d{2}$/.test(v)?new Date(v+'T12:00:00'):new Date(v);return d.toLocaleDateString('en-US',/^\d{4}-\d{2}-\d{2}$/.test(v)?{month:'short',day:'numeric'}:{timeZone:'America/Nassau',month:'short',day:'numeric'});}catch(e){return '';}}
 /* Broadcast: one email to a group of clients. Check the list, send a test to yourself, then send. Each client gets it once per campaign. */
-var NC_BF={campaign:'black-friday-2026',subject:'Black Friday for current clients: 3 months for $495',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
+var NC_BF={campaign:'black-friday-2026',subject:'[Name], your next 3 months',image:'https://www.vfitbah.com/vf26/black-friday-2026-semi.jpg',
  message:"Hey [Name], Black Friday for current clients only.\n\nPrepay your next 3 months (36 sessions) for $495. That is $165 a pack.\n\nYou also get a friend training with you free for 4 sessions.\n\n105 days to use your sessions. Offer ends Friday at 11:59pm, then it goes back to regular price.\n\nReply LOCK and I'll send the payment link."};
 function NcBroadcast(p){
- var fs=React.useState(Object.assign({audience:'active',withImage:true},NC_BF)),f=fs[0],setF=fs[1];
+ var fs=React.useState(Object.assign({audience:'active',withImage:false,plain:true},NC_BF)),f=fs[0],setF=fs[1];
  var ps=React.useState(null),pv=ps[0],setPv=ps[1];
  var bs=React.useState(''),busy=bs[0],setBusy=bs[1];
  var ts=React.useState(''),tested=ts[0],setTested=ts[1];
  var gs=React.useState(null),prog=gs[0],setProg=gs[1];
  function set(k,v){var x=Object.assign({},f);x[k]=v;setF(x);if(k==='audience')setPv(null);if(k!=='audience')setTested('');}
- function payload(extra){return Object.assign({campaign:String(f.campaign||'').toLowerCase().replace(/[^a-z0-9-]/g,'-'),subject:f.subject,message:f.message,audience:f.audience,image:f.withImage?f.image:''},extra||{});}
+ function payload(extra){return Object.assign({campaign:String(f.campaign||'').toLowerCase().replace(/[^a-z0-9-]/g,'-'),subject:f.subject,message:f.message,audience:f.audience,plain:!!f.plain,image:f.withImage&&!f.plain?f.image:''},extra||{});}
  function preview(){setBusy('preview');ncApi('adminBroadcast',payload({step:'preview'})).then(function(j){setPv(j);p.say('');}).catch(function(e){p.say(e.message,true);}).then(function(){setBusy('');});}
  function test(){setBusy('test');ncApi('adminBroadcast',payload({step:'test'})).then(function(j){setTested(j.to||'your address');p.say('Test sent to '+(j.to||'your address')+'. Check the inbox and the spam folder.');}).catch(function(e){p.say('The test did not send: '+e.message,true);}).then(function(){setBusy('');});}
  function send(){
@@ -2231,8 +2231,9 @@ function NcBroadcast(p){
    h('option',{value:'all'},'Every client account'))),
   h('label',null,'Subject',h('input',{style:fld,maxLength:120,value:f.subject,onChange:function(e){set('subject',e.target.value);}})),
   h('label',null,'Message ([Name] becomes each client\'s first name)',h('textarea',{style:fld,rows:11,maxLength:1500,value:f.message,onChange:function(e){set('message',e.target.value);}})),
-  h('label',{style:{display:'flex',gap:'10px',alignItems:'center',minHeight:'44px'}},h('input',{type:'checkbox',checked:!!f.withImage,onChange:function(e){set('withImage',e.target.checked);}}),'Show the flyer at the top of the email'),
-  f.withImage?h('img',{src:f.image.replace('https://www.vfitbah.com',''),alt:'The flyer that will be shown in the email',style:{width:'160px',borderRadius:'10px',border:'1px solid var(--vf-border)'}}):null,
+  h('label',{style:{display:'flex',gap:'10px',alignItems:'center',minHeight:'44px'}},h('input',{type:'checkbox',checked:!!f.plain,onChange:function(e){set('plain',e.target.checked);}}),'Send as a plain personal email (no logo bar, no flyer). More likely to land in the main inbox.'),
+  f.plain?null:h('label',{style:{display:'flex',gap:'10px',alignItems:'center',minHeight:'44px'}},h('input',{type:'checkbox',checked:!!f.withImage,onChange:function(e){set('withImage',e.target.checked);}}),'Show the flyer at the top of the email'),
+  f.withImage&&!f.plain?h('img',{src:f.image.replace('https://www.vfitbah.com',''),alt:'The flyer that will be shown in the email',style:{width:'160px',borderRadius:'10px',border:'1px solid var(--vf-border)'}}):null,
   h('div',{style:{display:'flex',gap:'10px',flexWrap:'wrap'}},
    h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:!!busy,onClick:preview},busy==='preview'?'Checking...':'1. Check who gets it'),
    h('button',{type:'button',className:'vf26-btn vf26-btn-outline',disabled:!!busy,onClick:test},busy==='test'?'Sending test...':'2. Send a test to me')),
